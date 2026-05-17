@@ -15,18 +15,9 @@
     <url>https://github.com/alibaba/open-agent-auth</url>
 
     <modules>
-        <!-- Core Framework Modules -->
         <module>open-agent-auth-framework</module>
         <module>open-agent-auth-core</module>
         <module>open-agent-auth-spring-boot-starter</module>
-
-        <!-- Protocol Adapter Modules (Optional) -->
-        <module>open-agent-auth-mcp-adapter</module>
-
-        <!-- Sample Project Modules -->
-        <module>open-agent-auth-samples</module>
-
-        <!-- Integration Tests -->
         <module>open-agent-auth-integration-tests</module>
     </modules>
 
@@ -53,9 +44,6 @@
         <junit.version>5.10.1</junit.version>
         <mockito.version>5.20.0</mockito.version>
         <spring-boot-starter-test.version>3.3.11</spring-boot-starter-test.version>
-
-        <!-- MCP SDK (Only used in mcp-adapter module) -->
-        <mcp-sdk.version>0.14.1</mcp-sdk.version>
 
         <!-- Code Coverage -->
         <jacoco.version>0.8.12</jacoco.version>
@@ -91,13 +79,6 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- Protocol Adapter Modules -->
-            <dependency>
-                <groupId>com.alibaba.openagentauth</groupId>
-                <artifactId>open-agent-auth-mcp-adapter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
             <!-- External Dependencies -->
             <dependency>
                 <groupId>com.nimbusds</groupId>
@@ -108,11 +89,6 @@
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
                 <version>${oauth2-oidc-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.modelcontextprotocol.sdk</groupId>
-                <artifactId>mcp</artifactId>
-                <version>${mcp-sdk.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
