@@ -40,23 +40,25 @@ import java.security.spec.ECPoint;
 import java.text.ParseException;
 import java.util.Base64;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Validator for Workload Proof Tokens (WPT). Verifies the signature and validity of WPTs.
  */
 public class WptValidator {
 
-    /**
-     * Logger for this class.
-     */
     private static final Logger logger = LoggerFactory.getLogger(WptValidator.class);
 
     /**
-     * Creates a new WPT validator.
-     * The WPT is verified with the public key from the WIT's cnf.jwk claim.
+     * Cache from internal {@link Jwk} to its Nimbus {@link JWK} translation.
+     * Avoids re-running Base64 decode + BigInteger + anonymous ECPublicKey
+     * allocation on every WPT validation against the same cnf.jwk. {@code Jwk}
+     * is a record, so value-based equality keys this map correctly.
      */
+    private final ConcurrentHashMap<Jwk, JWK> jwkCache = new ConcurrentHashMap<>();
+
     public WptValidator() {
-        // No verification key needed - it will be extracted from WIT's cnf.jwk
+        // No verification key needed — it will be extracted from WIT's cnf.jwk
     }
 
     /**
@@ -145,16 +147,23 @@ public class WptValidator {
 
     /**
      * Converts the internal Jwk model to a NimbusDS JWK object.
-     *
-     * @param jwk the internal Jwk model
-     * @return the NimbusDS JWK object
-     * @throws JOSEException if conversion fails
+     * Caches by {@code Jwk} identity so repeated validations against the same
+     * cnf.jwk skip the Base64-decode + BigInteger + anonymous-key allocation.
      */
     private JWK convertToJWK(Jwk jwk) throws JOSEException {
         if (jwk == null) {
             throw new JOSEException("Jwk cannot be null");
         }
+        JWK cached = jwkCache.get(jwk);
+        if (cached != null) {
+            return cached;
+        }
+        JWK fresh = buildNimbusJwk(jwk);
+        jwkCache.putIfAbsent(jwk, fresh);
+        return fresh;
+    }
 
+    private JWK buildNimbusJwk(Jwk jwk) throws JOSEException {
         String keyId = jwk.keyId();
         String algorithm = jwk.algorithm();
 

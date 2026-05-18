@@ -16,8 +16,6 @@
 package com.alibaba.openagentauth.core.token.common;
 
 import com.alibaba.openagentauth.core.util.ValidationUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -30,49 +28,35 @@ import java.util.Base64;
  */
 public class JwtHashUtil {
 
-    /**
-     * Logger for this class.
-     */
-    private static final Logger logger = LoggerFactory.getLogger(JwtHashUtil.class);
+    private static final Base64.Encoder URL_ENCODER = Base64.getUrlEncoder().withoutPadding();
 
     /**
-     * Computes the SHA-256 hash of a JWT string.
-     * <p>
-     * The hash is computed using the following steps:
-     * <ol>
-     *   <li>Convert the JWT string to ASCII bytes</li>
-     *   <li>Compute SHA-256 hash of the bytes</li>
-     *   <li>Encode the hash using Base64URL encoding without padding</li>
-     * </ol>
-     * </p>
+     * Per-thread SHA-256 digest. {@link MessageDigest} is stateful and not thread-safe,
+     * so we cache one instance per thread and call {@link MessageDigest#reset()} between uses.
+     * SHA-256 is mandatory in every Java distribution, so the initial {@code getInstance}
+     * cannot fail in practice.
+     */
+    private static final ThreadLocal<MessageDigest> SHA256 = ThreadLocal.withInitial(() -> {
+        try {
+            return MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new AssertionError("SHA-256 must be present in every JRE", e);
+        }
+    });
+
+    /**
+     * Computes {@code BASE64URL(SHA-256(UTF-8(jwtString)))}.
      *
-     * @param jwtString the JWT string to hash
-     * @return the base64url-encoded SHA-256 hash
-     * @throws IllegalArgumentException if the JWT string is null or empty
-     * @throws IllegalStateException if SHA-256 algorithm is not available (should never happen)
+     * @throws IllegalArgumentException if the input is null or empty
      */
     public static String computeSha256Hash(String jwtString) {
-
-        // Validate input
         if (ValidationUtils.isNullOrEmpty(jwtString)) {
             throw new IllegalArgumentException("JWT string cannot be null or empty");
         }
-
-        try {
-            // Get SHA-256 message digest
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            
-            // Compute hash of the JWT string
-            byte[] hash = digest.digest(jwtString.getBytes(StandardCharsets.UTF_8));
-            
-            // Encode using Base64URL without padding
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
-            
-        } catch (NoSuchAlgorithmException e) {
-            // This should never happen as SHA-256 is required by Java specification
-            logger.error("SHA-256 algorithm not available - this should never happen", e);
-            throw new IllegalStateException("SHA-256 algorithm not available", e);
-        }
+        MessageDigest digest = SHA256.get();
+        digest.reset();
+        byte[] hash = digest.digest(jwtString.getBytes(StandardCharsets.UTF_8));
+        return URL_ENCODER.encodeToString(hash);
     }
 
     /**
