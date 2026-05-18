@@ -112,21 +112,6 @@ class WptSerializerTest {
             assertThat(payload).contains("\"ath\"");
         }
 
-        @Test
-        @DisplayName("Should serialize WPT with other token hashes")
-        void shouldSerializeWptWithOtherTokenHashes() throws JOSEException {
-            // Arrange
-            WorkloadProofToken wptWithOth = createTestWptWithOtherTokenHashes();
-
-            // Act
-            String jwtString = WptSerializer.serialize(wptWithOth, new ECDSASigner(signingKey));
-
-            // Assert
-            assertThat(jwtString).isNotNull();
-            String payload = new String(java.util.Base64.getUrlDecoder().decode(jwtString.split("\\.")[1]));
-            assertThat(payload).contains("\"oth\"");
-            assertThat(payload).contains("\"aoat\"");
-        }
     }
 
     @Nested
@@ -283,26 +268,4 @@ class WptSerializerTest {
                 .build();
     }
 
-    private WorkloadProofToken createTestWptWithOtherTokenHashes() {
-        WorkloadProofToken.Header header = WorkloadProofToken.Header.builder()
-                .type("wpt+jwt")
-                .algorithm("ES256")
-                .build();
-
-        Map<String, String> otherTokenHashes = Map.of("aoat", "test-aoat-hash");
-
-        WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
-                .expirationTime(new Date(System.currentTimeMillis() + 3600000))
-                .jwtId("test-jti-001")
-                .workloadTokenHash("test-wth-hash")
-                .otherTokenHashes(otherTokenHashes)
-                .build();
-
-        return WorkloadProofToken.builder()
-                .header(header)
-                .claims(claims)
-                .signature("test-signature")
-                .jwtString("test.wpt.jwt.string")
-                .build();
-    }
 }

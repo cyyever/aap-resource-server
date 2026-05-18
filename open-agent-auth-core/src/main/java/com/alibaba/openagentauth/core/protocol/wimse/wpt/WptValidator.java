@@ -39,7 +39,6 @@ import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECPoint;
 import java.text.ParseException;
 import java.util.Base64;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -110,14 +109,7 @@ public class WptValidator {
             return TokenValidationResult.failure(wthError);
         }
 
-        // 5. Verify the oth claim (other tokens hashes) if present
-        String othError = verifyOtherTokens(wpt, wit);
-        if (othError != null) {
-            logger.warn("WPT oth validation failed: {}", othError);
-            return TokenValidationResult.failure(othError);
-        }
-
-        // 6. Verify the signature of the WPT
+        // 5. Verify the signature of the WPT
         String signatureError = verifySignature(wpt, wit);
         if (signatureError != null) {
             logger.warn("WPT signature verification failed: {}", signatureError);
@@ -375,76 +367,6 @@ public class WptValidator {
             logger.error("Error calculating WIT hash", e);
             return "Error calculating WIT hash: " + e.getMessage();
         }
-    }
-
-    /**
-     * Verifies the oth (other tokens hashes) claim if present.
-     * The oth claim contains hashes of other tokens this WPT is bound to; if it contains
-     * entries not understood by the recipient, the WPT must be rejected.
-     *
-     * @param wpt the WorkloadProofToken
-     * @param wit the Workload Identity Token (used for context)
-     * @return error message if validation fails, null if valid or oth not present
-     */
-    private String verifyOtherTokens(WorkloadProofToken wpt, WorkloadIdentityToken wit) {
-        try {
-            // Check if oth claim is present
-            if (wpt.claims().otherTokenHashes() == null ||
-                wpt.claims().otherTokenHashes().isEmpty()) {
-                // oth is optional, so it's okay if not present
-                logger.debug("WPT does not contain oth claim, skipping validation");
-                return null;
-            }
-
-            Map<String, String> otherTokenHashes = wpt.claims().otherTokenHashes();
-            logger.debug("Validating WPT oth claim with {} token types", otherTokenHashes.size());
-
-            // Validate each token type in oth claim
-            for (Map.Entry<String, String> entry : otherTokenHashes.entrySet()) {
-                String tokenType = entry.getKey();
-                String expectedHash = entry.getValue();
-
-                String validationResult = validateOtherTokenType(tokenType, expectedHash);
-                if (validationResult != null) {
-                    return validationResult;
-                }
-            }
-
-            logger.debug("All oth claim entries validated successfully");
-            return null;
-
-        } catch (Exception e) {
-            logger.error("Error validating oth claim", e);
-            return "Error validating oth claim: " + e.getMessage();
-        }
-    }
-
-    /**
-     * Validates the format of a specific entry in the oth claim.
-     *
-     * @param tokenType the token type identifier
-     * @param expectedHash the expected hash value
-     * @return error message if validation fails, null if valid
-     */
-    private String validateOtherTokenType(String tokenType, String expectedHash) {
-
-        // Validate hash format
-        if (expectedHash == null || expectedHash.trim().isEmpty()) {
-            return "WPT oth claim has empty hash for token type: '%s'".formatted(tokenType);
-        }
-
-        // Validate token type format
-        if (tokenType == null || tokenType.trim().isEmpty()) {
-            return "WPT oth claim contains empty token type key";
-        }
-
-        // Validate token type follows naming conventions (lowercase, alphanumeric, hyphens, underscores)
-        if (!tokenType.matches("^[a-z0-9_-]+$")) {
-            return "WPT oth claim token type '%s' has invalid format".formatted(tokenType);
-        }
-
-        logger.debug("WPT oth claim contains valid entry for token type: {}", tokenType);
-        return null;
     }
 
     /**

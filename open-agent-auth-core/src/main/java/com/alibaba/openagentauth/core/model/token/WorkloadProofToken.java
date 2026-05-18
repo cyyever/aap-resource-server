@@ -20,13 +20,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Date;
-import java.util.Map;
 
 /**
  * Represents a Workload Proof Token (WPT). A WPT is a JWT that proves possession
  * of the private key corresponding to the public key in the associated Workload
- * Identity Token (WIT). It binds to the WIT via the {@code wth} claim and optionally
- * to other tokens via {@code oth}.
+ * Identity Token (WIT). It binds to the WIT via the {@code wth} claim.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record WorkloadProofToken(
@@ -50,7 +48,6 @@ public record WorkloadProofToken(
     public String getJwtId()              { return claims != null ? claims.jwtId()                : null; }
     public String getWorkloadTokenHash()  { return claims != null ? claims.workloadTokenHash()    : null; }
     public String getAccessTokenHash()    { return claims != null ? claims.accessTokenHash()      : null; }
-    public Map<String, String> getOtherTokenHashes() { return claims != null ? claims.otherTokenHashes() : null; }
 
     public boolean isExpired() { return claims != null && claims.isExpired(); }
     public boolean isValid()   { return claims != null && claims.isValid();   }
@@ -80,8 +77,7 @@ public record WorkloadProofToken(
             @JsonProperty("exp") Date expirationTime,
             @JsonProperty("jti") String jwtId,
             @JsonProperty("wth") String workloadTokenHash,
-            @JsonProperty("ath") String accessTokenHash,
-            @JsonProperty("oth") Map<String, String> otherTokenHashes) {
+            @JsonProperty("ath") String accessTokenHash) {
 
         public Claims {
             if (workloadTokenHash == null || workloadTokenHash.isEmpty()) {
@@ -105,18 +101,15 @@ public record WorkloadProofToken(
             private String jwtId;
             private String workloadTokenHash;
             private String accessTokenHash;
-            private Map<String, String> otherTokenHashes;
 
-            public ClaimsBuilder audience(String audience)                              { this.audience = audience;                       return this; }
-            public ClaimsBuilder expirationTime(Date expirationTime)                    { this.expirationTime = expirationTime;           return this; }
-            public ClaimsBuilder jwtId(String jwtId)                                    { this.jwtId = jwtId;                             return this; }
-            public ClaimsBuilder workloadTokenHash(String workloadTokenHash)            { this.workloadTokenHash = workloadTokenHash;     return this; }
-            public ClaimsBuilder accessTokenHash(String accessTokenHash)                { this.accessTokenHash = accessTokenHash;         return this; }
-            public ClaimsBuilder otherTokenHashes(Map<String, String> otherTokenHashes) { this.otherTokenHashes = otherTokenHashes;       return this; }
+            public ClaimsBuilder audience(String audience)                   { this.audience = audience;                   return this; }
+            public ClaimsBuilder expirationTime(Date expirationTime)         { this.expirationTime = expirationTime;       return this; }
+            public ClaimsBuilder jwtId(String jwtId)                         { this.jwtId = jwtId;                         return this; }
+            public ClaimsBuilder workloadTokenHash(String workloadTokenHash) { this.workloadTokenHash = workloadTokenHash; return this; }
+            public ClaimsBuilder accessTokenHash(String accessTokenHash)     { this.accessTokenHash = accessTokenHash;     return this; }
 
             public Claims build() {
-                return new Claims(audience, expirationTime, jwtId, workloadTokenHash,
-                        accessTokenHash, otherTokenHashes);
+                return new Claims(audience, expirationTime, jwtId, workloadTokenHash, accessTokenHash);
             }
         }
     }

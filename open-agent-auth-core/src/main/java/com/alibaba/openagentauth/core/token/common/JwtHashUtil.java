@@ -83,18 +83,6 @@ public class JwtHashUtil {
         return computeSha256Hash(accessToken);
     }
 
-    /**
-     * Computes the SHA-256 hash of a token used in the WPT oth (other tokens hashes) claim.
-     *
-     * @param aoatToken the token to hash (JWT string)
-     * @return the base64url-encoded SHA-256 hash of the token
-     * @throws IllegalArgumentException if the token is null or empty
-     * @throws IllegalStateException if SHA-256 algorithm is not available
-     */
-    public static String computeAoatHash(String aoatToken) {
-        return computeSha256Hash(aoatToken);
-    }
-
     // Private constructor to prevent instantiation
     private JwtHashUtil() {
         throw new UnsupportedOperationException("Utility class cannot be instantiated");

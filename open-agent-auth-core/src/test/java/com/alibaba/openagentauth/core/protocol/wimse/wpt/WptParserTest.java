@@ -114,7 +114,6 @@ class WptParserTest {
 
             // Then
             assertThat(wpt.claims().accessTokenHash()).isNotNull();
-            assertThat(wpt.claims().otherTokenHashes()).isNotNull();
         }
 
         @Test
@@ -246,22 +245,6 @@ class WptParserTest {
         }
 
         @Test
-        @DisplayName("Should parse other token hashes claim correctly")
-        void shouldParseOtherTokenHashesClaimCorrectly() throws Exception {
-            // Given
-            String wptJwt = createWptWithOptionalClaims();
-
-            // When
-            WorkloadProofToken wpt = wptParser.parse(wptJwt);
-
-            // Then
-            assertThat(wpt.claims().otherTokenHashes()).isNotNull();
-            assertThat(wpt.claims().otherTokenHashes()).hasSize(2);
-            assertThat(wpt.claims().otherTokenHashes()).containsKey("custom-token-1");
-            assertThat(wpt.claims().otherTokenHashes()).containsKey("custom-token-2");
-        }
-
-        @Test
         @DisplayName("Should handle null optional claims")
         void shouldHandleNullOptionalClaims() throws Exception {
             // Given
@@ -272,7 +255,6 @@ class WptParserTest {
 
             // Then
             assertThat(wpt.claims().accessTokenHash()).isNull();
-            assertThat(wpt.claims().otherTokenHashes()).isNull();
         }
     }
 
@@ -347,8 +329,6 @@ class WptParserTest {
         // Create a valid WPT with required claims
         Instant expirationTime = Instant.now().plusSeconds(3600);
 
-        Map<String, Object> otherTokenHashes = null;
-
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .audience("resource-server")
                 .expirationTime(Date.from(expirationTime))
@@ -372,17 +352,12 @@ class WptParserTest {
         // Create a WPT with all optional claims
         Instant expirationTime = Instant.now().plusSeconds(3600);
 
-        Map<String, String> otherTokenHashes = new HashMap<>();
-        otherTokenHashes.put("custom-token-1", computeHash("custom-token-1-value"));
-        otherTokenHashes.put("custom-token-2", computeHash("custom-token-2-value"));
-
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .audience("resource-server")
                 .expirationTime(Date.from(expirationTime))
                 .jwtID(java.util.UUID.randomUUID().toString())
                 .claim("wth", computeHash(sampleWit))
                 .claim("ath", computeHash(sampleAccessToken))
-                .claim("oth", otherTokenHashes)
                 .build();
 
         SignedJWT signedJwt = new SignedJWT(

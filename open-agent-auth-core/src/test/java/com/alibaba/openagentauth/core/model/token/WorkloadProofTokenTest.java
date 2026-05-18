@@ -368,16 +368,12 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should build claims with all fields")
         void shouldBuildClaimsWithAllFields() {
-            Map<String, String> otherTokenHashes = new HashMap<>();
-            otherTokenHashes.put("custom-token", "hash123");
-
             WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
                     .audience("https://resource-server.example.com")
                     .expirationTime(futureExpirationTime)
                     .jwtId("test-jti")
                     .workloadTokenHash("abc123")
                     .accessTokenHash("xyz789")
-                    .otherTokenHashes(otherTokenHashes)
                     .build();
 
             assertThat(claims.audience()).isEqualTo("https://resource-server.example.com");
@@ -385,7 +381,6 @@ class WorkloadProofTokenTest {
             assertThat(claims.jwtId()).isEqualTo("test-jti");
             assertThat(claims.workloadTokenHash()).isEqualTo("abc123");
             assertThat(claims.accessTokenHash()).isEqualTo("xyz789");
-            assertThat(claims.otherTokenHashes()).isEqualTo(otherTokenHashes);
         }
 
         @Test
@@ -400,7 +395,6 @@ class WorkloadProofTokenTest {
             assertThat(claims.jwtId()).isNull();
             assertThat(claims.workloadTokenHash()).isEqualTo("abc123");
             assertThat(claims.accessTokenHash()).isNull();
-            assertThat(claims.otherTokenHashes()).isNull();
         }
 
         @Test
@@ -551,53 +545,18 @@ class WorkloadProofTokenTest {
         }
 
         @Test
-        @DisplayName("Should handle other token hashes")
-        void shouldHandleOtherTokenHashes() {
-            Map<String, String> otherTokenHashes = new HashMap<>();
-            otherTokenHashes.put("token-type-1", "hash1");
-            otherTokenHashes.put("token-type-2", "hash2");
-
-            WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
-                    .workloadTokenHash("wit-hash")
-                    .otherTokenHashes(otherTokenHashes)
-                    .build();
-
-            assertThat(claims.otherTokenHashes()).hasSize(2);
-            assertThat(claims.otherTokenHashes()).containsEntry("token-type-1", "hash1");
-            assertThat(claims.otherTokenHashes()).containsEntry("token-type-2", "hash2");
-        }
-
-        @Test
-        @DisplayName("Should handle empty other token hashes map")
-        void shouldHandleEmptyOtherTokenHashesMap() {
-            Map<String, String> emptyMap = new HashMap<>();
-
-            WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
-                    .workloadTokenHash("wit-hash")
-                    .otherTokenHashes(emptyMap)
-                    .build();
-
-            assertThat(claims.otherTokenHashes()).isEmpty();
-        }
-
-        @Test
         @DisplayName("Should handle all token hash combinations")
         void shouldHandleAllTokenHashCombinations() {
-            Map<String, String> otherTokenHashes = new HashMap<>();
-            otherTokenHashes.put("custom", "custom-hash");
-
             WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
                     .audience("https://example.com")
                     .expirationTime(futureExpirationTime)
                     .jwtId("jti-123")
                     .workloadTokenHash("wit-hash")
                     .accessTokenHash("at-hash")
-                    .otherTokenHashes(otherTokenHashes)
                     .build();
 
             assertThat(claims.workloadTokenHash()).isEqualTo("wit-hash");
             assertThat(claims.accessTokenHash()).isEqualTo("at-hash");
-            assertThat(claims.otherTokenHashes()).hasSize(1);
         }
     }
 
@@ -693,22 +652,6 @@ class WorkloadProofTokenTest {
         }
 
         @Test
-        @DisplayName("Should handle null other token hashes")
-        void shouldHandleNullOtherTokenHashes() {
-            WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
-                    .workloadTokenHash("abc123")
-                    .otherTokenHashes(null)
-                    .build();
-
-            WorkloadProofToken token = WorkloadProofToken.builder()
-                    .header(validHeader)
-                    .claims(claims)
-                    .build();
-
-            assertThat(token.getOtherTokenHashes()).isNull();
-        }
-
-        @Test
         @DisplayName("Should handle claims with only required field")
         void shouldHandleClaimsWithOnlyRequiredField() {
             WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
@@ -720,7 +663,6 @@ class WorkloadProofTokenTest {
             assertThat(claims.expirationTime()).isNull();
             assertThat(claims.jwtId()).isNull();
             assertThat(claims.accessTokenHash()).isNull();
-            assertThat(claims.otherTokenHashes()).isNull();
         }
     }
 }

@@ -103,9 +103,6 @@ public class WptSerializer {
             if (wpt.claims().accessTokenHash() != null) {
                 claimsBuilder.claim("ath", wpt.claims().accessTokenHash());
             }
-            if (wpt.claims().otherTokenHashes() != null) {
-                claimsBuilder.claim("oth", wpt.claims().otherTokenHashes());
-            }
 
             JWTClaimsSet claimsSet = claimsBuilder.build();
 

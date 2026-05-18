@@ -32,8 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -63,10 +61,6 @@ public class WptGenerator {
 
     /**
      * Generates a Workload Proof Token for an HTTP request.
-     * <p>
-     * This is the primary method that returns the structured WorkloadProofToken object.
-     * Use this method when you need access to the token's structured representation.
-     * </p>
      *
      * @param wit the Workload Identity Token
      * @param wptPrivateKey the private key corresponding to WIT's cnf.jwk for signing WPT
@@ -75,65 +69,29 @@ public class WptGenerator {
      * @throws JOSEException if token generation fails
      */
     public WorkloadProofToken generateWpt(
-            WorkloadIdentityToken wit, 
-            JWK wptPrivateKey, 
+            WorkloadIdentityToken wit,
+            JWK wptPrivateKey,
             long expirationSeconds
     ) throws JOSEException {
-        return generateWpt(wit, wptPrivateKey, expirationSeconds, null);
-    }
 
-    /**
-     * Generates a Workload Proof Token for an HTTP request with optional token binding.
-     * Any token implementing {@link OthBindableToken} can be bound to the WPT via the
-     * oth (other tokens hashes) claim.
-     *
-     * @param wit the Workload Identity Token
-     * @param wptPrivateKey the private key corresponding to WIT's cnf.jwk for signing WPT
-     * @param expirationSeconds the WPT expiration time in seconds from now
-     * @param othBindableToken the optional token to bind to the WPT
-     * @return a WorkloadProofToken object
-     * @throws JOSEException if token generation fails
-     */
-    public WorkloadProofToken generateWpt(
-            WorkloadIdentityToken wit, 
-            JWK wptPrivateKey, 
-            long expirationSeconds, 
-            OthBindableToken othBindableToken
-    ) throws JOSEException {
-
-        // Validate arguments
         ValidationUtils.validateNotNull(wit, "WIT");
         ValidationUtils.validateNotNull(wptPrivateKey, "WPT private key");
         if (expirationSeconds <= 0) {
             throw new IllegalArgumentException("Expiration seconds must be positive");
         }
 
-        // Calculate expiration time
         Instant now = Instant.now();
         Instant expiration = now.plusSeconds(expirationSeconds);
 
-        // Use the JWT string to calculate hash (wth)
         String witJwtString = wit.jwtString();
         if (ValidationUtils.isNullOrEmpty(witJwtString)) {
             throw new JOSEException("WIT missing JWT string, cannot compute wth");
         }
         String wth = JwtHashUtil.computeWitHash(witJwtString);
 
-        // Extract algorithm from WIT's cnf.jwk.alg
         String algorithm = extractAlgorithmFromWit(wit);
 
-        // Build other token hashes (oth) if a bindable token is provided
-        Map<String, String> otherTokenHashes = null;
-        if (othBindableToken != null) {
-            otherTokenHashes = buildOtherTokenHashes(othBindableToken);
-            logger.debug("WPT will be bound to token type {} with hash: {}", 
-                othBindableToken.getTokenType(), otherTokenHashes.get(othBindableToken.getTokenType()));
-        }
-
-        // Build structured WPT object first, then sign and serialize
-        WorkloadProofToken wpt = buildWptObject(wth, expiration, algorithm, otherTokenHashes);
-
-        // Sign and serialize the WPT using the private key corresponding to WIT's cnf.jwk
+        WorkloadProofToken wpt = buildWptObject(wth, expiration, algorithm);
         wpt = signAndSerializeWpt(wpt, wptPrivateKey);
 
         logger.debug("Successfully generated and signed WPT: {}", wpt.jwtString());
@@ -142,63 +100,9 @@ public class WptGenerator {
 
     /**
      * Generates a Workload Proof Token and returns it as a JWT string.
-     * <p>
-     * This is a convenience method that returns the JWT string representation
-     * of the WPT. Use this method when you only need the serialized JWT string.
-     * </p>
-     *
-     * @param wit the Workload Identity Token
-     * @param wptPrivateKey the private key corresponding to WIT's cnf.jwk for signing WPT
-     * @param expirationSeconds the WPT expiration time in seconds from now
-     * @return a signed JWT string representing the WPT
-     * @throws JOSEException if token generation fails
      */
     public String generateWptAsString(WorkloadIdentityToken wit, JWK wptPrivateKey, long expirationSeconds) throws JOSEException {
-        return generateWptAsString(wit, wptPrivateKey, expirationSeconds, null);
-    }
-
-    /**
-     * Generates a Workload Proof Token and returns it as a JWT string with optional token binding.
-     *
-     * @param wit the Workload Identity Token
-     * @param wptPrivateKey the private key corresponding to WIT's cnf.jwk for signing WPT
-     * @param expirationSeconds the WPT expiration time in seconds from now
-     * @param othBindableToken the optional token to bind to the WPT
-     * @return a signed JWT string representing the WPT
-     * @throws JOSEException if token generation fails
-     */
-    public String generateWptAsString(WorkloadIdentityToken wit, JWK wptPrivateKey, long expirationSeconds, OthBindableToken othBindableToken) throws JOSEException {
-        WorkloadProofToken wpt = generateWpt(wit, wptPrivateKey, expirationSeconds, othBindableToken);
-        return wpt.jwtString();
-    }
-
-    /**
-     * Builds the other token hashes (oth) claim for the WPT.
-     *
-     * @param othBindableToken the token to bind to the WPT
-     * @return a map of token type to token hash
-     * @throws JOSEException if hash computation fails
-     */
-    private Map<String, String> buildOtherTokenHashes(OthBindableToken othBindableToken) throws JOSEException {
-        if (othBindableToken == null) {
-            return null;
-        }
-
-        Map<String, String> otherTokenHashes = new HashMap<>();
-
-        // Get the token's JWT string
-        String tokenJwtString = othBindableToken.getJwtString();
-        if (tokenJwtString == null || tokenJwtString.isEmpty()) {
-            throw new JOSEException("Token missing JWT string, cannot compute hash");
-        }
-
-        // Compute the token hash using the standard hash computation method
-        String tokenHash = JwtHashUtil.computeAoatHash(tokenJwtString);
-        otherTokenHashes.put(othBindableToken.getTokenType(), tokenHash);
-
-        logger.debug("Computed token hash for WPT oth claim: type={}, hash={}", 
-            othBindableToken.getTokenType(), tokenHash);
-        return otherTokenHashes;
+        return generateWpt(wit, wptPrivateKey, expirationSeconds).jwtString();
     }
 
     /**
@@ -228,36 +132,19 @@ public class WptGenerator {
         return algorithm;
     }
 
-    /**
-     * Builds a WorkloadProofToken object from the claims.
-     *
-     * @param wth        the Workload Identity Token hash
-     * @param expiration the expiration time
-     * @param algorithm  the algorithm name from WIT's cnf.jwk.alg
-     * @param otherTokenHashes the optional other token hashes (oth claim)
-     * @return the WorkloadProofToken object
-     */
-    private WorkloadProofToken buildWptObject(String wth, Instant expiration, String algorithm, Map<String, String> otherTokenHashes) {
-
-        // Build WPT claims
-        String jwtId = UUID.randomUUID().toString();
-        WorkloadProofToken.Claims.ClaimsBuilder claimsBuilder = WorkloadProofToken.Claims.builder()
+    private WorkloadProofToken buildWptObject(String wth, Instant expiration, String algorithm) {
+        WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
                 .workloadTokenHash(wth)
                 .expirationTime(Date.from(expiration))
-                .jwtId(jwtId);
+                .jwtId(UUID.randomUUID().toString())
+                .build();
 
-        // Add other token hashes if provided
-        if (otherTokenHashes != null && !otherTokenHashes.isEmpty()) {
-            claimsBuilder.otherTokenHashes(otherTokenHashes);
-        }
-
-        // Assemble WPT
         return WorkloadProofToken.builder()
                 .header(WorkloadProofToken.Header.builder()
                         .type(MEDIA_TYPE)
                         .algorithm(algorithm)
                         .build())
-                .claims(claimsBuilder.build())
+                .claims(claims)
                 .build();
     }
 

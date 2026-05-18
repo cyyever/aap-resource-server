@@ -23,8 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Parser for Workload Proof Tokens (WPT). Converts signed JWT strings into
@@ -102,7 +100,6 @@ public class WptParser {
                 .jwtId(claimsSet.getJWTID())
                 .workloadTokenHash(getStringClaim(claimsSet, "wth"))
                 .accessTokenHash(getStringClaim(claimsSet, "ath"))
-                .otherTokenHashes(getOtherTokenHashes(claimsSet))
                 .build();
 
         // Build WPT
@@ -127,32 +124,6 @@ public class WptParser {
             return null;
         }
         return value.toString();
-    }
-
-    /**
-     * Gets the other token hashes (oth) claim from the claims set.
-     *
-     * @param claimsSet the JWT claims set
-     * @return a map of token type to hash, or null if not present
-     * @throws ParseException if claims parsing fails
-     */
-    @SuppressWarnings("unchecked")
-    private Map<String, String> getOtherTokenHashes(JWTClaimsSet claimsSet) throws ParseException {
-
-        // Get oth claim
-        Map<String, Object> othClaim = claimsSet.getJSONObjectClaim("oth");
-        if (othClaim == null) {
-            return null;
-        }
-
-        // Convert to map of string to string
-        Map<String, String> result = new HashMap<>();
-        for (Map.Entry<String, Object> entry : othClaim.entrySet()) {
-            if (entry.getValue() != null) {
-                result.put(entry.getKey(), entry.getValue().toString());
-            }
-        }
-        return result;
     }
 
 }
