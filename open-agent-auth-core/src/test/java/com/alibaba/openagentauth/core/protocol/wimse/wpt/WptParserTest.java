@@ -114,7 +114,6 @@ class WptParserTest {
 
             // Then
             assertThat(wpt.claims().accessTokenHash()).isNotNull();
-            assertThat(wpt.claims().transactionTokenHash()).isNotNull();
             assertThat(wpt.claims().otherTokenHashes()).isNotNull();
         }
 
@@ -247,19 +246,6 @@ class WptParserTest {
         }
 
         @Test
-        @DisplayName("Should parse transaction token hash claim correctly")
-        void shouldParseTransactionTokenHashClaimCorrectly() throws Exception {
-            // Given
-            String wptJwt = createWptWithOptionalClaims();
-
-            // When
-            WorkloadProofToken wpt = wptParser.parse(wptJwt);
-
-            // Then
-            assertThat(wpt.claims().transactionTokenHash()).isNotNull();
-        }
-
-        @Test
         @DisplayName("Should parse other token hashes claim correctly")
         void shouldParseOtherTokenHashesClaimCorrectly() throws Exception {
             // Given
@@ -286,7 +272,6 @@ class WptParserTest {
 
             // Then
             assertThat(wpt.claims().accessTokenHash()).isNull();
-            assertThat(wpt.claims().transactionTokenHash()).isNull();
             assertThat(wpt.claims().otherTokenHashes()).isNull();
         }
     }
@@ -397,7 +382,6 @@ class WptParserTest {
                 .jwtID(java.util.UUID.randomUUID().toString())
                 .claim("wth", computeHash(sampleWit))
                 .claim("ath", computeHash(sampleAccessToken))
-                .claim("tth", computeHash("transaction-token"))
                 .claim("oth", otherTokenHashes)
                 .build();
 

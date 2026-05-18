@@ -50,7 +50,6 @@ public record WorkloadProofToken(
     public String getJwtId()              { return claims != null ? claims.jwtId()                : null; }
     public String getWorkloadTokenHash()  { return claims != null ? claims.workloadTokenHash()    : null; }
     public String getAccessTokenHash()    { return claims != null ? claims.accessTokenHash()      : null; }
-    public String getTransactionTokenHash(){ return claims != null ? claims.transactionTokenHash(): null; }
     public Map<String, String> getOtherTokenHashes() { return claims != null ? claims.otherTokenHashes() : null; }
 
     public boolean isExpired() { return claims != null && claims.isExpired(); }
@@ -82,7 +81,6 @@ public record WorkloadProofToken(
             @JsonProperty("jti") String jwtId,
             @JsonProperty("wth") String workloadTokenHash,
             @JsonProperty("ath") String accessTokenHash,
-            @JsonProperty("tth") String transactionTokenHash,
             @JsonProperty("oth") Map<String, String> otherTokenHashes) {
 
         public Claims {
@@ -107,7 +105,6 @@ public record WorkloadProofToken(
             private String jwtId;
             private String workloadTokenHash;
             private String accessTokenHash;
-            private String transactionTokenHash;
             private Map<String, String> otherTokenHashes;
 
             public ClaimsBuilder audience(String audience)                              { this.audience = audience;                       return this; }
@@ -115,12 +112,11 @@ public record WorkloadProofToken(
             public ClaimsBuilder jwtId(String jwtId)                                    { this.jwtId = jwtId;                             return this; }
             public ClaimsBuilder workloadTokenHash(String workloadTokenHash)            { this.workloadTokenHash = workloadTokenHash;     return this; }
             public ClaimsBuilder accessTokenHash(String accessTokenHash)                { this.accessTokenHash = accessTokenHash;         return this; }
-            public ClaimsBuilder transactionTokenHash(String transactionTokenHash)      { this.transactionTokenHash = transactionTokenHash; return this; }
             public ClaimsBuilder otherTokenHashes(Map<String, String> otherTokenHashes) { this.otherTokenHashes = otherTokenHashes;       return this; }
 
             public Claims build() {
                 return new Claims(audience, expirationTime, jwtId, workloadTokenHash,
-                        accessTokenHash, transactionTokenHash, otherTokenHashes);
+                        accessTokenHash, otherTokenHashes);
             }
         }
     }

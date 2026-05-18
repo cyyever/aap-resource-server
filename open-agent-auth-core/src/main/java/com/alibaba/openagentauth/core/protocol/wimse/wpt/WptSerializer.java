@@ -103,9 +103,6 @@ public class WptSerializer {
             if (wpt.claims().accessTokenHash() != null) {
                 claimsBuilder.claim("ath", wpt.claims().accessTokenHash());
             }
-            if (wpt.claims().transactionTokenHash() != null) {
-                claimsBuilder.claim("tth", wpt.claims().transactionTokenHash());
-            }
             if (wpt.claims().otherTokenHashes() != null) {
                 claimsBuilder.claim("oth", wpt.claims().otherTokenHashes());
             }

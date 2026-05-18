@@ -84,18 +84,6 @@ public class JwtHashUtil {
     }
 
     /**
-     * Computes the Transaction Token hash (tth).
-     *
-     * @param transactionToken the transaction token
-     * @return the base64url-encoded SHA-256 hash of the transaction token
-     * @throws IllegalArgumentException if the transaction token is null or empty
-     * @throws IllegalStateException if SHA-256 algorithm is not available
-     */
-    public static String computeTransactionTokenHash(String transactionToken) {
-        return computeSha256Hash(transactionToken);
-    }
-
-    /**
      * Computes the SHA-256 hash of a token used in the WPT oth (other tokens hashes) claim.
      *
      * @param aoatToken the token to hash (JWT string)

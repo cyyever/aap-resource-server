@@ -102,7 +102,6 @@ public class WptParser {
                 .jwtId(claimsSet.getJWTID())
                 .workloadTokenHash(getStringClaim(claimsSet, "wth"))
                 .accessTokenHash(getStringClaim(claimsSet, "ath"))
-                .transactionTokenHash(getStringClaim(claimsSet, "tth"))
                 .otherTokenHashes(getOtherTokenHashes(claimsSet))
                 .build();
 

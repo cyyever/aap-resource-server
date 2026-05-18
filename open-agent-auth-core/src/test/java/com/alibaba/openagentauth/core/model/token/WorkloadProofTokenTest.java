@@ -70,7 +70,6 @@ class WorkloadProofTokenTest {
                 .jwtId("test-jti-456")
                 .workloadTokenHash("abc123def456")
                 .accessTokenHash("xyz789uvw012")
-                .transactionTokenHash("mno345pqr678")
                 .build();
     }
 
@@ -378,7 +377,6 @@ class WorkloadProofTokenTest {
                     .jwtId("test-jti")
                     .workloadTokenHash("abc123")
                     .accessTokenHash("xyz789")
-                    .transactionTokenHash("mno345")
                     .otherTokenHashes(otherTokenHashes)
                     .build();
 
@@ -387,7 +385,6 @@ class WorkloadProofTokenTest {
             assertThat(claims.jwtId()).isEqualTo("test-jti");
             assertThat(claims.workloadTokenHash()).isEqualTo("abc123");
             assertThat(claims.accessTokenHash()).isEqualTo("xyz789");
-            assertThat(claims.transactionTokenHash()).isEqualTo("mno345");
             assertThat(claims.otherTokenHashes()).isEqualTo(otherTokenHashes);
         }
 
@@ -403,7 +400,6 @@ class WorkloadProofTokenTest {
             assertThat(claims.jwtId()).isNull();
             assertThat(claims.workloadTokenHash()).isEqualTo("abc123");
             assertThat(claims.accessTokenHash()).isNull();
-            assertThat(claims.transactionTokenHash()).isNull();
             assertThat(claims.otherTokenHashes()).isNull();
         }
 
@@ -555,17 +551,6 @@ class WorkloadProofTokenTest {
         }
 
         @Test
-        @DisplayName("Should handle transaction token hash")
-        void shouldHandleTransactionTokenHash() {
-            WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
-                    .workloadTokenHash("wit-hash")
-                    .transactionTokenHash("tt-hash-789")
-                    .build();
-
-            assertThat(claims.transactionTokenHash()).isEqualTo("tt-hash-789");
-        }
-
-        @Test
         @DisplayName("Should handle other token hashes")
         void shouldHandleOtherTokenHashes() {
             Map<String, String> otherTokenHashes = new HashMap<>();
@@ -607,13 +592,11 @@ class WorkloadProofTokenTest {
                     .jwtId("jti-123")
                     .workloadTokenHash("wit-hash")
                     .accessTokenHash("at-hash")
-                    .transactionTokenHash("tt-hash")
                     .otherTokenHashes(otherTokenHashes)
                     .build();
 
             assertThat(claims.workloadTokenHash()).isEqualTo("wit-hash");
             assertThat(claims.accessTokenHash()).isEqualTo("at-hash");
-            assertThat(claims.transactionTokenHash()).isEqualTo("tt-hash");
             assertThat(claims.otherTokenHashes()).hasSize(1);
         }
     }
@@ -737,7 +720,6 @@ class WorkloadProofTokenTest {
             assertThat(claims.expirationTime()).isNull();
             assertThat(claims.jwtId()).isNull();
             assertThat(claims.accessTokenHash()).isNull();
-            assertThat(claims.transactionTokenHash()).isNull();
             assertThat(claims.otherTokenHashes()).isNull();
         }
     }

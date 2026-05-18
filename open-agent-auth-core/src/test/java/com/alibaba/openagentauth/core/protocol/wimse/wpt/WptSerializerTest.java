@@ -113,21 +113,6 @@ class WptSerializerTest {
         }
 
         @Test
-        @DisplayName("Should serialize WPT with transaction token hash")
-        void shouldSerializeWptWithTransactionTokenHash() throws JOSEException {
-            // Arrange
-            WorkloadProofToken wptWithTth = createTestWptWithTransactionTokenHash();
-
-            // Act
-            String jwtString = WptSerializer.serialize(wptWithTth, new ECDSASigner(signingKey));
-
-            // Assert
-            assertThat(jwtString).isNotNull();
-            String payload = new String(java.util.Base64.getUrlDecoder().decode(jwtString.split("\\.")[1]));
-            assertThat(payload).contains("\"tth\"");
-        }
-
-        @Test
         @DisplayName("Should serialize WPT with other token hashes")
         void shouldSerializeWptWithOtherTokenHashes() throws JOSEException {
             // Arrange
@@ -288,27 +273,6 @@ class WptSerializerTest {
                 .jwtId("test-jti-001")
                 .workloadTokenHash("test-wth-hash")
                 .accessTokenHash("test-ath-hash")
-                .build();
-
-        return WorkloadProofToken.builder()
-                .header(header)
-                .claims(claims)
-                .signature("test-signature")
-                .jwtString("test.wpt.jwt.string")
-                .build();
-    }
-
-    private WorkloadProofToken createTestWptWithTransactionTokenHash() {
-        WorkloadProofToken.Header header = WorkloadProofToken.Header.builder()
-                .type("wpt+jwt")
-                .algorithm("ES256")
-                .build();
-
-        WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
-                .expirationTime(new Date(System.currentTimeMillis() + 3600000))
-                .jwtId("test-jti-001")
-                .workloadTokenHash("test-wth-hash")
-                .transactionTokenHash("test-tth-hash")
                 .build();
 
         return WorkloadProofToken.builder()
