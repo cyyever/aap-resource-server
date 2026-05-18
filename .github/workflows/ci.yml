@@ -36,7 +36,7 @@ jobs:
         run: mvn clean verify -B -ntp
 
       - name: Publish Test Results
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2
         if: >-
           always()
           && (steps.build.outcome == 'success' || steps.build.outcome == 'failure')
