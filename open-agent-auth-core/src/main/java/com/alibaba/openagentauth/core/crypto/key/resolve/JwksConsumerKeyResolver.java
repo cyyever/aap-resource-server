@@ -22,7 +22,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URL;
+import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
@@ -140,7 +140,7 @@ public class JwksConsumerKeyResolver implements KeyResolver {
             }
             logger.info("Fetching JWKS from consumer '{}': {}", name, jwksEndpoint);
             try {
-                JWKSet set = JWKSet.load(new URL(jwksEndpoint));
+                JWKSet set = JWKSet.load(URI.create(jwksEndpoint).toURL());
                 return new CachedJwks(set, Instant.now().plus(jwksTtl));
             } catch (Exception e) {
                 throw new RuntimeException(

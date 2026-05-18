@@ -25,7 +25,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- JWT -->
-        <nimbus-jose-jwt.version>9.37.4</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>10.9</nimbus-jose-jwt.version>
 
         <!-- JSON -->
         <jackson.version>2.16.1</jackson.version>
