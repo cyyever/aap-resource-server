@@ -30,21 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Utility class for JWT signature verification.
- * <p>
- * Centralizes the common signature verification logic shared across
- * {@code WitValidator} and {@code DefaultIdTokenValidator}.
- * This eliminates code duplication and provides a single point of maintenance
- * for verification key resolution and verifier creation.
- * </p>
- * <p>
- * The verification flow:
- * <ol>
- *   <li>Resolve the verification key from {@link KeyManager} by key ID</li>
- *   <li>Create the appropriate {@link JWSVerifier} based on key type (RSA or EC)</li>
- *   <li>Verify the JWT signature</li>
- * </ol>
- * </p>
+ * Resolves a verification key from {@link KeyManager} and verifies a JWT signature.
  *
  * @since 1.0
  */

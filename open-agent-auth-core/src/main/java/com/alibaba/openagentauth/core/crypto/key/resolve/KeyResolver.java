@@ -41,28 +41,6 @@ import com.nimbusds.jose.jwk.JWK;
  *   <li>{@link JwksConsumerKeyResolver} — resolves keys from remote JWKS endpoints</li>
  * </ul>
  *
- * <p><b>Custom Extension Example:</b></p>
- * <pre>{@code
- * @Component
- * public class VaultKeyResolver implements KeyResolver {
- *
- *     @Override
- *     public boolean supports(KeyDefinition keyDefinition) {
- *         return "vault".equals(keyDefinition.getProvider());
- *     }
- *
- *     @Override
- *     public JWK resolve(KeyDefinition keyDefinition) throws KeyResolutionException {
- *         // Fetch key from HashiCorp Vault
- *     }
- *
- *     @Override
- *     public int getOrder() {
- *         return 100; // Lower priority than built-in resolvers
- *     }
- * }
- * }</pre>
- *
  * @see KeyDefinition
  * @see LocalKeyResolver
  * @see JwksConsumerKeyResolver

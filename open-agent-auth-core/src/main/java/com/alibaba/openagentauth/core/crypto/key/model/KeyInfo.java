@@ -19,17 +19,8 @@ import java.time.Instant;
 import java.util.Objects;
 
 /**
- * Represents metadata information about a cryptographic key.
- * <p>
- * This class encapsulates all metadata associated with a key, including its identifier,
- * algorithm, creation time, activation status, and rotation information. This metadata
- * is used for key lifecycle management and auditing purposes.
- * </p>
- * <p>
- * <b>Immutable Design:</b></p>
- * This class is immutable to ensure thread safety and prevent accidental modifications.
- * Use the {@link Builder} to create new instances.
- * </p>
+ * Immutable metadata about a cryptographic key (identifier, algorithm, lifecycle timestamps,
+ * active flag, rotation lineage). Construct via {@link Builder}.
  *
  * @since 1.0
  */

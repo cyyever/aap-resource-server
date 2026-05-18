@@ -19,21 +19,7 @@ import com.alibaba.openagentauth.core.crypto.signature.Signer;
 import com.alibaba.openagentauth.core.crypto.signature.Verifier;
 
 /**
- * Exception thrown when a signature operation fails.
- * <p>
- * This exception indicates that an error occurred during signing or verification operations
- * within the signature service and related components. It provides detailed information
- * about the failure to help diagnose and resolve issues.
- * </p>
- * <p>
- * <b>Common Causes:</b></p>
- * <ul>
- *   <li>Invalid signature format</li>
- *   <li>Signature verification failed</li>
- *   <li>Unsupported signature algorithm</li>
- *   <li>Invalid key for signing</li>
- *   <li>Signature generation error</li>
- * </ul>
+ * Exception thrown when a signature operation (signing or verification) fails.
  *
  * @see Signer
  * @see Verifier

@@ -20,20 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Base exception for all Open Agent Auth exceptions.
- * <p>
- * This is the root exception class for the entire Open Agent Auth framework.
- * All exceptions, whether in the core module or framework module, should extend
- * from this base class to ensure consistent error handling and reporting.
- * </p>
- * <p>
- * <b>Key Features:</b></p>
- * <ul>
- *   <li>Provides a unified exception hierarchy</li>
- *   <li>Supports structured error information through error codes</li>
- *   <li>Enables consistent error message formatting</li>
- *   <li>Facilitates error tracking and debugging</li>
- * </ul>
+ * Root exception class for the project. Carries a structured error code,
+ * formatted message, optional parameter list, and optional context map.
  *
  * @since 1.0
  */

@@ -60,27 +60,16 @@ public class ValidationContext {
 
     /**
      * The HTTP request headers.
-     * <p>
-     * Contains all HTTP headers sent with the request.
-     * Used in WPT verification and policy evaluation.
-     * </p>
      */
     private final Map<String, String> httpHeaders;
 
     /**
      * The HTTP request body.
-     * <p>
-     * Contains the request payload.
-     * Used in WPT verification and policy evaluation.
-     * </p>
      */
     private final String httpBody;
 
     /**
      * The timestamp when the validation request was received.
-     * <p>
-     * Used for replay attack detection and auditing.
-     * </p>
      */
     private final Date requestTimestamp;
 
