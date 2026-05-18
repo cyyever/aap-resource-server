@@ -119,9 +119,10 @@ After M1, also rename:
 
 Audited but not yet fixed (most need M1 rename first):
 
-1. `JwtHashUtil.computeSha256Hash` — `MessageDigest.getInstance("SHA-256")`
-   per call. Cache via `ThreadLocal<MessageDigest>` + static
-   `Base64.Encoder`. ~5-10× faster.
+1. ~~`JwtHashUtil.computeSha256Hash`~~ — **done**. `ThreadLocal<MessageDigest>`
+   + static `Base64.Encoder` already in place. JMH baseline (Temurin 26,
+   Apple Silicon, 1024-byte JWT): 2.07 ops/μs single-thread, 10.35 ops/μs
+   at 8 threads. Bench module: `open-agent-auth-bench` (opt-in `-P bench`).
 2. `WptValidator.convertToJWK` — rebuilds Nimbus `JWK` from internal
    `Jwk` every validation (Base64-decode X/Y, new `BigInteger`,
    anonymous `ECPublicKey`). Cache by `Jwk` identity.

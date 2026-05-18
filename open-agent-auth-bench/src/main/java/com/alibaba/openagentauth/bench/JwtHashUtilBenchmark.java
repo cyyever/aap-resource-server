@@ -1,0 +1,77 @@
+/*
+ * Copyright 2026 Alibaba Group Holding Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.alibaba.openagentauth.bench;
+
+import com.alibaba.openagentauth.core.token.common.JwtHashUtil;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Threads;
+import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.infra.Blackhole;
+
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+@BenchmarkMode(Mode.Throughput)
+@OutputTimeUnit(TimeUnit.MICROSECONDS)
+@Warmup(iterations = 3, time = 2)
+@Measurement(iterations = 5, time = 2)
+@Fork(2)
+@State(Scope.Benchmark)
+public class JwtHashUtilBenchmark {
+
+    /**
+     * Three sizes spanning what we actually see on the wire:
+     * 256 = short access token, 1024 = typical compact JWS (CT/DPoP),
+     * 4096 = oversized CT with many claims.
+     */
+    @Param({"256", "1024", "4096"})
+    public int size;
+
+    private String jwt;
+
+    @Setup
+    public void setup() {
+        // base64url alphabet — keeps it ASCII so the UTF-8 encode path stays tight
+        char[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".toCharArray();
+        Random r = new Random(42L);
+        StringBuilder sb = new StringBuilder(size);
+        for (int i = 0; i < size; i++) {
+            sb.append(alphabet[r.nextInt(alphabet.length)]);
+        }
+        jwt = sb.toString();
+    }
+
+    @Benchmark
+    @Threads(1)
+    public void singleThread(Blackhole bh) {
+        bh.consume(JwtHashUtil.computeSha256Hash(jwt));
+    }
+
+    @Benchmark
+    @Threads(8)
+    public void multiThread(Blackhole bh) {
+        bh.consume(JwtHashUtil.computeSha256Hash(jwt));
+    }
+}
