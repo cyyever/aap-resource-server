@@ -58,9 +58,9 @@ public class LayerValidationResult {
      */
     private LayerValidationResult(Builder builder) {
         this.success = builder.success;
-        this.errors = builder.errors != null ? 
-                Collections.unmodifiableList(new ArrayList<>(builder.errors)) : 
-                Collections.emptyList();
+        this.errors = builder.errors != null
+                ? Collections.unmodifiableList(new ArrayList<>(builder.errors))
+                : List.of();
         this.metadata = builder.metadata;
     }
 

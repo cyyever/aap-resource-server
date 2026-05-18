@@ -110,7 +110,7 @@ public class DefaultKeyManager implements KeyManager {
      * @throws IllegalArgumentException if keyStore is null
      */
     public DefaultKeyManager(KeyStore keyStore) {
-        this(keyStore, Collections.emptyList(), Collections.emptyMap());
+        this(keyStore, List.of(), Map.of());
     }
 
     /**
@@ -148,7 +148,7 @@ public class DefaultKeyManager implements KeyManager {
 
         this.keyDefinitions = keyDefinitions != null
                 ? Collections.unmodifiableMap(keyDefinitions)
-                : Collections.emptyMap();
+                : Map.of();
 
         logger.info("DefaultKeyManager initialized with KeyStore: {}, resolvers: {}, keyDefinitions: {}",
                 keyStore.getClass().getSimpleName(),
@@ -244,12 +244,12 @@ public class DefaultKeyManager implements KeyManager {
                 throw new KeyManagementException("Key info not found: " + keyId);
             }
             
-            KeyInfo keyInfo = keyInfoOpt.get();
+            KeyInfo keyInfo = keyInfoOpt.orElseThrow();
             if (!keyInfo.isActive()) {
                 throw new KeyManagementException("Key is not active for signing: " + keyId);
             }
             
-            return keyPairOpt.get().getPrivate();
+            return keyPairOpt.orElseThrow().getPrivate();
             
         } finally {
             lock.readLock().unlock();
@@ -276,7 +276,7 @@ public class DefaultKeyManager implements KeyManager {
                 throw new KeyManagementException("Key not found: " + keyId);
             }
             
-            return keyPairOpt.get().getPublic();
+            return keyPairOpt.orElseThrow().getPublic();
             
         } finally {
             lock.readLock().unlock();
@@ -305,7 +305,7 @@ public class DefaultKeyManager implements KeyManager {
                 throw new KeyManagementException("Key not found for rotation: " + keyId);
             }
             
-            KeyInfo oldKeyInfo = keyInfoOpt.get();
+            KeyInfo oldKeyInfo = keyInfoOpt.orElseThrow();
             KeyAlgorithm algorithm = oldKeyInfo.getAlgorithm();
             
             // Generate new key pair with the same algorithm
@@ -366,8 +366,8 @@ public class DefaultKeyManager implements KeyManager {
             List<KeyInfo> activeKeys = new ArrayList<>();
             for (String keyId : keyStore.listKeyIds()) {
                 Optional<KeyInfo> keyInfoOpt = keyStore.retrieveInfo(keyId);
-                if (keyInfoOpt.isPresent() && keyInfoOpt.get().isActive()) {
-                    activeKeys.add(keyInfoOpt.get());
+                if (keyInfoOpt.isPresent() && keyInfoOpt.orElseThrow().isActive()) {
+                    activeKeys.add(keyInfoOpt.orElseThrow());
                 }
             }
             return activeKeys;
@@ -448,12 +448,12 @@ public class DefaultKeyManager implements KeyManager {
                 throw new KeyManagementException("Key info not found: " + keyId);
             }
             
-            KeyInfo keyInfo = keyInfoOpt.get();
+            KeyInfo keyInfo = keyInfoOpt.orElseThrow();
             if (!keyInfo.isActive()) {
                 throw new KeyManagementException("Key is not active for signing: " + keyId);
             }
             
-            return jwkOpt.get();
+            return jwkOpt.orElseThrow();
             
         } finally {
             lock.readLock().unlock();

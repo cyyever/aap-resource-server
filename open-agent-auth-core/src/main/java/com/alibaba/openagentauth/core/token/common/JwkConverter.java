@@ -101,8 +101,8 @@ public class JwkConverter {
         if (value instanceof String) {
             return (String) value;
         }
-        throw new IllegalArgumentException(String.format("Invalid claim '%s': expected String, got %s",
-                key, value.getClass().getSimpleName()));
+        throw new IllegalArgumentException("Invalid claim '%s': expected String, got %s"
+                .formatted(key, value.getClass().getSimpleName()));
     }
 
     /**

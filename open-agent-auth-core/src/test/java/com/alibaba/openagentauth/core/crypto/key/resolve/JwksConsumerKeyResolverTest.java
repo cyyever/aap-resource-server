@@ -23,7 +23,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,7 +62,7 @@ class JwksConsumerKeyResolverTest {
         @Test
         @DisplayName("Should create resolver with empty map")
         void shouldCreateResolverWithEmptyMap() {
-            JwksConsumerKeyResolver emptyResolver = new JwksConsumerKeyResolver(Collections.emptyMap());
+            JwksConsumerKeyResolver emptyResolver = new JwksConsumerKeyResolver(Map.of());
 
             assertThat(emptyResolver).isNotNull();
         }

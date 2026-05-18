@@ -96,9 +96,9 @@ class InMemoryKeyStoreTest {
         // Assert
         assertThat(retrievedKeyPair).isPresent();
         // Compare key material instead of KeyPair objects
-        assertThat(retrievedKeyPair.get().getPublic().getEncoded())
+        assertThat(retrievedKeyPair.orElseThrow().getPublic().getEncoded())
                 .isEqualTo(keyPair.getPublic().getEncoded());
-        assertThat(retrievedKeyPair.get().getPrivate().getEncoded())
+        assertThat(retrievedKeyPair.orElseThrow().getPrivate().getEncoded())
                 .isEqualTo(keyPair.getPrivate().getEncoded());
     }
 
@@ -113,10 +113,10 @@ class InMemoryKeyStoreTest {
 
         // Assert
         assertThat(retrievedKeyInfo).isPresent();
-        assertThat(retrievedKeyInfo.get()).isEqualTo(keyInfo);
-        assertThat(retrievedKeyInfo.get().getKeyId()).isEqualTo(TEST_KEY_ID);
-        assertThat(retrievedKeyInfo.get().getAlgorithm()).isEqualTo(KeyAlgorithm.RS256);
-        assertThat(retrievedKeyInfo.get().isActive()).isTrue();
+        assertThat(retrievedKeyInfo.orElseThrow()).isEqualTo(keyInfo);
+        assertThat(retrievedKeyInfo.orElseThrow().getKeyId()).isEqualTo(TEST_KEY_ID);
+        assertThat(retrievedKeyInfo.orElseThrow().getAlgorithm()).isEqualTo(KeyAlgorithm.RS256);
+        assertThat(retrievedKeyInfo.orElseThrow().isActive()).isTrue();
     }
 
     @Test
@@ -127,8 +127,8 @@ class InMemoryKeyStoreTest {
 
         // Assert
         assertThat(retrievedJWK).isPresent();
-        assertThat(retrievedJWK.get()).isInstanceOf(RSAKey.class);
-        RSAKey retrievedRSAKey = (RSAKey) retrievedJWK.get();
+        assertThat(retrievedJWK.orElseThrow()).isInstanceOf(RSAKey.class);
+        RSAKey retrievedRSAKey = (RSAKey) retrievedJWK.orElseThrow();
         assertThat(retrievedRSAKey.getKeyID()).isEqualTo(TEST_KEY_ID);
     }
 
@@ -149,8 +149,8 @@ class InMemoryKeyStoreTest {
 
         // Assert
         assertThat(retrievedJWK).isPresent();
-        assertThat(retrievedJWK.get()).isInstanceOf(ECKey.class);
-        ECKey retrievedECKey = (ECKey) retrievedJWK.get();
+        assertThat(retrievedJWK.orElseThrow()).isInstanceOf(ECKey.class);
+        ECKey retrievedECKey = (ECKey) retrievedJWK.orElseThrow();
         assertThat(retrievedECKey.getKeyID()).isEqualTo(TEST_KEY_ID_2);
     }
 
@@ -407,8 +407,8 @@ class InMemoryKeyStoreTest {
         // Assert
         assertThat(retrievedKeyPair).isPresent();
         KeyPair originalKeyPair = rsaKey.toKeyPair();
-        assertThat(retrievedKeyPair.get().getPublic()).isEqualTo(originalKeyPair.getPublic());
-        assertThat(retrievedKeyPair.get().getPrivate()).isEqualTo(originalKeyPair.getPrivate());
+        assertThat(retrievedKeyPair.orElseThrow().getPublic()).isEqualTo(originalKeyPair.getPublic());
+        assertThat(retrievedKeyPair.orElseThrow().getPrivate()).isEqualTo(originalKeyPair.getPrivate());
     }
 
     @Test
@@ -465,12 +465,12 @@ class InMemoryKeyStoreTest {
 
         assertThat(retrievedKeyPair).isPresent();
         // Compare key material instead of KeyPair objects
-        assertThat(retrievedKeyPair.get().getPublic().getEncoded())
+        assertThat(retrievedKeyPair.orElseThrow().getPublic().getEncoded())
                 .isEqualTo(keyPair2.getPublic().getEncoded());
-        assertThat(retrievedKeyPair.get().getPrivate().getEncoded())
+        assertThat(retrievedKeyPair.orElseThrow().getPrivate().getEncoded())
                 .isEqualTo(keyPair2.getPrivate().getEncoded());
         assertThat(retrievedKeyInfo).isPresent();
-        assertThat(retrievedKeyInfo.get().isActive()).isTrue();
-        assertThat(retrievedKeyInfo.get().getCreatedAt()).isEqualTo(NOW);
+        assertThat(retrievedKeyInfo.orElseThrow().isActive()).isTrue();
+        assertThat(retrievedKeyInfo.orElseThrow().getCreatedAt()).isEqualTo(NOW);
     }
 }

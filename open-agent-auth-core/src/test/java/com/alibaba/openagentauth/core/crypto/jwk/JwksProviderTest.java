@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -246,7 +245,7 @@ class JwksProviderTest {
                         .keyID("test-key-id")
                         .build();
                 
-                this.jwkSet = new JWKSet(Collections.singletonList(rsaKey));
+                this.jwkSet = new JWKSet(List.of(rsaKey));
                 this.jwkSource = (jwkSelector, context) -> jwkSelector.select(jwkSet);
             } catch (Exception e) {
                 throw new IOException("Failed to initialize test JWK set", e);
@@ -275,7 +274,7 @@ class JwksProviderTest {
                         .keyID("test-key-id")
                         .build();
                 
-                this.jwkSet = new JWKSet(Collections.singletonList(rsaKey));
+                this.jwkSet = new JWKSet(List.of(rsaKey));
                 this.jwkSource = (jwkSelector, context) -> jwkSelector.select(jwkSet);
             } catch (Exception e) {
                 throw new IOException("Failed to refresh JWK set", e);

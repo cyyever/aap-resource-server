@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +60,6 @@ import java.util.concurrent.TimeUnit;
  * }</pre>
  * </p>
  *
- * @see <a href="https://datatracker.ietf.org/doc/draft-liu-agent-operation-authorization/">draft-liu-agent-operation-authorization-01</a>
  * @see <a href="https://www.rfc-editor.org/rfc/rfc7517">RFC 7517 - JSON Web Key (JWK)</a>
  * @since 1.0
  */
@@ -195,7 +193,7 @@ public class FileJwksProvider implements JwksProvider {
         List<JWK> allJwks = new ArrayList<>();
         for (String filePath : filePaths) {
             try {
-                Path actualFilePath = Paths.get(filePath);
+                Path actualFilePath = Path.of(filePath);
                 String content = Files.readString(actualFilePath);
                 JWKSet jwkSet = JWKSet.parse(content);
                 allJwks.addAll(jwkSet.getKeys());
@@ -313,7 +311,7 @@ public class FileJwksProvider implements JwksProvider {
     private void initializeFileModifiedTimes() {
         for (String filePath : filePaths) {
             try {
-                Path actualFilePath = Paths.get(filePath);
+                Path actualFilePath = Path.of(filePath);
                 long modifiedTime = Files.getLastModifiedTime(actualFilePath).toMillis();
                 fileLastModifiedTimes.put(filePath, modifiedTime);
             } catch (IOException e) {
@@ -329,7 +327,7 @@ public class FileJwksProvider implements JwksProvider {
      */
     private void updateFileModifiedTime(String filePath) {
         try {
-            Path actualFilePath = Paths.get(filePath);
+            Path actualFilePath = Path.of(filePath);
             long modifiedTime = Files.getLastModifiedTime(actualFilePath).toMillis();
             fileLastModifiedTimes.put(filePath, modifiedTime);
         } catch (IOException e) {
@@ -395,7 +393,7 @@ public class FileJwksProvider implements JwksProvider {
     private List<String> getModifiedFiles() throws IOException {
         List<String> modifiedFiles = new ArrayList<>();
         for (String filePath : filePaths) {
-            Path actualFilePath = Paths.get(filePath);
+            Path actualFilePath = Path.of(filePath);
             long currentModifiedTime = Files.getLastModifiedTime(actualFilePath).toMillis();
             Long lastModifiedTime = fileLastModifiedTimes.get(filePath);
             if (lastModifiedTime == null || currentModifiedTime > lastModifiedTime) {
@@ -416,7 +414,7 @@ public class FileJwksProvider implements JwksProvider {
             List<JWK> modifiedJwks = new ArrayList<>();
             for (String filePath : modifiedFiles) {
                 try {
-                    Path actualFilePath = Paths.get(filePath);
+                    Path actualFilePath = Path.of(filePath);
                     String content = Files.readString(actualFilePath);
                     JWKSet jwkSet = JWKSet.parse(content);
                     modifiedJwks.addAll(jwkSet.getKeys());

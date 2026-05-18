@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Test;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -600,7 +599,7 @@ class DefaultKeyManagerTest {
             
             KeyManager threeParamManager = new DefaultKeyManager(
                 new InMemoryKeyStore(),
-                Collections.emptyList(),
+                List.of(),
                 keyDefinitions
             );
             
@@ -627,7 +626,7 @@ class DefaultKeyManagerTest {
             
             KeyManager manager = new DefaultKeyManager(
                 new InMemoryKeyStore(),
-                Collections.emptyList(),
+                List.of(),
                 keyDefinitions
             );
             

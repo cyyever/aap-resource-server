@@ -367,7 +367,7 @@ public class WptValidator {
             }
 
             if (!expectedWth.equals(actualWth)) {
-                return String.format("WPT wth '%s' does not match WIT hash '%s'", actualWth, expectedWth);
+                return "WPT wth '%s' does not match WIT hash '%s'".formatted(actualWth, expectedWth);
             } else {
                 return null;
             }
@@ -430,7 +430,7 @@ public class WptValidator {
 
         // Validate hash format
         if (expectedHash == null || expectedHash.trim().isEmpty()) {
-            return String.format("WPT oth claim has empty hash for token type: '%s'", tokenType);
+            return "WPT oth claim has empty hash for token type: '%s'".formatted(tokenType);
         }
 
         // Validate token type format
@@ -440,7 +440,7 @@ public class WptValidator {
 
         // Validate token type follows naming conventions (lowercase, alphanumeric, hyphens, underscores)
         if (!tokenType.matches("^[a-z0-9_-]+$")) {
-            return String.format("WPT oth claim token type '%s' has invalid format", tokenType);
+            return "WPT oth claim token type '%s' has invalid format".formatted(tokenType);
         }
 
         logger.debug("WPT oth claim contains valid entry for token type: {}", tokenType);
@@ -475,7 +475,7 @@ public class WptValidator {
 
             // Verify algorithm consistency
             if (!wptAlg.equals(witAlg)) {
-                return String.format("WPT algorithm '%s' does not match WIT cnf.jwk.alg '%s'", wptAlg, witAlg);
+                return "WPT algorithm '%s' does not match WIT cnf.jwk.alg '%s'".formatted(wptAlg, witAlg);
             } else {
                 return null;
             }

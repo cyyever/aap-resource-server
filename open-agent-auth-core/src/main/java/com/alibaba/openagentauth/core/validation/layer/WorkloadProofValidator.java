@@ -168,7 +168,7 @@ public class WorkloadProofValidator implements LayerValidator {
      */
     private String verifyTokenHash(String tokenType, String expectedHash, ValidationContext context) {
         logger.warn("Unexpected token type in oth claim: {}", tokenType);
-        return String.format("Unexpected token type in oth claim: '%s'", tokenType);
+        return "Unexpected token type in oth claim: '%s'".formatted(tokenType);
     }
 
     @Override
