@@ -42,14 +42,7 @@ public enum ValidationErrorCode implements FrameworkErrorCode {
      * Corresponds to {@link FrameworkValidationException}.
      * Template: {0}
      */
-    VALIDATION_FAILED("01", "FrameworkValidationFailed", "Framework validation failed: {0}", HttpStatus.BAD_REQUEST),
-
-    /**
-     * Authorization context preparation failed.
-     * Corresponds to {@link FrameworkAuthorizationContextException}.
-     * Template: {0}
-     */
-    AUTHORIZATION_CONTEXT_PREPARATION_FAILED("02", "FrameworkAuthContextPreparationFailed", "Framework authorization context preparation failed: {0}", HttpStatus.INTERNAL_SERVER_ERROR);
+    VALIDATION_FAILED("01", "FrameworkValidationFailed", "Framework validation failed: {0}", HttpStatus.BAD_REQUEST);
 
     /**
      * Domain code for Validation.

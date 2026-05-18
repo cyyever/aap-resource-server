@@ -79,38 +79,13 @@ class ValidationExceptionTest {
     }
 
     @Test
-    @DisplayName("Test FrameworkAuthorizationContextException with message")
-    void testFrameworkAuthorizationContextExceptionWithMessage() {
-        FrameworkAuthorizationContextException exception = new FrameworkAuthorizationContextException("Context preparation failed");
-        
-        assertThat(exception.getErrorCode()).isEqualTo("OPEN_AGENT_AUTH_11_0302");
-        assertThat(exception.getFormattedMessage()).isEqualTo("Framework authorization context preparation failed: Context preparation failed");
-        assertThat(exception.getErrorParams()).containsExactly("Context preparation failed");
-    }
-
-    @Test
-    @DisplayName("Test FrameworkAuthorizationContextException with message and cause")
-    void testFrameworkAuthorizationContextExceptionWithMessageAndCause() {
-        Throwable cause = new RuntimeException("Missing WIT token");
-        FrameworkAuthorizationContextException exception = new FrameworkAuthorizationContextException("Context preparation failed", cause);
-        
-        assertThat(exception.getErrorCode()).isEqualTo("OPEN_AGENT_AUTH_11_0302");
-        assertThat(exception.getFormattedMessage()).isEqualTo("Framework authorization context preparation failed: Context preparation failed");
-        assertThat(exception.getCause()).isEqualTo(cause);
-    }
-
-    @Test
     @DisplayName("Test ValidationErrorCode properties")
     void testValidationErrorCodeProperties() {
         assertThat(ValidationErrorCode.DOMAIN_CODE).isEqualTo("03");
-        
+
         assertThat(ValidationErrorCode.VALIDATION_FAILED.getErrorCode()).isEqualTo("OPEN_AGENT_AUTH_11_0301");
         assertThat(ValidationErrorCode.VALIDATION_FAILED.getErrorName()).isEqualTo("FrameworkValidationFailed");
         assertThat(ValidationErrorCode.VALIDATION_FAILED.getHttpStatus().value()).isEqualTo(400);
-        
-        assertThat(ValidationErrorCode.AUTHORIZATION_CONTEXT_PREPARATION_FAILED.getErrorCode()).isEqualTo("OPEN_AGENT_AUTH_11_0302");
-        assertThat(ValidationErrorCode.AUTHORIZATION_CONTEXT_PREPARATION_FAILED.getErrorName()).isEqualTo("FrameworkAuthContextPreparationFailed");
-        assertThat(ValidationErrorCode.AUTHORIZATION_CONTEXT_PREPARATION_FAILED.getHttpStatus().value()).isEqualTo(500);
     }
 
     @Test
@@ -118,8 +93,5 @@ class ValidationExceptionTest {
     void testValidationErrorCodeFormatMessage() {
         String message = ValidationErrorCode.VALIDATION_FAILED.formatMessage("username is empty");
         assertThat(message).isEqualTo("Framework validation failed: username is empty");
-        
-        message = ValidationErrorCode.AUTHORIZATION_CONTEXT_PREPARATION_FAILED.formatMessage("WIT token missing");
-        assertThat(message).isEqualTo("Framework authorization context preparation failed: WIT token missing");
     }
 }

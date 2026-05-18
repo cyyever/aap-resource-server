@@ -57,20 +57,6 @@ public enum CryptoErrorCode implements CoreErrorCode {
      * Template: {0}
      */
     FILE_JWKS_PROVIDER_FAILED("03", "FileJwksProviderFailed", "File JWKS provider operation failed: {0}", HttpStatus.INTERNAL_SERVER_ERROR),
-    
-    /**
-     * Prompt encryption operation failed.
-     * Corresponds to {@link PromptEncryptionException}.
-     * Template: {0}
-     */
-    PROMPT_ENCRYPTION_FAILED("04", "PromptEncryptionFailed", "Prompt encryption operation failed: {0}", HttpStatus.INTERNAL_SERVER_ERROR),
-    
-    /**
-     * Prompt decryption operation failed.
-     * Corresponds to {@link PromptDecryptionException}.
-     * Template: {0}
-     */
-    PROMPT_DECRYPTION_FAILED("05", "PromptDecryptionFailed", "Prompt decryption operation failed: {0}", HttpStatus.INTERNAL_SERVER_ERROR),
 
     /**
      * Key resolution operation failed.

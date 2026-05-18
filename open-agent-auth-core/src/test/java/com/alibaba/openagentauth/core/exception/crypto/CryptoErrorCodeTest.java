@@ -73,32 +73,6 @@ class CryptoErrorCodeTest {
     }
 
     @Test
-    @DisplayName("Should verify PROMPT_ENCRYPTION_FAILED error code properties")
-    void shouldVerifyPromptEncryptionFailedErrorCodeProperties() {
-        CryptoErrorCode errorCode = CryptoErrorCode.PROMPT_ENCRYPTION_FAILED;
-        
-        assertThat(errorCode.getErrorCode()).isEqualTo("OPEN_AGENT_AUTH_10_0304");
-        assertThat(errorCode.getDomainCode()).isEqualTo("03");
-        assertThat(errorCode.getSubCode()).isEqualTo("04");
-        assertThat(errorCode.getErrorName()).isEqualTo("PromptEncryptionFailed");
-        assertThat(errorCode.getMessageTemplate()).isEqualTo("Prompt encryption operation failed: {0}");
-        assertThat(errorCode.getHttpStatus().value()).isEqualTo(500);
-    }
-
-    @Test
-    @DisplayName("Should verify PROMPT_DECRYPTION_FAILED error code properties")
-    void shouldVerifyPromptDecryptionFailedErrorCodeProperties() {
-        CryptoErrorCode errorCode = CryptoErrorCode.PROMPT_DECRYPTION_FAILED;
-        
-        assertThat(errorCode.getErrorCode()).isEqualTo("OPEN_AGENT_AUTH_10_0305");
-        assertThat(errorCode.getDomainCode()).isEqualTo("03");
-        assertThat(errorCode.getSubCode()).isEqualTo("05");
-        assertThat(errorCode.getErrorName()).isEqualTo("PromptDecryptionFailed");
-        assertThat(errorCode.getMessageTemplate()).isEqualTo("Prompt decryption operation failed: {0}");
-        assertThat(errorCode.getHttpStatus().value()).isEqualTo(500);
-    }
-
-    @Test
     @DisplayName("Should verify all error codes have correct domain code")
     void shouldVerifyAllErrorCodesHaveCorrectDomainCode() {
         for (CryptoErrorCode errorCode : CryptoErrorCode.values()) {
@@ -126,8 +100,6 @@ class CryptoErrorCodeTest {
         assertThat(CryptoErrorCode.SIGNATURE_FAILED.getSubCode()).isEqualTo("01");
         assertThat(CryptoErrorCode.KEY_MANAGEMENT_FAILED.getSubCode()).isEqualTo("02");
         assertThat(CryptoErrorCode.FILE_JWKS_PROVIDER_FAILED.getSubCode()).isEqualTo("03");
-        assertThat(CryptoErrorCode.PROMPT_ENCRYPTION_FAILED.getSubCode()).isEqualTo("04");
-        assertThat(CryptoErrorCode.PROMPT_DECRYPTION_FAILED.getSubCode()).isEqualTo("05");
     }
 
     @Test
