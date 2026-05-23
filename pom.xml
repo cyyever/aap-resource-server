@@ -43,6 +43,8 @@
 
         <!-- Coverage (opt-in via -P coverage) -->
         <jacoco.version>0.8.13</jacoco.version>
+        <!-- Default empty; JaCoCo's prepare-agent fills this in -P coverage -->
+        <argLine></argLine>
     </properties>
 
     <dependencyManagement>
