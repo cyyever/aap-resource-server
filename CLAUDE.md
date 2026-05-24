@@ -33,15 +33,17 @@ Do not relax any of these without a spec change:
 ## Module layout
 
 ```
-open-agent-auth-core/      protocol primitives — JWS, keys, JWKS, trust
-                           WIT/WPT (→ CT/DPoP after M1). Pure Java.
-open-agent-auth-framework/ actor interface (ResourceServer) +
-                           DefaultResourceServer. Pure Java.
+open-agent-auth-core/      single module — protocol primitives (JWS,
+                           keys, JWKS, trust, WIT/WPT → CT/DPoP after
+                           M1) plus the server-side actor (ResourceServer
+                           + DefaultResourceServer) under
+                           core.server.*. Pure Java.
 ```
 
-No Spring Boot starter, no integration-tests module, no samples — all
-dropped per the trim. Consumers wire `WitValidator` + `WptValidator` +
-`DefaultResourceServer` themselves in ~20 lines of their own DI.
+The framework module was folded into core in 2026-05; no Spring Boot
+starter, no integration-tests module, no samples. Consumers wire
+`WitValidator` + `WptValidator` + `DefaultResourceServer` themselves
+in ~20 lines of their own DI.
 
 ## Build
 

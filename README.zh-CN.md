@@ -8,12 +8,12 @@
 
 ## 模块
 
-| 模块 | 用途 |
-|---|---|
-| `open-agent-auth-core` | 协议原语:JWS 签验、密钥管理、JWKS 提供端、信任根、WIT/WPT(M1 改名为 CT/DPoP)。纯 Java,无 Spring。 |
-| `open-agent-auth-framework` | Actor 接口(`ResourceServer`)、默认编排、请求/结果模型。纯 Java,无 Spring。 |
+单 Maven 模块 `open-agent-auth-core`:协议原语(JWS 签验、密钥管理、
+JWKS 提供端、信任根、WIT/WPT — M1 改名为 CT/DPoP)+ server 侧 actor
+(`ResourceServer`、`DefaultResourceServer`、请求/结果模型)位于
+`com.alibaba.openagentauth.core.server.*` 包。纯 Java,无 Spring。
 
-两个模块都需要 **Java 21 LTS**(或更高版本)。直接依赖只有
+模块需要 **Java 21 LTS**(或更高版本)。直接依赖只有
 [Nimbus JOSE+JWT](https://connect2id.com/products/nimbus-jose-jwt)、
 Jackson 和 SLF4J。Spring Boot 已经移除 —— Spring Boot 应用、Quarkus、
 Helidon、plain `main` 等消费方自己用 ~20 行装配 `WitValidator` +

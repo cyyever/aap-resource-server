@@ -15,7 +15,6 @@
     <url>https://github.com/alibaba/open-agent-auth</url>
 
     <modules>
-        <module>open-agent-auth-framework</module>
         <module>open-agent-auth-core</module>
     </modules>
 
@@ -49,12 +48,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Internal Modules -->
-            <dependency>
-                <groupId>com.alibaba.openagentauth</groupId>
-                <artifactId>open-agent-auth-framework</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+            <!-- Internal Module -->
             <dependency>
                 <groupId>com.alibaba.openagentauth</groupId>
                 <artifactId>open-agent-auth-core</artifactId>

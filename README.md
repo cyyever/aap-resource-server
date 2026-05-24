@@ -7,14 +7,15 @@ This repository is the upstream baseline being trimmed into an
 - Scope: authentication-only, single algorithm **Ed25519 + SHA-512** (`alg=EdDSA`), two wire messages — CT (delegation) and DPoP (per-request), JWS compact serialization, HTTPS only.
 - Not provided: authorization, consent UI, CA / X.509, OAuth 2.0 / OIDC flows, W3C VC.
 
-## Modules
+## Module
 
-| Module | Purpose |
-|---|---|
-| `open-agent-auth-core` | Protocol primitives: JWS sign/verify, key management, JWKS provider, trust roots, WIT/WPT (→ CT/DPoP after M1). Pure Java, no Spring. |
-| `open-agent-auth-framework` | Actor interface (`ResourceServer`), default orchestration, request/result models. Pure Java, no Spring. |
+Single Maven module `open-agent-auth-core`. Protocol primitives (JWS
+sign/verify, key management, JWKS provider, trust roots, WIT/WPT →
+CT/DPoP after M1) plus the server-side actor (`ResourceServer`,
+`DefaultResourceServer`, request/result models) under
+`com.alibaba.openagentauth.core.server.*`. Pure Java, no Spring.
 
-Both modules require **Java 21 LTS** (or later). Only direct deps are
+The module requires **Java 21 LTS** (or later). Only direct deps are
 [Nimbus JOSE+JWT](https://connect2id.com/products/nimbus-jose-jwt),
 Jackson, and SLF4J. Spring Boot is no longer required — consumers
 (Spring Boot apps, Quarkus, Helidon, plain `main`) wire `WitValidator`

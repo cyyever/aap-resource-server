@@ -24,18 +24,19 @@ mvn test
 
 ```
 open-agent-auth/
-├── open-agent-auth-core/      # protocol primitives — JWS, keys, JWKS, trust, WIT/WPT
-└── open-agent-auth-framework/ # actor interface + DefaultResourceServer
+└── open-agent-auth-core/   # protocol primitives + server-side actor
+                            #   (core.server.* for ResourceServer /
+                            #   DefaultResourceServer / request models)
 ```
 
-Both modules are pure Java (no Spring). Consumers wire `WitValidator`,
-`WptValidator`, and `DefaultResourceServer` themselves.
+Single Maven module, pure Java (no Spring). Consumers wire
+`WitValidator`, `WptValidator`, and `DefaultResourceServer` themselves.
 
 ## Commit style
 
 Conventional Commits — `<type>(<scope>): <subject>`. Scopes in active
-use: `aap`, `core`, `framework`. Recent history is a series of
-`chore(aap): drop X` commits — keep that style for trim work.
+use: `aap`, `core`. Recent history is a series of `chore(aap): drop X`
+commits — keep that style for trim work.
 
 ## Coding standards
 
@@ -48,8 +49,8 @@ use: `aap`, `core`, `framework`. Recent history is a series of
 
 ## Tests
 
-Run `mvn test`. The framework module sits at ~80% instruction coverage;
-core is the primary place to add tests when adding M1 patches.
+Run `mvn test`. Coverage report (HTML + summary table) is wired into
+the `coverage` CI job and locally via `mvn -P coverage verify`.
 
 ## Security
 
