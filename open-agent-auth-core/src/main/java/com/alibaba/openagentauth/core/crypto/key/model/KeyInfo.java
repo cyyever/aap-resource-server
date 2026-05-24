@@ -20,7 +20,7 @@ import java.util.Objects;
 
 /**
  * Immutable metadata about a cryptographic key (identifier, lifecycle timestamps,
- * active flag, rotation lineage). Construct via {@link Builder}.
+ * active flag). Construct via {@link Builder}.
  *
  * @since 1.0
  */
@@ -29,20 +29,13 @@ public class KeyInfo {
     private final String keyId;
     private final Instant createdAt;
     private final Instant activatedAt;
-    private final Instant rotatedAt;
-    private final Instant expiresAt;
     private final boolean active;
-    private final String previousKeyId;
 
-    private KeyInfo(String keyId, Instant createdAt, Instant activatedAt,
-                   Instant rotatedAt, Instant expiresAt, boolean active, String previousKeyId) {
+    private KeyInfo(String keyId, Instant createdAt, Instant activatedAt, boolean active) {
         this.keyId = keyId;
         this.createdAt = createdAt;
         this.activatedAt = activatedAt;
-        this.rotatedAt = rotatedAt;
-        this.expiresAt = expiresAt;
         this.active = active;
-        this.previousKeyId = previousKeyId;
     }
 
     public String getKeyId() {
@@ -57,20 +50,8 @@ public class KeyInfo {
         return activatedAt;
     }
 
-    public Instant getRotatedAt() {
-        return rotatedAt;
-    }
-
-    public Instant getExpiresAt() {
-        return expiresAt;
-    }
-
     public boolean isActive() {
         return active;
-    }
-
-    public String getPreviousKeyId() {
-        return previousKeyId;
     }
 
     @Override
@@ -81,15 +62,12 @@ public class KeyInfo {
         return active == keyInfo.active &&
                Objects.equals(keyId, keyInfo.keyId) &&
                Objects.equals(createdAt, keyInfo.createdAt) &&
-               Objects.equals(activatedAt, keyInfo.activatedAt) &&
-               Objects.equals(rotatedAt, keyInfo.rotatedAt) &&
-               Objects.equals(expiresAt, keyInfo.expiresAt) &&
-               Objects.equals(previousKeyId, keyInfo.previousKeyId);
+               Objects.equals(activatedAt, keyInfo.activatedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(keyId, createdAt, activatedAt, rotatedAt, expiresAt, active, previousKeyId);
+        return Objects.hash(keyId, createdAt, activatedAt, active);
     }
 
     @Override
@@ -98,10 +76,7 @@ public class KeyInfo {
                 "keyId='" + keyId + '\'' +
                 ", createdAt=" + createdAt +
                 ", activatedAt=" + activatedAt +
-                ", rotatedAt=" + rotatedAt +
-                ", expiresAt=" + expiresAt +
                 ", active=" + active +
-                ", previousKeyId='" + previousKeyId + '\'' +
                 '}';
     }
 
@@ -114,10 +89,7 @@ public class KeyInfo {
         private String keyId;
         private Instant createdAt;
         private Instant activatedAt;
-        private Instant rotatedAt;
-        private Instant expiresAt;
         private boolean active;
-        private String previousKeyId;
 
         public Builder keyId(String keyId) {
             this.keyId = keyId;
@@ -134,28 +106,13 @@ public class KeyInfo {
             return this;
         }
 
-        public Builder rotatedAt(Instant rotatedAt) {
-            this.rotatedAt = rotatedAt;
-            return this;
-        }
-
-        public Builder expiresAt(Instant expiresAt) {
-            this.expiresAt = expiresAt;
-            return this;
-        }
-
         public Builder active(boolean active) {
             this.active = active;
             return this;
         }
 
-        public Builder previousKeyId(String previousKeyId) {
-            this.previousKeyId = previousKeyId;
-            return this;
-        }
-
         public KeyInfo build() {
-            return new KeyInfo(keyId, createdAt, activatedAt, rotatedAt, expiresAt, active, previousKeyId);
+            return new KeyInfo(keyId, createdAt, activatedAt, active);
         }
     }
 }

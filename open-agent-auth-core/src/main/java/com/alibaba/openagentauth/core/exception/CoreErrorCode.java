@@ -29,39 +29,9 @@ public interface CoreErrorCode extends ErrorCode {
     String SYSTEM_CODE = "10";
 
     /**
-     * Domain code for OIDC.
-     */
-    String DOMAIN_CODE_OIDC = "01";
-
-    /**
-     * Domain code for Audit.
-     */
-    String DOMAIN_CODE_AUDIT = "02";
-
-    /**
      * Domain code for Crypto.
      */
     String DOMAIN_CODE_CRYPTO = "03";
-
-    /**
-     * Domain code for OAuth2.
-     */
-    String DOMAIN_CODE_OAUTH2 = "04";
-
-    /**
-     * Domain code for Policy.
-     */
-    String DOMAIN_CODE_POLICY = "05";
-
-    /**
-     * Domain code for Workload.
-     */
-    String DOMAIN_CODE_WORKLOAD = "06";
-
-    /**
-     * Domain code for Binding.
-     */
-    String DOMAIN_CODE_BINDING = "07";
 
     @Override
     default String getSystemCode() {

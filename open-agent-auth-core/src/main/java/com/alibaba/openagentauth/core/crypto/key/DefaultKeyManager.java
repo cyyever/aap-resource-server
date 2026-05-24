@@ -152,9 +152,7 @@ public class DefaultKeyManager implements KeyManager {
                     .keyId(keyId)
                     .createdAt(now)
                     .activatedAt(now)
-                    .rotatedAt(now)
                     .active(true)
-                    .previousKeyId(keyId)
                     .build();
 
             keyStore.storeJWK(keyId, newJwk, newKeyInfo);

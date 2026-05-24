@@ -104,10 +104,7 @@ public class WptValidator {
         return null;
     }
 
-    private JWK convertToJWK(Jwk jwk) throws JOSEException {
-        if (jwk == null) {
-            throw new JOSEException("Jwk cannot be null");
-        }
+    private JWK convertToJWK(Jwk jwk) {
         JWK cached = jwkCache.get(jwk);
         if (cached != null) {
             return cached;
@@ -117,17 +114,7 @@ public class WptValidator {
         return fresh;
     }
 
-    private JWK buildNimbusJwk(Jwk jwk) throws JOSEException {
-        if (jwk.keyType() != Jwk.KeyType.OKP) {
-            throw new JOSEException("Unsupported key type: " + jwk.keyType());
-        }
-        if (jwk.curve() != Jwk.Curve.Ed25519) {
-            throw new JOSEException("Unsupported curve: " + jwk.curve());
-        }
-        if (jwk.x() == null) {
-            throw new JOSEException("OKP key missing required x parameter");
-        }
-
+    private JWK buildNimbusJwk(Jwk jwk) {
         OctetKeyPair.Builder builder = new OctetKeyPair.Builder(Curve.Ed25519, new Base64URL(jwk.x()))
                 .algorithm(JWSAlgorithm.EdDSA);
         if (jwk.keyId() != null) {
