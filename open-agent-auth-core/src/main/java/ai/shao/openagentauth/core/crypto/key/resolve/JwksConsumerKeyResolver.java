@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -90,7 +91,9 @@ public class JwksConsumerKeyResolver implements KeyResolver {
 
     @Override
     public JWK resolve(KeyDefinition keyDefinition) throws KeyResolutionException {
-        String consumerName = keyDefinition.getJwksConsumer();
+        String consumerName = Objects.requireNonNull(
+                keyDefinition.getJwksConsumer(),
+                "JwksConsumerKeyResolver.resolve called with a local-key KeyDefinition");
         String keyId = keyDefinition.getKeyId();
 
         String jwksEndpoint = consumerEndpoints.get(consumerName);

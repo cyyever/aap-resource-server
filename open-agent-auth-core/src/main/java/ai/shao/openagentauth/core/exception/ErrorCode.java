@@ -15,6 +15,8 @@
  */
 package ai.shao.openagentauth.core.exception;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Interface for error codes used in the Open Agent Auth framework.
  * Error code format: {@code OPEN_AGENT_AUTH_XX_YYZZ} (XX=system, YY=domain, ZZ=error).
@@ -86,7 +88,7 @@ public interface ErrorCode {
      * @param params the parameters to substitute in the template (varargs)
      * @return the formatted message
      */
-    default String formatMessage(Object... params) {
+    default String formatMessage(@Nullable Object @Nullable ... params) {
         String message = getMessageTemplate();
         if (params == null || params.length == 0) {
             return message;
@@ -94,7 +96,8 @@ public interface ErrorCode {
 
         for (int i = 0; i < params.length; i++) {
             String placeholder = "{" + i + "}";
-            String value = params[i] != null ? params[i].toString() : "null";
+            Object p = params[i];
+            String value = p != null ? p.toString() : "null";
             message = message.replace(placeholder, value);
         }
 

@@ -27,6 +27,7 @@ import ai.shao.openagentauth.core.server.model.validation.ValidationResult;
 import ai.shao.openagentauth.core.token.common.TokenValidationResult;
 import ai.shao.openagentauth.core.util.ValidationUtils;
 import com.nimbusds.jwt.SignedJWT;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +96,7 @@ public class DefaultResourceServer implements ResourceServer {
 
     private ValidationResult buildResult(
             TokenValidationResult<CredentialToken> ctResult,
-            TokenValidationResult<DpopToken> dpopResult) {
+            @Nullable TokenValidationResult<DpopToken> dpopResult) {
         List<ValidationResult.LayerResult> layerResults = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 

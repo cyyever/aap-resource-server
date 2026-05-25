@@ -30,6 +30,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.OctetKeyPair;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.SignedJWT;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +38,9 @@ import java.text.ParseException;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Validator for DPoP Proofs (DPoP). Verifies the signature and validity of WPTs.
- * Only Ed25519 ({@code alg=EdDSA}) is supported.
+ * Validator for DPoP proofs. Verifies the signature and validity of a
+ * {@link DpopToken} against the binding {@link CredentialToken}. Only Ed25519
+ * ({@code alg=EdDSA}) is supported.
  */
 public class DpopValidator {
 
@@ -59,7 +61,7 @@ public class DpopValidator {
     }
 
     public TokenValidationResult<DpopToken> validate(
-            SignedJWT signedJwt, DpopToken dpop, CredentialToken ct) {
+            @Nullable SignedJWT signedJwt, DpopToken dpop, CredentialToken ct) {
 
         if (dpop == null) {
             logger.warn("DPoP cannot be null");
@@ -135,12 +137,12 @@ public class DpopValidator {
         return builder.build();
     }
 
-    private Result verifySignature(SignedJWT signedJwt, DpopToken dpop, CredentialToken ct) {
+    private Result verifySignature(@Nullable SignedJWT signedJwt, DpopToken dpop, CredentialToken ct) {
         try {
             SignedJWT jwt = signedJwt;
             if (jwt == null) {
                 String dpopJwtString = dpop.jwtString();
-                if (ValidationUtils.isNullOrEmpty(dpopJwtString)) {
+                if (dpopJwtString == null || dpopJwtString.isEmpty()) {
                     logger.warn("DPoP missing JWT string, cannot verify signature");
                     return new Result.Err("DPoP missing JWT string");
                 }
@@ -179,7 +181,7 @@ public class DpopValidator {
     private Result verifyWth(DpopToken dpop, CredentialToken ct) {
         try {
             String ctJwtString = ct.jwtString();
-            if (ValidationUtils.isNullOrEmpty(ctJwtString)) {
+            if (ctJwtString == null || ctJwtString.isEmpty()) {
                 logger.warn("CT missing JWT string, cannot verify wth");
                 return new Result.Err("CT missing JWT string");
             }

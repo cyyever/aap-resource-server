@@ -324,9 +324,8 @@
         <!--
             Opt-in NullAway + Error Prone. NullAway analyzes our packages for
             nullness violations on top of Error Prone's general bug-pattern
-            checks. Severity is WARN — surfaces issues without breaking the
-            build. Run with: mvn -P errorprone clean compile
-            Promote to ERROR once the warnings reach zero.
+            checks. NullAway runs at ERROR — any new nullness violation fails
+            the build. Run with: mvn -P errorprone clean compile
         -->
         <profile>
             <id>errorprone</id>
@@ -340,7 +339,7 @@
                             <compilerArgs combine.children="append">
                                 <arg>-XDcompilePolicy=simple</arg>
                                 <arg>--should-stop=ifError=FLOW</arg>
-                                <arg>-Xplugin:ErrorProne -Xep:NullAway:WARN -XepOpt:NullAway:AnnotatedPackages=ai.shao.openagentauth -XepExcludedPaths:.*/src/test/.*</arg>
+                                <arg>-Xplugin:ErrorProne -Xep:NullAway:ERROR -XepOpt:NullAway:AnnotatedPackages=ai.shao.openagentauth -XepExcludedPaths:.*/src/test/.*</arg>
                                 <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                                 <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
                                 <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>

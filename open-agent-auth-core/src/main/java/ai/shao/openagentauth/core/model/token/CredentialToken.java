@@ -44,10 +44,10 @@ public record CredentialToken(
         }
     }
 
-    public String getIssuer()                    { return claims.issuer();         }
+    public @Nullable String getIssuer()          { return claims.issuer();         }
     public String getSubject()                   { return claims.subject();        }
     public Date   getExpirationTime()            { return claims.expirationTime(); }
-    public String getJwtId()                     { return claims.jwtId();          }
+    public @Nullable String getJwtId()           { return claims.jwtId();          }
     public String getWorkloadIdentifier()        { return claims.subject();        }
     public Claims.Confirmation getConfirmation() { return claims.confirmation();   }
     public Jwk    getJwk()                       { return claims.jwk();            }

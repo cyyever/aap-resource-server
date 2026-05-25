@@ -155,16 +155,16 @@ public class CtParser {
                 .jwtId(claims.getJWTID())
                 .confirmation(confirmation);
 
-        // Serialize the JWT to preserve the original JWT string
+        // Serialize the JWT to preserve the original JWT string. The JWT
+        // was just parsed successfully, so serialize() should never fail
+        // here — propagate as IllegalStateException if it somehow does.
         String jwtString;
         try {
             jwtString = signedJwt.serialize();
         } catch (Exception e) {
-            logger.error("Failed to serialize CT JWT", e);
-            jwtString = null;
+            throw new IllegalStateException("Failed to serialize CT JWT", e);
         }
 
-        // Build CT
         return CredentialToken.builder()
                 .claims(claimsBuilder.build())
                 .jwtString(jwtString)

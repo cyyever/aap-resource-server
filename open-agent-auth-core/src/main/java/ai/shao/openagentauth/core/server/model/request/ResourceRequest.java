@@ -15,7 +15,6 @@
  */
 package ai.shao.openagentauth.core.server.model.request;
 
-import ai.shao.openagentauth.core.util.ValidationUtils;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -53,10 +52,10 @@ public class ResourceRequest {
             @JsonProperty("httpHeaders") @Nullable Map<String, String> httpHeaders,
             @JsonProperty("httpBody") @Nullable String httpBody
     ) {
-        if (ValidationUtils.isNullOrEmpty(ct)) {
+        if (ct == null || ct.isEmpty()) {
             throw new IllegalStateException("ct is REQUIRED");
         }
-        if (ValidationUtils.isNullOrEmpty(dpop)) {
+        if (dpop == null || dpop.isEmpty()) {
             throw new IllegalStateException("dpop is REQUIRED");
         }
         this.ct = ct;
