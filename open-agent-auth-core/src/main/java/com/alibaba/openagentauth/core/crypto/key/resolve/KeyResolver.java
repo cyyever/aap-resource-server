@@ -37,12 +37,10 @@ import com.nimbusds.jose.jwk.JWK;
  *
  * <p><b>Built-in Implementations:</b></p>
  * <ul>
- *   <li>{@link LocalKeyResolver} — resolves keys from the local {@code KeyStore}</li>
  *   <li>{@link JwksConsumerKeyResolver} — resolves keys from remote JWKS endpoints</li>
  * </ul>
  *
  * @see KeyDefinition
- * @see LocalKeyResolver
  * @see JwksConsumerKeyResolver
  * @since 1.0
  */
@@ -84,12 +82,8 @@ public interface KeyResolver {
      * key definition, the one with the lowest order value is used first.
      * </p>
      * <p>
-     * Built-in resolvers use the following order values:
-     * <ul>
-     *   <li>{@link LocalKeyResolver}: 0 (highest priority)</li>
-     *   <li>{@link JwksConsumerKeyResolver}: 10</li>
-     * </ul>
-     * Custom resolvers should use values of 100 or higher to avoid conflicts.
+     * The built-in {@link JwksConsumerKeyResolver} uses order value 10; custom
+     * resolvers should use values of 100 or higher to avoid conflicts.
      * </p>
      *
      * @return the order value (lower = higher priority)
