@@ -18,15 +18,14 @@ package com.alibaba.openagentauth.core.server;
 import com.alibaba.openagentauth.core.model.token.WorkloadIdentityToken;
 import com.alibaba.openagentauth.core.model.token.WorkloadProofToken;
 import com.alibaba.openagentauth.core.protocol.wimse.wit.WitParser;
+import com.alibaba.openagentauth.core.protocol.wimse.wit.WitValidator;
 import com.alibaba.openagentauth.core.protocol.wimse.wpt.WptParser;
-import com.alibaba.openagentauth.core.util.ValidationUtils;
-import com.alibaba.openagentauth.core.validation.layer.WorkloadIdentityValidator;
-import com.alibaba.openagentauth.core.validation.layer.WorkloadProofValidator;
-import com.alibaba.openagentauth.core.validation.model.LayerValidationResult;
-import com.alibaba.openagentauth.core.validation.model.ValidationContext;
+import com.alibaba.openagentauth.core.protocol.wimse.wpt.WptValidator;
 import com.alibaba.openagentauth.core.server.exception.validation.ServerValidationException;
 import com.alibaba.openagentauth.core.server.model.request.ResourceRequest;
 import com.alibaba.openagentauth.core.server.model.validation.ValidationResult;
+import com.alibaba.openagentauth.core.token.common.TokenValidationResult;
+import com.alibaba.openagentauth.core.util.ValidationUtils;
 import com.nimbusds.jwt.SignedJWT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +37,6 @@ import java.util.List;
 /**
  * Default {@link ResourceServer} implementation. Chains WIT then WPT validation,
  * fail-fast on the first error.
- *
- * @see ResourceServer
- * @since 1.0
  */
 public class DefaultResourceServer implements ResourceServer {
 
@@ -51,10 +47,10 @@ public class DefaultResourceServer implements ResourceServer {
 
     private final WitParser witParser = new WitParser();
     private final WptParser wptParser = new WptParser();
-    private final WorkloadIdentityValidator witValidator;
-    private final WorkloadProofValidator wptValidator;
+    private final WitValidator witValidator;
+    private final WptValidator wptValidator;
 
-    public DefaultResourceServer(WorkloadIdentityValidator witValidator, WorkloadProofValidator wptValidator) {
+    public DefaultResourceServer(WitValidator witValidator, WptValidator wptValidator) {
         this.witValidator = ValidationUtils.validateNotNull(witValidator, "WIT validator");
         this.wptValidator = ValidationUtils.validateNotNull(wptValidator, "WPT validator");
     }
@@ -63,91 +59,65 @@ public class DefaultResourceServer implements ResourceServer {
     public ValidationResult validateRequest(ResourceRequest request) throws ServerValidationException {
         ValidationUtils.validateNotNull(request, "Resource request");
 
-        ValidationContext context;
-        try {
-            context = buildValidationContext(request);
-        } catch (ServerValidationException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error("Request validation failed", e);
-            throw new ServerValidationException("Request validation failed: " + e.getMessage(), e);
-        }
-
-        LayerValidationResult witResult = witValidator.validate(context);
-        if (!witResult.isSuccess()) {
-            return buildResult(witResult, null);
-        }
-
-        LayerValidationResult wptResult = wptValidator.validate(context);
-        return buildResult(witResult, wptResult);
-    }
-
-    private ValidationContext buildValidationContext(ResourceRequest request) throws ServerValidationException {
-        WorkloadIdentityToken wit = parseWit(request.getWit());
-        SignedJWT wptSignedJwt = parseWptSignedJwt(request.getWpt());
-        WorkloadProofToken wpt = parseWpt(wptSignedJwt);
-
-        return ValidationContext.builder()
-                .wit(wit)
-                .wpt(wpt)
-                .wptSignedJwt(wptSignedJwt)
-                .httpMethod(request.getHttpMethod())
-                .httpUri(request.getHttpUri())
-                .httpHeaders(request.getHttpHeaders())
-                .httpBody(request.getHttpBody())
-                .addAttribute("operationType", request.getOperationType())
-                .addAttribute("resourceId", request.getResourceId())
-                .addAttribute("context", request.getParameters())
-                .build();
-    }
-
-    private WorkloadIdentityToken parseWit(String witString) throws ServerValidationException {
+        String witString = request.getWit();
+        String wptString = request.getWpt();
         if (ValidationUtils.isNullOrEmpty(witString)) {
             throw new ServerValidationException("WIT is required");
         }
-        try {
-            return witParser.parse(SignedJWT.parse(witString));
-        } catch (ParseException e) {
-            throw new ServerValidationException("Failed to parse WIT: " + e.getMessage(), e);
-        }
-    }
-
-    private SignedJWT parseWptSignedJwt(String wptString) throws ServerValidationException {
         if (ValidationUtils.isNullOrEmpty(wptString)) {
             throw new ServerValidationException("WPT is required");
         }
+
+        WorkloadIdentityToken wit;
+        TokenValidationResult<WorkloadIdentityToken> witResult;
         try {
-            return SignedJWT.parse(wptString);
+            wit = witParser.parse(SignedJWT.parse(witString));
+            witResult = witValidator.validate(witString);
+        } catch (ParseException e) {
+            throw new ServerValidationException("Failed to parse WIT: " + e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("WIT validation failed", e);
+            throw new ServerValidationException("WIT validation failed: " + e.getMessage(), e);
+        }
+
+        if (!witResult.isValid()) {
+            return buildResult(witResult, null);
+        }
+
+        TokenValidationResult<WorkloadProofToken> wptResult;
+        try {
+            SignedJWT wptSignedJwt = SignedJWT.parse(wptString);
+            WorkloadProofToken wpt = wptParser.parse(wptSignedJwt);
+            wptResult = wptValidator.validate(wptSignedJwt, wpt, wit);
         } catch (ParseException e) {
             throw new ServerValidationException("Failed to parse WPT: " + e.getMessage(), e);
-        }
-    }
-
-    private WorkloadProofToken parseWpt(SignedJWT wptSignedJwt) throws ServerValidationException {
-        try {
-            return wptParser.parse(wptSignedJwt);
         } catch (Exception e) {
-            throw new ServerValidationException("Failed to parse WPT: " + e.getMessage(), e);
+            logger.error("WPT validation failed", e);
+            throw new ServerValidationException("WPT validation failed: " + e.getMessage(), e);
         }
+
+        return buildResult(witResult, wptResult);
     }
 
-    private ValidationResult buildResult(LayerValidationResult witResult, LayerValidationResult wptResult) {
+    private ValidationResult buildResult(
+            TokenValidationResult<WorkloadIdentityToken> witResult,
+            TokenValidationResult<WorkloadProofToken> wptResult) {
         List<ValidationResult.LayerResult> layerResults = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
-        layerResults.add(toLayerResult(1, WIT_NAME, witResult));
-        if (!witResult.isSuccess()) {
-            errors.addAll(witResult.getErrors());
+        layerResults.add(toLayerResult(1, WIT_NAME, witResult.isValid(), witResult.getErrorMessage()));
+        if (!witResult.isValid() && witResult.getErrorMessage() != null) {
+            errors.add(witResult.getErrorMessage());
         }
 
         if (wptResult != null) {
-            layerResults.add(toLayerResult(2, WPT_NAME, wptResult));
-            if (!wptResult.isSuccess()) {
-                errors.addAll(wptResult.getErrors());
+            layerResults.add(toLayerResult(2, WPT_NAME, wptResult.isValid(), wptResult.getErrorMessage()));
+            if (!wptResult.isValid() && wptResult.getErrorMessage() != null) {
+                errors.add(wptResult.getErrorMessage());
             }
         }
 
-        boolean valid = witResult.isSuccess() && wptResult != null && wptResult.isSuccess();
+        boolean valid = witResult.isValid() && wptResult != null && wptResult.isValid();
         return ValidationResult.builder()
                 .valid(valid)
                 .layerResults(layerResults)
@@ -155,12 +125,12 @@ public class DefaultResourceServer implements ResourceServer {
                 .build();
     }
 
-    private static ValidationResult.LayerResult toLayerResult(int layer, String name, LayerValidationResult r) {
+    private static ValidationResult.LayerResult toLayerResult(int layer, String name, boolean valid, String message) {
         return ValidationResult.LayerResult.builder()
                 .layer(layer)
                 .layerName(name)
-                .valid(r.isSuccess())
-                .message(r.isSuccess() ? "Validation passed" : String.join(", ", r.getErrors()))
+                .valid(valid)
+                .message(valid ? "Validation passed" : message != null ? message : "Validation failed")
                 .build();
     }
 }
