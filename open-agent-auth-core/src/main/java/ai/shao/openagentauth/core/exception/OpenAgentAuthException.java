@@ -84,7 +84,7 @@ public abstract class OpenAgentAuthException extends RuntimeException {
         super(formattedMessage);
         this.errorCode = errorCode;
         this.errorParams = errorParams != null ? List.copyOf(errorParams) : null;
-        this.context = context;
+        this.context = context != null ? Map.copyOf(context) : null;
         this.formattedMessage = formattedMessage;
     }
 
@@ -107,7 +107,7 @@ public abstract class OpenAgentAuthException extends RuntimeException {
         super(formattedMessage, cause);
         this.errorCode = errorCode;
         this.errorParams = errorParams != null ? List.copyOf(errorParams) : null;
-        this.context = context;
+        this.context = context != null ? Map.copyOf(context) : null;
         this.formattedMessage = formattedMessage;
     }
 

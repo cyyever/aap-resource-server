@@ -32,7 +32,10 @@ public record ValidationResult(
         @JsonProperty("errors") @Nullable List<String> errors) {
 
     @JsonCreator
-    public ValidationResult {}
+    public ValidationResult {
+        layerResults = layerResults == null ? null : List.copyOf(layerResults);
+        errors = errors == null ? null : List.copyOf(errors);
+    }
 
     /** Boolean-getter alias for {@link #valid()}, matching the existing API. */
     public boolean isValid() {

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    SpotBugs / FindSecBugs filter file. Anything listed here is a deliberate,
+    documented exception — not a bug ignore. Keep it narrow.
+-->
+<FindBugsFilter
+        xmlns="https://github.com/spotbugs/filter/3.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/4.9.0/spotbugs/etc/findbugsfilter.xsd">
+
+    <!--
+        EI_EXPOSE_REP / EI_EXPOSE_REP2 on java.util.Date fields inside the
+        protocol records (CredentialToken.Claims, DpopToken.Claims): the
+        Date type is mutable in the JDK but we treat the expiration claim
+        as a value. Will go away when we migrate Date → java.time.Instant.
+    -->
+    <Match>
+        <Or>
+            <Bug pattern="EI_EXPOSE_REP"/>
+            <Bug pattern="EI_EXPOSE_REP2"/>
+        </Or>
+        <Or>
+            <Class name="~ai\.shao\.openagentauth\.core\.model\.token\.CredentialToken\$Claims.*"/>
+            <Class name="~ai\.shao\.openagentauth\.core\.model\.token\.DpopToken\$Claims.*"/>
+        </Or>
+    </Match>
+
+    <!--
+        EI_EXPOSE_REP2 on Builder.x(Map) / Builder.x(List): builders are
+        inherently mutable scratch state. The final build() always passes
+        the collection through a defensive copy in the resulting record /
+        class compact ctor, so the Builder holding the same reference is
+        not a real exposure.
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="~.*\$Builder"/>
+    </Match>
+
+</FindBugsFilter>

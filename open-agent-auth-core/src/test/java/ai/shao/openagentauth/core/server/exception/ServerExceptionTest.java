@@ -183,7 +183,7 @@ class ServerExceptionTest {
         assertThat(exception.getFormattedMessage())
                 .isEqualTo("Server authentication failed: john.doe");
         assertThat(exception.getErrorParams()).containsExactly("john.doe");
-        assertThat(exception.getContext()).containsExactlyEntriesOf(context);
+        assertThat(exception.getContext()).containsExactlyInAnyOrderEntriesOf(context);
     }
 
     @Test
@@ -227,7 +227,7 @@ class ServerExceptionTest {
         assertThat(exception.getFormattedMessage())
                 .isEqualTo("Server validation failed: username - cannot be empty");
         assertThat(exception.getErrorParams()).containsExactly("username", "cannot be empty");
-        assertThat(exception.getContext()).containsExactlyEntriesOf(context);
+        assertThat(exception.getContext()).containsExactlyInAnyOrderEntriesOf(context);
     }
 
     @Test

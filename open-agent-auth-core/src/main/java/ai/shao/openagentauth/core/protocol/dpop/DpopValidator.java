@@ -121,8 +121,8 @@ public class DpopValidator {
             return cached;
         }
         JWK fresh = buildNimbusJwk(jwk);
-        jwkCache.putIfAbsent(jwk, fresh);
-        return fresh;
+        JWK winner = jwkCache.putIfAbsent(jwk, fresh);
+        return winner != null ? winner : fresh;
     }
 
     private JWK buildNimbusJwk(Jwk jwk) {

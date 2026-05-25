@@ -22,7 +22,7 @@ import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ResourceRequest {
+public final class ResourceRequest {
 
     @JsonProperty("ct")
     private final String ct;
@@ -60,7 +60,7 @@ public class ResourceRequest {
         this.dpop = dpop;
         this.httpMethod = httpMethod;
         this.httpUri = httpUri;
-        this.httpHeaders = httpHeaders;
+        this.httpHeaders = httpHeaders == null ? null : Map.copyOf(httpHeaders);
         this.httpBody = httpBody;
     }
 

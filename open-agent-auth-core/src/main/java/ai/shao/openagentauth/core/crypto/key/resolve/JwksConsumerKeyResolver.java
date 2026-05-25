@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * thread refreshes), single-flight on cold start via {@link ConcurrentHashMap#compute}, and a
  * key-not-found refetch throttle to absorb upstream key rotation without thundering-herd refetches.
  */
-public class JwksConsumerKeyResolver implements KeyResolver {
+public final class JwksConsumerKeyResolver implements KeyResolver {
 
     private static final Logger logger = LoggerFactory.getLogger(JwksConsumerKeyResolver.class);
 
@@ -73,7 +73,7 @@ public class JwksConsumerKeyResolver implements KeyResolver {
         if (consumerEndpoints == null) {
             throw new IllegalArgumentException("Consumer endpoints map cannot be null");
         }
-        this.consumerEndpoints = consumerEndpoints;
+        this.consumerEndpoints = Map.copyOf(consumerEndpoints);
         this.jwksTtl = jwksTtl;
         this.notFoundRetryThrottle = notFoundRetryThrottle;
         logger.info(

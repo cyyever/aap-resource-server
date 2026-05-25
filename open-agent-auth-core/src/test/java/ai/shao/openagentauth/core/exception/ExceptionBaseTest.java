@@ -270,7 +270,7 @@ class ExceptionBaseTest {
         assertThat(exception.getFormattedMessage())
                 .isEqualTo("Authentication failed for user john.doe");
         assertThat(exception.getErrorParams()).containsExactly("john.doe");
-        assertThat(exception.getContext()).containsExactlyEntriesOf(context);
+        assertThat(exception.getContext()).containsExactlyInAnyOrderEntriesOf(context);
     }
 
     @Test
@@ -314,7 +314,7 @@ class ExceptionBaseTest {
         assertThat(exception.getFormattedMessage())
                 .isEqualTo("Validation failed: username - cannot be empty");
         assertThat(exception.getErrorParams()).containsExactly("username", "cannot be empty");
-        assertThat(exception.getContext()).containsExactlyEntriesOf(context);
+        assertThat(exception.getContext()).containsExactlyInAnyOrderEntriesOf(context);
     }
 
     @Test

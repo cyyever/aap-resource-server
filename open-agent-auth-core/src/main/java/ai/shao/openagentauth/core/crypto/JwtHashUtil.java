@@ -25,7 +25,7 @@ import java.util.Base64;
  * Utility class for computing SHA-256 hashes of JWT strings, encoded as {@code
  * BASE64URL(SHA-256(ASCII(token_string)))}.
  */
-public class JwtHashUtil {
+public final class JwtHashUtil {
 
     private static final Base64.Encoder URL_ENCODER = Base64.getUrlEncoder().withoutPadding();
 
