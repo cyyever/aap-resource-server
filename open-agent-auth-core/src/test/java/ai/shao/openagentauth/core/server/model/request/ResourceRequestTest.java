@@ -24,15 +24,6 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Unit tests for {@link ResourceRequest}.
- * <p>
- * This test class verifies the behavior of the ResourceRequest class,
- * including builder pattern and getter methods.
- * </p>
- *
- * @since 1.0
- */
 @DisplayName("ResourceRequest Tests")
 class ResourceRequestTest {
 
@@ -51,17 +42,15 @@ class ResourceRequestTest {
         }
 
         @Test
-        @DisplayName("Should build request with all token fields")
-        void shouldBuildRequestWithAllTokenFields() {
+        @DisplayName("Should build request with wit and wpt")
+        void shouldBuildRequestWithWitAndWpt() {
             ResourceRequest request = ResourceRequest.builder()
                 .wit("wit-token")
                 .wpt("wpt-token")
-                .aoat("aoat-token")
                 .build();
 
             assertThat(request.getWit()).isEqualTo("wit-token");
             assertThat(request.getWpt()).isEqualTo("wpt-token");
-            assertThat(request.getAoat()).isEqualTo("aoat-token");
         }
 
         @Test
@@ -84,53 +73,25 @@ class ResourceRequestTest {
         }
 
         @Test
-        @DisplayName("Should build request with operation information")
-        void shouldBuildRequestWithOperationInformation() {
-            Map<String, Object> parameters = new HashMap<>();
-            parameters.put("param1", "value1");
-
-            ResourceRequest request = ResourceRequest.builder()
-                .operationType("READ")
-                .resourceId("resource-123")
-                .parameters(parameters)
-                .build();
-
-            assertThat(request.getOperationType()).isEqualTo("READ");
-            assertThat(request.getResourceId()).isEqualTo("resource-123");
-            assertThat(request.getParameters()).hasSize(1);
-        }
-
-        @Test
         @DisplayName("Should build request with all fields")
         void shouldBuildRequestWithAllFields() {
             Map<String, String> headers = new HashMap<>();
-            headers.put("Authorization", "Bearer token");
-
-            Map<String, Object> parameters = new HashMap<>();
-            parameters.put("param1", "value1");
+            headers.put("Content-Type", "application/json");
 
             ResourceRequest request = ResourceRequest.builder()
                 .wit("wit-token")
                 .wpt("wpt-token")
-                .aoat("aoat-token")
                 .httpMethod("GET")
                 .httpUri("/api/resource")
                 .httpHeaders(headers)
                 .httpBody("")
-                .operationType("READ")
-                .resourceId("resource-123")
-                .parameters(parameters)
                 .build();
 
             assertThat(request.getWit()).isEqualTo("wit-token");
             assertThat(request.getWpt()).isEqualTo("wpt-token");
-            assertThat(request.getAoat()).isEqualTo("aoat-token");
             assertThat(request.getHttpMethod()).isEqualTo("GET");
             assertThat(request.getHttpUri()).isEqualTo("/api/resource");
             assertThat(request.getHttpHeaders()).hasSize(1);
-            assertThat(request.getOperationType()).isEqualTo("READ");
-            assertThat(request.getResourceId()).isEqualTo("resource-123");
-            assertThat(request.getParameters()).hasSize(1);
         }
 
         @Test
@@ -139,11 +100,8 @@ class ResourceRequestTest {
             ResourceRequest request = ResourceRequest.builder()
                 .wit("wit-token")
                 .wpt("wpt-token")
-                .aoat("aoat-token")
                 .httpMethod("POST")
                 .httpUri("/api/resource")
-                .operationType("WRITE")
-                .resourceId("resource-123")
                 .build();
 
             assertThat(request).isNotNull();
@@ -155,26 +113,18 @@ class ResourceRequestTest {
             ResourceRequest request = ResourceRequest.builder()
                 .wit(null)
                 .wpt(null)
-                .aoat(null)
                 .httpMethod(null)
                 .httpUri(null)
                 .httpHeaders(null)
                 .httpBody(null)
-                .operationType(null)
-                .resourceId(null)
-                .parameters(null)
                 .build();
 
             assertThat(request.getWit()).isNull();
             assertThat(request.getWpt()).isNull();
-            assertThat(request.getAoat()).isNull();
             assertThat(request.getHttpMethod()).isNull();
             assertThat(request.getHttpUri()).isNull();
             assertThat(request.getHttpHeaders()).isNull();
             assertThat(request.getHttpBody()).isNull();
-            assertThat(request.getOperationType()).isNull();
-            assertThat(request.getResourceId()).isNull();
-            assertThat(request.getParameters()).isNull();
         }
     }
 
@@ -203,16 +153,6 @@ class ResourceRequestTest {
         }
 
         @Test
-        @DisplayName("Should return aoat")
-        void shouldReturnAoat() {
-            ResourceRequest request = ResourceRequest.builder()
-                .aoat("aoat-token")
-                .build();
-
-            assertThat(request.getAoat()).isEqualTo("aoat-token");
-        }
-
-        @Test
         @DisplayName("Should return httpMethod")
         void shouldReturnHttpMethod() {
             ResourceRequest request = ResourceRequest.builder()
@@ -236,14 +176,14 @@ class ResourceRequestTest {
         @DisplayName("Should return httpHeaders")
         void shouldReturnHttpHeaders() {
             Map<String, String> headers = new HashMap<>();
-            headers.put("Authorization", "Bearer token");
+            headers.put("Content-Type", "application/json");
 
             ResourceRequest request = ResourceRequest.builder()
                 .httpHeaders(headers)
                 .build();
 
             assertThat(request.getHttpHeaders()).hasSize(1);
-            assertThat(request.getHttpHeaders().get("Authorization")).isEqualTo("Bearer token");
+            assertThat(request.getHttpHeaders().get("Content-Type")).isEqualTo("application/json");
         }
 
         @Test
@@ -257,41 +197,6 @@ class ResourceRequestTest {
         }
 
         @Test
-        @DisplayName("Should return operationType")
-        void shouldReturnOperationType() {
-            ResourceRequest request = ResourceRequest.builder()
-                .operationType("READ")
-                .build();
-
-            assertThat(request.getOperationType()).isEqualTo("READ");
-        }
-
-        @Test
-        @DisplayName("Should return resourceId")
-        void shouldReturnResourceId() {
-            ResourceRequest request = ResourceRequest.builder()
-                .resourceId("resource-123")
-                .build();
-
-            assertThat(request.getResourceId()).isEqualTo("resource-123");
-        }
-
-        @Test
-        @DisplayName("Should return parameters")
-        void shouldReturnParameters() {
-            Map<String, Object> parameters = new HashMap<>();
-            parameters.put("param1", "value1");
-            parameters.put("param2", "value2");
-
-            ResourceRequest request = ResourceRequest.builder()
-                .parameters(parameters)
-                .build();
-
-            assertThat(request.getParameters()).hasSize(2);
-            assertThat(request.getParameters().get("param1")).isEqualTo("value1");
-        }
-
-        @Test
         @DisplayName("Should return null for missing fields")
         void shouldReturnNullForMissingFields() {
             ResourceRequest request = ResourceRequest.builder()
@@ -299,14 +204,10 @@ class ResourceRequestTest {
                 .build();
 
             assertThat(request.getWpt()).isNull();
-            assertThat(request.getAoat()).isNull();
             assertThat(request.getHttpMethod()).isNull();
             assertThat(request.getHttpUri()).isNull();
             assertThat(request.getHttpHeaders()).isNull();
             assertThat(request.getHttpBody()).isNull();
-            assertThat(request.getOperationType()).isNull();
-            assertThat(request.getResourceId()).isNull();
-            assertThat(request.getParameters()).isNull();
         }
     }
 
@@ -318,7 +219,6 @@ class ResourceRequestTest {
         @DisplayName("Should handle complex HTTP headers")
         void shouldHandleComplexHttpHeaders() {
             Map<String, String> headers = new HashMap<>();
-            headers.put("Authorization", "Bearer token123");
             headers.put("Content-Type", "application/json");
             headers.put("User-Agent", "TestAgent/1.0");
             headers.put("X-Custom-Header", "custom-value");
@@ -327,24 +227,8 @@ class ResourceRequestTest {
                 .httpHeaders(headers)
                 .build();
 
-            assertThat(request.getHttpHeaders()).hasSize(4);
-            assertThat(request.getHttpHeaders().get("Authorization")).isEqualTo("Bearer token123");
-        }
-
-        @Test
-        @DisplayName("Should handle complex parameters")
-        void shouldHandleComplexParameters() {
-            Map<String, Object> parameters = new HashMap<>();
-            parameters.put("filter", "active");
-            parameters.put("limit", 100);
-            parameters.put("nested", Map.of("key", "value"));
-
-            ResourceRequest request = ResourceRequest.builder()
-                .parameters(parameters)
-                .build();
-
-            assertThat(request.getParameters()).hasSize(3);
-            assertThat(request.getParameters().get("limit")).isEqualTo(100);
+            assertThat(request.getHttpHeaders()).hasSize(3);
+            assertThat(request.getHttpHeaders().get("Content-Type")).isEqualTo("application/json");
         }
 
         @Test
@@ -352,12 +236,10 @@ class ResourceRequestTest {
         void shouldCreateMultipleIndependentInstances() {
             ResourceRequest request1 = ResourceRequest.builder()
                 .wit("wit-1")
-                .operationType("READ")
                 .build();
 
             ResourceRequest request2 = ResourceRequest.builder()
                 .wit("wit-2")
-                .operationType("WRITE")
                 .build();
 
             assertThat(request1.getWit()).isEqualTo("wit-1");

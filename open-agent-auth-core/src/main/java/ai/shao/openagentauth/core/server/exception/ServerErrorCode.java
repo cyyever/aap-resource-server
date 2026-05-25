@@ -31,7 +31,7 @@ public interface ServerErrorCode extends ErrorCode {
     String SYSTEM_CODE = "11";
 
     /**
-     * Domain code for Auth (Authentication & Authorization).
+     * Domain code for Auth (Authentication).
      */
     String DOMAIN_CODE_AUTH = "01";
 

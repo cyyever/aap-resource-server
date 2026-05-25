@@ -52,7 +52,7 @@ class WorkloadIdentityTokenTest {
 
         validClaims = WorkloadIdentityToken.Claims.builder()
                 .issuer("https://idp.example.com")
-                .subject("spiffe://example.com/workload/my-workload")
+                .subject("agent-my-workload")
                 .expirationTime(futureExpirationTime)
                 .jwtId("test-jti-123")
                 .confirmation(confirmation)
@@ -111,7 +111,7 @@ class WorkloadIdentityTokenTest {
         void shouldReturnTrueForExpiredToken() {
             WorkloadIdentityToken.Claims expiredClaims = WorkloadIdentityToken.Claims.builder()
                     .issuer("https://idp.example.com")
-                    .subject("spiffe://example.com/workload/expired")
+                    .subject("agent-expired")
                     .expirationTime(pastExpirationTime)
                     .build();
 
@@ -137,7 +137,7 @@ class WorkloadIdentityTokenTest {
         void shouldReturnFalseForExpiredTokenInIsValid() {
             WorkloadIdentityToken.Claims expiredClaims = WorkloadIdentityToken.Claims.builder()
                     .issuer("https://idp.example.com")
-                    .subject("spiffe://example.com/workload/expired")
+                    .subject("agent-expired")
                     .expirationTime(pastExpirationTime)
                     .build();
 
@@ -172,14 +172,14 @@ class WorkloadIdentityTokenTest {
 
             WorkloadIdentityToken.Claims claims = WorkloadIdentityToken.Claims.builder()
                     .issuer("https://idp.example.com")
-                    .subject("spiffe://example.com/workload/test")
+                    .subject("agent-test")
                     .expirationTime(futureExpirationTime)
                     .jwtId("test-jti")
                     .confirmation(confirmation)
                     .build();
 
             assertThat(claims.issuer()).isEqualTo("https://idp.example.com");
-            assertThat(claims.subject()).isEqualTo("spiffe://example.com/workload/test");
+            assertThat(claims.subject()).isEqualTo("agent-test");
             assertThat(claims.expirationTime()).isEqualTo(futureExpirationTime);
             assertThat(claims.jwtId()).isEqualTo("test-jti");
             assertThat(claims.confirmation()).isEqualTo(confirmation);
@@ -190,12 +190,12 @@ class WorkloadIdentityTokenTest {
         @DisplayName("Should build claims with minimal required fields")
         void shouldBuildClaimsWithMinimalRequiredFields() {
             WorkloadIdentityToken.Claims claims = WorkloadIdentityToken.Claims.builder()
-                    .subject("spiffe://example.com/workload/test")
+                    .subject("agent-test")
                     .expirationTime(futureExpirationTime)
                     .build();
 
             assertThat(claims.issuer()).isNull();
-            assertThat(claims.subject()).isEqualTo("spiffe://example.com/workload/test");
+            assertThat(claims.subject()).isEqualTo("agent-test");
             assertThat(claims.expirationTime()).isEqualTo(futureExpirationTime);
             assertThat(claims.jwtId()).isNull();
             assertThat(claims.confirmation()).isNull();
@@ -227,7 +227,7 @@ class WorkloadIdentityTokenTest {
         @DisplayName("Should throw exception when building claims with null expiration time")
         void shouldThrowExceptionWhenBuildingClaimsWithNullExpirationTime() {
             assertThatThrownBy(() -> WorkloadIdentityToken.Claims.builder()
-                    .subject("spiffe://example.com/workload/test")
+                    .subject("agent-test")
                     .expirationTime(null)
                     .build())
                     .isInstanceOf(IllegalStateException.class)
@@ -238,7 +238,7 @@ class WorkloadIdentityTokenTest {
         @DisplayName("Should check if claims are expired")
         void shouldCheckIfClaimsAreExpired() {
             WorkloadIdentityToken.Claims expiredClaims = WorkloadIdentityToken.Claims.builder()
-                    .subject("spiffe://example.com/workload/expired")
+                    .subject("agent-expired")
                     .expirationTime(pastExpirationTime)
                     .build();
 
@@ -248,7 +248,7 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should return workload identifier")
         void shouldReturnWorkloadIdentifier() {
-            assertThat(validClaims.getWorkloadIdentifier()).isEqualTo("spiffe://example.com/workload/my-workload");
+            assertThat(validClaims.getWorkloadIdentifier()).isEqualTo("agent-my-workload");
         }
     }
 
