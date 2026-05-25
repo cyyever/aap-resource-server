@@ -242,7 +242,7 @@ class DpopValidatorTest {
         return signedWit(
                 trustDomain.domainId(),
                 subject,
-                Date.from(Instant.now().plusSeconds(3600)),
+                Instant.now().plusSeconds(3600),
                 wptPublicKey,
                 witSigningKey);
     }
@@ -250,7 +250,7 @@ class DpopValidatorTest {
     private static CredentialToken signedWit(
             String issuer,
             String subject,
-            Date expiration,
+            Instant expiration,
             OctetKeyPair cnfPublicKey,
             OctetKeyPair signingKey)
             throws JOSEException {
@@ -260,7 +260,7 @@ class DpopValidatorTest {
                 new JWTClaimsSet.Builder()
                         .issuer(issuer)
                         .subject(subject)
-                        .expirationTime(expiration)
+                        .expirationTime(Date.from(expiration))
                         .jwtID(UUID.randomUUID().toString())
                         .claim("cnf", cnf)
                         .build();
@@ -300,12 +300,12 @@ class DpopValidatorTest {
             CredentialToken ct, OctetKeyPair signingKey, long expirationSeconds)
             throws JOSEException {
         String wth = JwtHashUtil.computeWitHash(ct.jwtString());
-        Date expiration = Date.from(Instant.now().plusSeconds(expirationSeconds));
+        Instant expiration = Instant.now().plusSeconds(expirationSeconds);
         String jti = UUID.randomUUID().toString();
 
         JWTClaimsSet claims =
                 new JWTClaimsSet.Builder()
-                        .expirationTime(expiration)
+                        .expirationTime(Date.from(expiration))
                         .jwtID(jti)
                         .claim("wth", wth)
                         .build();
@@ -336,7 +336,7 @@ class DpopValidatorTest {
         return DpopToken.builder()
                 .claims(
                         DpopToken.Claims.builder()
-                                .expirationTime(Date.from(Instant.now().minusSeconds(300)))
+                                .expirationTime(Instant.now().minusSeconds(300))
                                 .jwtId(UUID.randomUUID().toString())
                                 .workloadTokenHash("test-wth-hash")
                                 .build())
@@ -349,7 +349,7 @@ class DpopValidatorTest {
         return DpopToken.builder()
                 .claims(
                         DpopToken.Claims.builder()
-                                .expirationTime(Date.from(Instant.now().plusSeconds(300)))
+                                .expirationTime(Instant.now().plusSeconds(300))
                                 .jwtId(UUID.randomUUID().toString())
                                 .workloadTokenHash("   ")
                                 .build())

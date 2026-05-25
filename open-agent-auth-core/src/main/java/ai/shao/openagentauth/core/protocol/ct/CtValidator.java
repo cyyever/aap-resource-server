@@ -24,6 +24,7 @@ import ai.shao.openagentauth.core.util.ValidationUtils;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -150,16 +151,18 @@ public class CtValidator {
      * @param signedJwt the signed JWT
      * @return true if the token is not expired, false otherwise
      */
+    @SuppressWarnings("JavaUtilDate") // Nimbus JWTClaimsSet#getExpirationTime returns Date; we
+    //                                   convert to Instant immediately for the comparison.
     private boolean verifyExpiration(SignedJWT signedJwt) {
         try {
-            // Get CT expiration time
-            Date expirationTime = signedJwt.getJWTClaimsSet().getExpirationTime();
-            if (expirationTime == null) {
+            Date rawExp = signedJwt.getJWTClaimsSet().getExpirationTime();
+            if (rawExp == null) {
                 logger.warn("CT missing expiration time");
                 return false;
             }
+            Instant expirationTime = rawExp.toInstant();
 
-            boolean isValid = System.currentTimeMillis() < expirationTime.getTime();
+            boolean isValid = Instant.now().isBefore(expirationTime);
             if (!isValid) {
                 logger.warn("CT has expired at: {}", expirationTime);
             }

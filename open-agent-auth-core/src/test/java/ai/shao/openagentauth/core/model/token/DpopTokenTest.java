@@ -18,7 +18,7 @@ package ai.shao.openagentauth.core.model.token;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.Date;
+import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -28,14 +28,14 @@ import org.junit.jupiter.api.Test;
 @DisplayName("DpopToken Tests")
 class DpopTokenTest {
 
-    private Date futureExpirationTime;
-    private Date pastExpirationTime;
+    private Instant futureExpirationTime;
+    private Instant pastExpirationTime;
     private DpopToken.Claims validClaims;
 
     @BeforeEach
     void setUp() {
-        futureExpirationTime = new Date(System.currentTimeMillis() + 3600000);
-        pastExpirationTime = new Date(System.currentTimeMillis() - 3600000);
+        futureExpirationTime = Instant.ofEpochMilli(System.currentTimeMillis() + 3600000);
+        pastExpirationTime = Instant.ofEpochMilli(System.currentTimeMillis() - 3600000);
 
         validClaims =
                 DpopToken.Claims.builder()

@@ -25,6 +25,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -136,17 +137,20 @@ public class CtParser {
      * @param confirmation the parsed confirmation claim
      * @return a CredentialToken object
      */
+    @SuppressWarnings("JavaUtilDate") // Nimbus JWTClaimsSet#getExpirationTime returns Date; we
+    //                                   convert to Instant immediately when building Claims.
     private CredentialToken buildCredentialToken(
             SignedJWT signedJwt,
             JWTClaimsSet claims,
             CredentialToken.Claims.Confirmation confirmation) {
 
         // Build claims
+        Date rawExp = claims.getExpirationTime();
         CredentialToken.Claims.ClaimsBuilder claimsBuilder =
                 CredentialToken.Claims.builder()
                         .issuer(claims.getIssuer())
                         .subject(claims.getSubject())
-                        .expirationTime(claims.getExpirationTime())
+                        .expirationTime(rawExp == null ? null : rawExp.toInstant())
                         .jwtId(claims.getJWTID())
                         .confirmation(confirmation);
 

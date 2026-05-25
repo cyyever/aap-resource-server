@@ -147,6 +147,11 @@ public abstract class OpenAgentAuthException extends RuntimeException {
         return formattedMessage;
     }
 
+    // Override toString to surface the structured errorCode in logs and stack
+    // traces alongside the formatted message. getMessage() still returns the
+    // bare formatted message (set on the Throwable via super(formattedMessage))
+    // for callers that want only the human text.
+    @SuppressWarnings("OverrideThrowableToString")
     @Override
     public String toString() {
         return this.getClass().getSimpleName()

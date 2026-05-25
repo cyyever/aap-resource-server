@@ -153,7 +153,7 @@ class DpopParserTest {
             DpopToken dpop = dpopParser.parse(SignedJWT.parse(wptJwt));
 
             assertThat(dpop.claims().expirationTime()).isNotNull();
-            assertThat(dpop.claims().expirationTime()).isAfter(new Date());
+            assertThat(dpop.claims().expirationTime()).isAfter(Instant.now());
         }
 
         @Test

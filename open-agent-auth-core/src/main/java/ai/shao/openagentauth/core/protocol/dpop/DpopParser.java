@@ -22,6 +22,7 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -96,11 +97,13 @@ public class DpopParser {
             }
         }
 
-        // Build claims
+        // Build claims. Nimbus's getExpirationTime() returns Date — convert to Instant.
+        @SuppressWarnings("JavaUtilDate")
+        Date rawExp = claimsSet.getExpirationTime();
         DpopToken.Claims claims =
                 DpopToken.Claims.builder()
                         .audience(getStringClaim(claimsSet, "aud"))
-                        .expirationTime(claimsSet.getExpirationTime())
+                        .expirationTime(rawExp == null ? null : rawExp.toInstant())
                         .jwtId(claimsSet.getJWTID())
                         .workloadTokenHash(getStringClaim(claimsSet, "wth"))
                         .accessTokenHash(getStringClaim(claimsSet, "ath"))

@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import ai.shao.openagentauth.core.model.jwk.Jwk;
-import java.util.Date;
+import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -29,16 +29,16 @@ import org.junit.jupiter.api.Test;
 @DisplayName("CredentialToken Tests")
 class CredentialTokenTest {
 
-    private Date futureExpirationTime;
-    private Date pastExpirationTime;
+    private Instant futureExpirationTime;
+    private Instant pastExpirationTime;
     private Jwk testJwk;
     private CredentialToken.Claims.Confirmation testConfirmation;
     private CredentialToken.Claims validClaims;
 
     @BeforeEach
     void setUp() {
-        futureExpirationTime = new Date(System.currentTimeMillis() + 3600000);
-        pastExpirationTime = new Date(System.currentTimeMillis() - 3600000);
+        futureExpirationTime = Instant.ofEpochMilli(System.currentTimeMillis() + 3600000);
+        pastExpirationTime = Instant.ofEpochMilli(System.currentTimeMillis() - 3600000);
 
         testJwk = Jwk.builder().x("test_x_value").build();
 

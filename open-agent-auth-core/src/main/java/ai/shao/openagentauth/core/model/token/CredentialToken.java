@@ -19,7 +19,7 @@ import ai.shao.openagentauth.core.model.jwk.Jwk;
 import ai.shao.openagentauth.core.util.ValidationUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Date;
+import java.time.Instant;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -51,7 +51,7 @@ public record CredentialToken(
         return claims.subject();
     }
 
-    public Date getExpirationTime() {
+    public Instant getExpirationTime() {
         return claims.expirationTime();
     }
 
@@ -116,7 +116,7 @@ public record CredentialToken(
     public record Claims(
             @JsonProperty("iss") @Nullable String issuer,
             @JsonProperty("sub") String subject,
-            @JsonProperty("exp") Date expirationTime,
+            @JsonProperty("exp") Instant expirationTime,
             @JsonProperty("jti") @Nullable String jwtId,
             @JsonProperty("cnf") Confirmation confirmation) {
 
@@ -143,11 +143,11 @@ public record CredentialToken(
         }
 
         public boolean isExpired() {
-            return expirationTime.getTime() < System.currentTimeMillis();
+            return expirationTime.toEpochMilli() < System.currentTimeMillis();
         }
 
         public boolean isValid() {
-            return System.currentTimeMillis() <= expirationTime.getTime();
+            return System.currentTimeMillis() <= expirationTime.toEpochMilli();
         }
 
         public static ClaimsBuilder builder() {
@@ -157,7 +157,7 @@ public record CredentialToken(
         public static class ClaimsBuilder {
             private @Nullable String issuer;
             private @Nullable String subject;
-            private @Nullable Date expirationTime;
+            private @Nullable Instant expirationTime;
             private @Nullable String jwtId;
             private @Nullable Confirmation confirmation;
 
@@ -171,7 +171,7 @@ public record CredentialToken(
                 return this;
             }
 
-            public ClaimsBuilder expirationTime(@Nullable Date expirationTime) {
+            public ClaimsBuilder expirationTime(@Nullable Instant expirationTime) {
                 this.expirationTime = expirationTime;
                 return this;
             }

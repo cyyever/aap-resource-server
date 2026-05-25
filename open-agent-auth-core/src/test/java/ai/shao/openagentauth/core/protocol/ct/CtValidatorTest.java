@@ -158,7 +158,7 @@ class CtValidatorTest {
                     signedWit(
                             "wrong-domain.com",
                             "agent-001",
-                            Date.from(Instant.now().plusSeconds(3600)),
+                            Instant.now().plusSeconds(3600),
                             wptPublicKey.toJSONObject(),
                             signingKey);
 
@@ -279,7 +279,7 @@ class CtValidatorTest {
         return signedWit(
                 trustDomain.domainId(),
                 "agent-001",
-                Date.from(Instant.now().plusSeconds(3600)),
+                Instant.now().plusSeconds(3600),
                 wptPublicKey.toJSONObject(),
                 signingKey);
     }
@@ -288,7 +288,7 @@ class CtValidatorTest {
         return signedWit(
                 trustDomain.domainId(),
                 "agent-001",
-                Date.from(Instant.now().minusSeconds(3600)),
+                Instant.now().minusSeconds(3600),
                 wptPublicKey.toJSONObject(),
                 signingKey);
     }
@@ -337,7 +337,7 @@ class CtValidatorTest {
         return signedWit(
                 trustDomain.domainId(),
                 "agent-001",
-                Date.from(Instant.now().plusSeconds(3600)),
+                Instant.now().plusSeconds(3600),
                 invalidJwk,
                 signingKey);
     }
@@ -357,7 +357,7 @@ class CtValidatorTest {
     private static String signedWit(
             String issuer,
             String subject,
-            Date expiration,
+            Instant expiration,
             Map<String, Object> cnfJwk,
             OctetKeyPair signingKey)
             throws JOSEException {
@@ -367,7 +367,7 @@ class CtValidatorTest {
                 new JWTClaimsSet.Builder()
                         .issuer(issuer)
                         .subject(subject)
-                        .expirationTime(expiration)
+                        .expirationTime(Date.from(expiration))
                         .jwtID(UUID.randomUUID().toString())
                         .claim("cnf", cnf)
                         .build();

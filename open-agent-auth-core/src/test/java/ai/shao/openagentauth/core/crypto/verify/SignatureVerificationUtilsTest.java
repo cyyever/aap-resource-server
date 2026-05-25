@@ -35,6 +35,7 @@ import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator;
 import com.nimbusds.jose.jwk.gen.OctetSequenceKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import java.time.Instant;
 import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -164,7 +165,10 @@ class SignatureVerificationUtilsTest {
                 new JWTClaimsSet.Builder()
                         .issuer("https://example.com")
                         .subject("test-subject")
-                        .expirationTime(new Date(System.currentTimeMillis() + 3600_000))
+                        .expirationTime(
+                                Date.from(
+                                        Instant.ofEpochMilli(
+                                                System.currentTimeMillis() + 3600_000)))
                         .build();
 
         SignedJWT signedJwt =
