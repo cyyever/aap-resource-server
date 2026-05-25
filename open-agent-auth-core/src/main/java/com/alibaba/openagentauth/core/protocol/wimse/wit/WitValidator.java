@@ -19,7 +19,7 @@ import com.alibaba.openagentauth.core.crypto.key.KeyManager;
 import com.alibaba.openagentauth.core.crypto.verify.SignatureVerificationUtils;
 import com.alibaba.openagentauth.core.model.token.WorkloadIdentityToken;
 import com.alibaba.openagentauth.core.token.common.TokenValidationResult;
-import com.alibaba.openagentauth.core.trust.model.TrustDomain;
+import com.alibaba.openagentauth.core.trust.TrustDomain;
 import com.alibaba.openagentauth.core.util.ValidationUtils;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.SignedJWT;

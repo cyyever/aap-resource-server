@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.openagentauth.core.trust.model;
+package com.alibaba.openagentauth.core.trust;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
