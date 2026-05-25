@@ -62,7 +62,7 @@ public class WorkloadProofValidator implements LayerValidator {
         WorkloadIdentityToken wit = context.getWit();
 
         try {
-            var result = wptValidator.validate(wpt, wit);
+            var result = wptValidator.validate(context.getWptSignedJwt(), wpt, wit);
 
             if (!result.isValid()) {
                 logger.error("Layer 2: Workload Proof validation failed: {}", result.getErrorMessage());

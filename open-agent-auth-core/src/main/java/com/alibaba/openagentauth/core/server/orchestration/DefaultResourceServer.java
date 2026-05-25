@@ -85,11 +85,13 @@ public class DefaultResourceServer implements ResourceServer {
 
     private ValidationContext buildValidationContext(ResourceRequest request) throws ServerValidationException {
         WorkloadIdentityToken wit = parseWit(request.getWit());
-        WorkloadProofToken wpt = parseWpt(request.getWpt());
+        SignedJWT wptSignedJwt = parseWptSignedJwt(request.getWpt());
+        WorkloadProofToken wpt = parseWpt(wptSignedJwt);
 
         return ValidationContext.builder()
                 .wit(wit)
                 .wpt(wpt)
+                .wptSignedJwt(wptSignedJwt)
                 .httpMethod(request.getHttpMethod())
                 .httpUri(request.getHttpUri())
                 .httpHeaders(request.getHttpHeaders())
@@ -111,12 +113,20 @@ public class DefaultResourceServer implements ResourceServer {
         }
     }
 
-    private WorkloadProofToken parseWpt(String wptString) throws ServerValidationException {
+    private SignedJWT parseWptSignedJwt(String wptString) throws ServerValidationException {
         if (ValidationUtils.isNullOrEmpty(wptString)) {
             throw new ServerValidationException("WPT is required");
         }
         try {
-            return wptParser.parse(wptString);
+            return SignedJWT.parse(wptString);
+        } catch (ParseException e) {
+            throw new ServerValidationException("Failed to parse WPT: " + e.getMessage(), e);
+        }
+    }
+
+    private WorkloadProofToken parseWpt(SignedJWT wptSignedJwt) throws ServerValidationException {
+        try {
+            return wptParser.parse(wptSignedJwt);
         } catch (Exception e) {
             throw new ServerValidationException("Failed to parse WPT: " + e.getMessage(), e);
         }

@@ -73,7 +73,7 @@ class WptParserTest {
         void shouldParseValidWptSuccessfully() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(wptJwt);
+            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
 
             assertThat(wpt).isNotNull();
             assertThat(wpt.claims()).isNotNull();
@@ -86,7 +86,7 @@ class WptParserTest {
         void shouldParseWptWithAllRequiredClaims() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(wptJwt);
+            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
 
             assertThat(wpt.claims().audience()).isEqualTo("[resource-server]");
             assertThat(wpt.claims().jwtId()).isNotNull();
@@ -98,7 +98,7 @@ class WptParserTest {
         void shouldParseWptWithOptionalClaims() throws Exception {
             String wptJwt = createWptWithOptionalClaims();
 
-            WorkloadProofToken wpt = wptParser.parse(wptJwt);
+            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
 
             assertThat(wpt.claims().accessTokenHash()).isNotNull();
         }
@@ -107,7 +107,8 @@ class WptParserTest {
         @DisplayName("Should reject WPT with wrong typ header")
         void shouldRejectWptWithWrongTypHeader() throws Exception {
             String wptJwt = createWptWithCustomTyp();
-            assertThatThrownBy(() -> wptParser.parse(wptJwt))
+            SignedJWT signedJwt = SignedJWT.parse(wptJwt);
+            assertThatThrownBy(() -> wptParser.parse(signedJwt))
                     .isInstanceOf(ParseException.class)
                     .hasMessageContaining("typ header must be 'wpt+jwt'");
         }
@@ -118,27 +119,11 @@ class WptParserTest {
     class InputValidationTests {
 
         @Test
-        @DisplayName("Should throw exception when WPT is null")
-        void shouldThrowExceptionWhenWptIsNull() {
-            assertThatThrownBy(() -> wptParser.parse(null))
+        @DisplayName("Should throw exception when signed JWT is null")
+        void shouldThrowExceptionWhenSignedJwtIsNull() {
+            assertThatThrownBy(() -> wptParser.parse((SignedJWT) null))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("WPT JWT string cannot be null or empty");
-        }
-
-        @Test
-        @DisplayName("Should throw exception when WPT is empty")
-        void shouldThrowExceptionWhenWptIsEmpty() {
-            assertThatThrownBy(() -> wptParser.parse(""))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("WPT JWT string cannot be null or empty");
-        }
-
-        @Test
-        @DisplayName("Should throw exception when WPT is whitespace")
-        void shouldThrowExceptionWhenWptIsWhitespace() {
-            assertThatThrownBy(() -> wptParser.parse("   "))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("WPT JWT string cannot be null or empty");
+                    .hasMessageContaining("Signed JWT");
         }
 
         @Test
@@ -146,7 +131,7 @@ class WptParserTest {
         void shouldThrowExceptionWhenWptIsMalformed() {
             String malformedWpt = "not-a-valid-jwt";
 
-            assertThatThrownBy(() -> wptParser.parse(malformedWpt))
+            assertThatThrownBy(() -> SignedJWT.parse(malformedWpt))
                     .isInstanceOf(ParseException.class);
         }
     }
@@ -160,7 +145,7 @@ class WptParserTest {
         void shouldParseAudienceClaimCorrectly() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(wptJwt);
+            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
 
             assertThat(wpt.claims().audience()).isEqualTo("[resource-server]");
         }
@@ -170,7 +155,7 @@ class WptParserTest {
         void shouldParseExpirationTimeClaimCorrectly() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(wptJwt);
+            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
 
             assertThat(wpt.claims().expirationTime()).isNotNull();
             assertThat(wpt.claims().expirationTime()).isAfter(new Date());
@@ -181,7 +166,7 @@ class WptParserTest {
         void shouldParseJwtIdClaimCorrectly() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(wptJwt);
+            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
 
             assertThat(wpt.claims().jwtId()).isNotNull();
         }
@@ -191,7 +176,7 @@ class WptParserTest {
         void shouldParseWorkloadTokenHashClaimCorrectly() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(wptJwt);
+            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
 
             assertThat(wpt.claims().workloadTokenHash()).isNotNull();
         }
@@ -201,7 +186,7 @@ class WptParserTest {
         void shouldParseAccessTokenHashClaimCorrectly() throws Exception {
             String wptJwt = createWptWithOptionalClaims();
 
-            WorkloadProofToken wpt = wptParser.parse(wptJwt);
+            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
 
             assertThat(wpt.claims().accessTokenHash()).isNotNull();
         }
@@ -211,7 +196,7 @@ class WptParserTest {
         void shouldHandleNullOptionalClaims() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(wptJwt);
+            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
 
             assertThat(wpt.claims().accessTokenHash()).isNull();
         }
@@ -225,7 +210,8 @@ class WptParserTest {
         @DisplayName("Should reject WPT without typ header")
         void shouldRejectWptWithoutTypHeader() throws Exception {
             String wptJwt = createWptWithoutTyp();
-            assertThatThrownBy(() -> wptParser.parse(wptJwt))
+            SignedJWT signedJwt = SignedJWT.parse(wptJwt);
+            assertThatThrownBy(() -> wptParser.parse(signedJwt))
                     .isInstanceOf(ParseException.class)
                     .hasMessageContaining("typ header must be 'wpt+jwt'");
         }
@@ -248,7 +234,8 @@ class WptParserTest {
                     claims);
             rsaSigned.sign(new RSASSASigner(rsaKey));
 
-            assertThatThrownBy(() -> wptParser.parse(rsaSigned.serialize()))
+            SignedJWT signedJwt = SignedJWT.parse(rsaSigned.serialize());
+            assertThatThrownBy(() -> wptParser.parse(signedJwt))
                     .isInstanceOf(ParseException.class)
                     .hasMessageContaining("alg header must be 'EdDSA'");
         }
@@ -270,7 +257,8 @@ class WptParserTest {
                     claims);
             signedJwt.sign(new com.nimbusds.jose.crypto.Ed25519Signer(signingKey));
 
-            assertThatThrownBy(() -> wptParser.parse(signedJwt.serialize()))
+            SignedJWT parsed = SignedJWT.parse(signedJwt.serialize());
+            assertThatThrownBy(() -> wptParser.parse(parsed))
                     .isInstanceOf(ParseException.class)
                     .hasMessageContaining("disallowed parameter: kid");
         }
@@ -285,7 +273,7 @@ class WptParserTest {
         void shouldPreserveOriginalJwtString() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(wptJwt);
+            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
 
             assertThat(wpt.jwtString()).isEqualTo(wptJwt);
         }
@@ -295,7 +283,7 @@ class WptParserTest {
         void shouldExtractSignatureCorrectly() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(wptJwt);
+            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
 
             assertThat(wpt.signature()).isNotNull();
             String[] parts = wptJwt.split("\\.");

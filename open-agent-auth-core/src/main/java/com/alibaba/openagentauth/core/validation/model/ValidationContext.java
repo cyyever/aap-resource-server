@@ -18,6 +18,7 @@ package com.alibaba.openagentauth.core.validation.model;
 import com.alibaba.openagentauth.core.model.token.WorkloadIdentityToken;
 import com.alibaba.openagentauth.core.model.token.WorkloadProofToken;
 import com.alibaba.openagentauth.core.validation.api.LayerValidator;
+import com.nimbusds.jwt.SignedJWT;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -41,6 +42,12 @@ public class ValidationContext {
      * The Workload Proof Token (WPT).
      */
     private final WorkloadProofToken wpt;
+
+    /**
+     * The parsed signed JWT of the WPT, when the upstream parser produced one.
+     * Optional — lets the WPT validator skip a second {@link SignedJWT#parse} call.
+     */
+    private final SignedJWT wptSignedJwt;
 
     /**
      * The HTTP request method.
@@ -90,6 +97,7 @@ public class ValidationContext {
     private ValidationContext(Builder builder) {
         this.wit = builder.wit;
         this.wpt = builder.wpt;
+        this.wptSignedJwt = builder.wptSignedJwt;
         this.httpMethod = builder.httpMethod;
         this.httpUri = builder.httpUri;
         this.httpHeaders = builder.httpHeaders;
@@ -114,6 +122,10 @@ public class ValidationContext {
      */
     public WorkloadProofToken getWpt() {
         return wpt;
+    }
+
+    public SignedJWT getWptSignedJwt() {
+        return wptSignedJwt;
     }
 
     /**
@@ -212,6 +224,7 @@ public class ValidationContext {
 
         private WorkloadIdentityToken wit;
         private WorkloadProofToken wpt;
+        private SignedJWT wptSignedJwt;
         private String httpMethod;
         private String httpUri;
         private Map<String, String> httpHeaders;
@@ -238,6 +251,11 @@ public class ValidationContext {
          */
         public Builder wpt(WorkloadProofToken wpt) {
             this.wpt = wpt;
+            return this;
+        }
+
+        public Builder wptSignedJwt(SignedJWT wptSignedJwt) {
+            this.wptSignedJwt = wptSignedJwt;
             return this;
         }
 

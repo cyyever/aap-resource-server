@@ -41,35 +41,27 @@ public class WptParser {
     private static final Logger logger = LoggerFactory.getLogger(WptParser.class);
 
     /**
-     * Parses a WPT from a signed JWT string.
+     * Parses a WPT from a signed JWT.
      * <p>
      * This method extracts all claims from the JWT and constructs a structured
      * {@link WorkloadProofToken} object. It validates the input and provides
      * detailed error messages if parsing fails.
      * </p>
      *
-     * @param wptJwt the JWT string representing the WPT
+     * @param signedJwt the signed JWT to parse
      * @return a WorkloadProofToken object
      * @throws ParseException if parsing fails due to invalid JWT structure or claims
-     * @throws IllegalArgumentException if wptJwt is null or empty
+     * @throws IllegalArgumentException if signedJwt is null
      */
-    public WorkloadProofToken parse(String wptJwt) throws ParseException {
+    public WorkloadProofToken parse(SignedJWT signedJwt) throws ParseException {
 
-        // Validate input
-        if (ValidationUtils.isNullOrEmpty(wptJwt)) {
-            throw new IllegalArgumentException("WPT JWT string cannot be null or empty");
-        }
+        ValidationUtils.validateNotNull(signedJwt, "Signed JWT");
 
         logger.debug("Parsing Workload Proof Token");
 
-        // Parse signed JWT
-        SignedJWT signedJwt = SignedJWT.parse(wptJwt);
-
-        // Extract JWT claims
         JWTClaimsSet claimsSet = signedJwt.getJWTClaimsSet();
 
-        // Build structured WPT object
-        WorkloadProofToken wpt = buildWorkloadProofToken(signedJwt, claimsSet, wptJwt);
+        WorkloadProofToken wpt = buildWorkloadProofToken(signedJwt, claimsSet, signedJwt.serialize());
 
         logger.debug("Successfully parsed WPT with JWT ID: {}", wpt.getJwtId());
         return wpt;

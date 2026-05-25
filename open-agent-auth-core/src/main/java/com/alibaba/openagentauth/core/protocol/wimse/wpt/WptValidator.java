@@ -55,6 +55,11 @@ public class WptValidator {
     }
 
     public TokenValidationResult<WorkloadProofToken> validate(WorkloadProofToken wpt, WorkloadIdentityToken wit) {
+        return validate(null, wpt, wit);
+    }
+
+    public TokenValidationResult<WorkloadProofToken> validate(
+            SignedJWT signedJwt, WorkloadProofToken wpt, WorkloadIdentityToken wit) {
 
         if (wpt == null) {
             logger.warn("WPT cannot be null");
@@ -84,7 +89,7 @@ public class WptValidator {
             return TokenValidationResult.failure(wthError);
         }
 
-        String signatureError = verifySignature(wpt, wit);
+        String signatureError = verifySignature(signedJwt, wpt, wit);
         if (signatureError != null) {
             logger.warn("WPT signature verification failed: {}", signatureError);
             return TokenValidationResult.failure(signatureError);
@@ -123,15 +128,17 @@ public class WptValidator {
         return builder.build();
     }
 
-    private String verifySignature(WorkloadProofToken wpt, WorkloadIdentityToken wit) {
+    private String verifySignature(SignedJWT signedJwt, WorkloadProofToken wpt, WorkloadIdentityToken wit) {
         try {
-            String wptJwtString = wpt.jwtString();
-            if (ValidationUtils.isNullOrEmpty(wptJwtString)) {
-                logger.warn("WPT missing JWT string, cannot verify signature");
-                return "WPT missing JWT string";
+            SignedJWT jwt = signedJwt;
+            if (jwt == null) {
+                String wptJwtString = wpt.jwtString();
+                if (ValidationUtils.isNullOrEmpty(wptJwtString)) {
+                    logger.warn("WPT missing JWT string, cannot verify signature");
+                    return "WPT missing JWT string";
+                }
+                jwt = SignedJWT.parse(wptJwtString);
             }
-
-            SignedJWT signedJwt = SignedJWT.parse(wptJwtString);
 
             if (wit.getConfirmation() == null || wit.getConfirmation().jwk() == null) {
                 logger.warn("WIT missing cnf.jwk, cannot verify WPT signature");
@@ -142,7 +149,7 @@ public class WptValidator {
 
             JWSVerifier verifier = new Ed25519Verifier((OctetKeyPair) wptVerificationKey);
 
-            boolean isValid = signedJwt.verify(verifier);
+            boolean isValid = jwt.verify(verifier);
 
             if (!isValid) {
                 logger.warn("WPT signature verification failed");
