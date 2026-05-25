@@ -142,7 +142,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: jacoco-reports
-          path: open-agent-auth-core/target/site/jacoco/
+          path: aap-resource-server-core/target/site/jacoco/
           retention-days: 14
 
       - name: Generate JaCoCo coverage summary
@@ -151,7 +151,7 @@ jobs:
           set -euo pipefail
           python3 - <<'PY' | tee "$GITHUB_STEP_SUMMARY"
           import xml.etree.ElementTree as ET
-          root = ET.parse("open-agent-auth-core/target/site/jacoco/jacoco.xml").getroot()
+          root = ET.parse("aap-resource-server-core/target/site/jacoco/jacoco.xml").getroot()
           totals = {c.get("type"): c for c in root.findall("counter")}
           def pct(t):
               c = totals.get(t)
@@ -162,6 +162,6 @@ jobs:
           print(f"## Coverage (JaCoCo ${{ github.sha }})\n")
           print("| Module | Lines | Branches | Instructions |")
           print("| --- | --- | --- | --- |")
-          print(f"| open-agent-auth-core | {pct('LINE')} | {pct('BRANCH')} | {pct('INSTRUCTION')} |")
+          print(f"| aap-resource-server-core | {pct('LINE')} | {pct('BRANCH')} | {pct('INSTRUCTION')} |")
           PY
 

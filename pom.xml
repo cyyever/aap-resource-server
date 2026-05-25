@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ai.shao.aap.rs</groupId>
-    <artifactId>open-agent-auth</artifactId>
+    <artifactId>aap-resource-server</artifactId>
     <version>0.1.0-beta.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -15,7 +15,7 @@
     <url>https://github.com/cyyever/open-agent-auth</url>
 
     <modules>
-        <module>open-agent-auth-core</module>
+        <module>aap-resource-server-core</module>
     </modules>
 
     <properties>
@@ -54,7 +54,7 @@
             <!-- Internal Module -->
             <dependency>
                 <groupId>ai.shao.aap.rs</groupId>
-                <artifactId>open-agent-auth-core</artifactId>
+                <artifactId>aap-resource-server-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -274,20 +274,20 @@
         <!--
             Opt-in JMH benchmark module. Excluded from the default build so
             `mvn test` stays fast and modernizer/Error Prone don't lint JMH
-            generated code. Run with: mvn -P bench -pl open-agent-auth-bench
-            -am package, then java -jar open-agent-auth-bench/target/benchmarks.jar
+            generated code. Run with: mvn -P bench -pl aap-resource-server-bench
+            -am package, then java -jar aap-resource-server-bench/target/benchmarks.jar
         -->
         <profile>
             <id>bench</id>
             <modules>
-                <module>open-agent-auth-bench</module>
+                <module>aap-resource-server-bench</module>
             </modules>
         </profile>
         <!--
             Opt-in JaCoCo line/branch coverage. Excluded from the default build
             because instrumentation slows tests ~10% and most local runs don't
             need a report. Run with: mvn -P coverage verify
-            Report at: open-agent-auth-core/target/site/jacoco/
+            Report at: aap-resource-server-core/target/site/jacoco/
         -->
         <profile>
             <id>coverage</id>

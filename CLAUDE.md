@@ -34,7 +34,7 @@ Do not relax any of these without a spec change:
 ## Module layout
 
 ```
-open-agent-auth-core/      single module — protocol primitives (JWS,
+aap-resource-server-core/      single module — protocol primitives (JWS,
                            keys, JWKS, trust, CT/DPoP under
                            core.protocol.{ct,dpop}) plus the
                            server-side actor (ResourceServer +
@@ -131,7 +131,7 @@ Audited but not yet fixed (most need M1 rename first):
 1. ~~`JwtHashUtil.computeSha256Hash`~~ — **done**. `ThreadLocal<MessageDigest>`
    + static `Base64.Encoder` already in place. JMH baseline (Temurin 26,
    Apple Silicon, 1024-byte JWT): 2.07 ops/μs single-thread, 10.35 ops/μs
-   at 8 threads. Bench module: `open-agent-auth-bench` (opt-in `-P bench`).
+   at 8 threads. Bench module: `aap-resource-server-bench` (opt-in `-P bench`).
 2. ~~`DpopValidator.convertToJWK`~~ — **done**. `ConcurrentHashMap<Jwk, JWK>`
    keyed by record-value-equality on `Jwk`; first validation per cnf.jwk
    pays the Base64-decode, subsequent ones hit cache.

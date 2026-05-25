@@ -9,7 +9,7 @@ This repository is the upstream baseline being trimmed into an
 
 ## Module
 
-Single Maven module `open-agent-auth-core`. Protocol primitives (JWS
+Single Maven module `aap-resource-server-core`. Protocol primitives (JWS
 sign/verify, key management, JWKS provider, trust roots, CT/DPoP under
 `core.protocol.{ct,dpop}`) plus the server-side actor (`ResourceServer`,
 `DefaultResourceServer`, request/result models) under

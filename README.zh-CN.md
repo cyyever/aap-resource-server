@@ -8,7 +8,7 @@
 
 ## 模块
 
-单 Maven 模块 `open-agent-auth-core`:协议原语(JWS 签验、密钥管理、
+单 Maven 模块 `aap-resource-server-core`:协议原语(JWS 签验、密钥管理、
 JWKS 提供端、信任根、CT/DPoP 位于 `core.protocol.{ct,dpop}`)+ server
 侧 actor(`ResourceServer`、`DefaultResourceServer`、请求/结果模型)
 位于 `ai.shao.aap.rs.core.server.*` 包。纯 Java,无 Spring。

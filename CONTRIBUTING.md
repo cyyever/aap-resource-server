@@ -24,7 +24,7 @@ mvn test
 
 ```
 open-agent-auth/
-└── open-agent-auth-core/   # protocol primitives + server-side actor
+└── aap-resource-server-core/   # protocol primitives + server-side actor
                             #   (core.server.* for ResourceServer /
                             #   DefaultResourceServer / request models)
 ```
