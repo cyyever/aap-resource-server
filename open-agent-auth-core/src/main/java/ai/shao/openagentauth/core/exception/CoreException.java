@@ -44,7 +44,7 @@ public abstract class CoreException extends OpenAgentAuthException {
      */
     protected CoreException(ErrorCode errorCode, Object... errorParams) {
         super(errorCode.getErrorCode(), errorCode.formatMessage(errorParams),
-              errorParams != null ? Arrays.asList(errorParams) : null, null);
+              Arrays.asList(errorParams), null);
     }
 
     /**
@@ -78,7 +78,7 @@ public abstract class CoreException extends OpenAgentAuthException {
      */
     protected CoreException(ErrorCode errorCode, Throwable cause, Object... errorParams) {
         super(errorCode.getErrorCode(), errorCode.formatMessage(errorParams),
-              errorParams != null ? Arrays.asList(errorParams) : null, null, cause);
+              Arrays.asList(errorParams), null, cause);
     }
 
     /**

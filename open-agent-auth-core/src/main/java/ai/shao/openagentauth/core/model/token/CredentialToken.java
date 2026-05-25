@@ -43,16 +43,16 @@ public record CredentialToken(
         }
     }
 
-    public String getIssuer()                    { return claims != null ? claims.issuer()              : null; }
-    public String getSubject()                   { return claims != null ? claims.subject()             : null; }
-    public Date   getExpirationTime()            { return claims != null ? claims.expirationTime()      : null; }
-    public String getJwtId()                     { return claims != null ? claims.jwtId()               : null; }
-    public String getWorkloadIdentifier()        { return claims != null ? claims.subject()             : null; }
-    public Claims.Confirmation getConfirmation() { return claims != null ? claims.confirmation()        : null; }
-    public Jwk    getJwk()                       { return claims != null ? claims.jwk()                 : null; }
+    public String getIssuer()                    { return claims.issuer();         }
+    public String getSubject()                   { return claims.subject();        }
+    public Date   getExpirationTime()            { return claims.expirationTime(); }
+    public String getJwtId()                     { return claims.jwtId();          }
+    public String getWorkloadIdentifier()        { return claims.subject();        }
+    public Claims.Confirmation getConfirmation() { return claims.confirmation();   }
+    public Jwk    getJwk()                       { return claims.jwk();            }
 
-    public boolean isExpired() { return claims != null && claims.isExpired(); }
-    public boolean isValid()   { return claims != null && claims.isValid();   }
+    public boolean isExpired() { return claims.isExpired(); }
+    public boolean isValid()   { return claims.isValid();   }
 
     public static Builder builder() { return new Builder(); }
 
@@ -95,11 +95,11 @@ public record CredentialToken(
         public Jwk jwk() { return confirmation != null ? confirmation.jwk() : null; }
 
         public boolean isExpired() {
-            return expirationTime != null && expirationTime.getTime() < System.currentTimeMillis();
+            return expirationTime.getTime() < System.currentTimeMillis();
         }
 
         public boolean isValid() {
-            return expirationTime == null || System.currentTimeMillis() <= expirationTime.getTime();
+            return System.currentTimeMillis() <= expirationTime.getTime();
         }
 
         public static ClaimsBuilder builder() { return new ClaimsBuilder(); }

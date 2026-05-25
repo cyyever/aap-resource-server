@@ -43,14 +43,14 @@ public record DpopToken(
     }
 
     /** Audience (aud) — convenience delegate to claims. */
-    public String getAudience()           { return claims != null ? claims.audience()             : null; }
-    public Date   getExpirationTime()     { return claims != null ? claims.expirationTime()       : null; }
-    public String getJwtId()              { return claims != null ? claims.jwtId()                : null; }
-    public String getWorkloadTokenHash()  { return claims != null ? claims.workloadTokenHash()    : null; }
-    public String getAccessTokenHash()    { return claims != null ? claims.accessTokenHash()      : null; }
+    public String getAudience()           { return claims.audience();          }
+    public Date   getExpirationTime()     { return claims.expirationTime();    }
+    public String getJwtId()              { return claims.jwtId();             }
+    public String getWorkloadTokenHash()  { return claims.workloadTokenHash(); }
+    public String getAccessTokenHash()    { return claims.accessTokenHash();   }
 
-    public boolean isExpired() { return claims != null && claims.isExpired(); }
-    public boolean isValid()   { return claims != null && claims.isValid();   }
+    public boolean isExpired() { return claims.isExpired(); }
+    public boolean isValid()   { return claims.isValid();   }
 
     public static Builder builder() { return new Builder(); }
 

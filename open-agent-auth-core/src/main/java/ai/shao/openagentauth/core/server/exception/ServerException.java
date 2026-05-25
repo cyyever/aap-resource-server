@@ -47,7 +47,7 @@ public abstract class ServerException extends OpenAgentAuthException {
      */
     protected ServerException(ErrorCode errorCode, Object... errorParams) {
         super(errorCode.getErrorCode(), errorCode.formatMessage(errorParams),
-              errorParams != null ? Arrays.asList(errorParams) : null, null);
+              Arrays.asList(errorParams), null);
     }
 
     /**
@@ -82,7 +82,7 @@ public abstract class ServerException extends OpenAgentAuthException {
      */
     protected ServerException(ErrorCode errorCode, Throwable cause, Object... errorParams) {
         super(errorCode.getErrorCode(), errorCode.formatMessage(errorParams),
-              errorParams != null ? Arrays.asList(errorParams) : null, null, cause);
+              Arrays.asList(errorParams), null, cause);
     }
 
     /**
