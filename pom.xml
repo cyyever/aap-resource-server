@@ -194,7 +194,7 @@
             Opt-in JaCoCo line/branch coverage. Excluded from the default build
             because instrumentation slows tests ~10% and most local runs don't
             need a report. Run with: mvn -P coverage verify
-            Report at: open-agent-auth-{core,framework}/target/site/jacoco/
+            Report at: open-agent-auth-core/target/site/jacoco/
         -->
         <profile>
             <id>coverage</id>
