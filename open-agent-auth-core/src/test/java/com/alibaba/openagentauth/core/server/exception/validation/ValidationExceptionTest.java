@@ -21,13 +21,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Test class for Validation domain exceptions.
- * <p>
- * This test class validates the functionality of validation and authorization context
- * exceptions in the Server module.
- * </p>
- *
- * @since 1.0
+ * Test class for Validation domain exceptions in the Server module.
  */
 @DisplayName("Validation Exception Test")
 class ValidationExceptionTest {

@@ -304,10 +304,10 @@ class WorkloadIdentityTokenTest {
         }
 
         @Test
-        @DisplayName("Should handle SPIFFE format subject")
-        void shouldHandleSpiffeFormatSubject() {
+        @DisplayName("Should preserve URI-shaped subject verbatim")
+        void shouldPreserveUriShapedSubject() {
             WorkloadIdentityToken.Claims claims = WorkloadIdentityToken.Claims.builder()
-                    .subject("spiffe://example.com/ns/default/sa/my-service")
+                    .subject("wimse://example.com/agent/my-service")
                     .expirationTime(futureExpirationTime)
                     .build();
 
@@ -315,7 +315,7 @@ class WorkloadIdentityTokenTest {
                     .claims(claims)
                     .build();
 
-            assertThat(token.getSubject()).isEqualTo("spiffe://example.com/ns/default/sa/my-service");
+            assertThat(token.getSubject()).isEqualTo("wimse://example.com/agent/my-service");
         }
     }
 }
