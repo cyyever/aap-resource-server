@@ -28,16 +28,13 @@
             <groupId>com.google.crypto.tink</groupId>
             <artifactId>tink</artifactId>
             <version>1.16.0</version>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- JSON -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
+            <artifactId>jackson-annotations</artifactId>
         </dependency>
 
         <!-- Logging -->
@@ -49,7 +46,12 @@
         <!-- Testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -68,4 +70,25 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <usedDependencies>
+                        <!-- Google Tink: Nimbus JOSE delegates Ed25519 sign/verify
+                             to Tink via reflective lookup; not referenced from
+                             our bytecode but mandatory at runtime. -->
+                        <usedDependency>com.google.crypto.tink:tink</usedDependency>
+                        <!-- JUnit Jupiter engine: loaded at runtime by Surefire's
+                             JUnit Platform provider via ServiceLoader; bytecode
+                             scan can't see it. -->
+                        <usedDependency>org.junit.jupiter:junit-jupiter-engine</usedDependency>
+                    </usedDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
