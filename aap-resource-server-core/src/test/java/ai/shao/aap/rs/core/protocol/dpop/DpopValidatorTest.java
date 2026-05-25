@@ -76,8 +76,7 @@ class DpopValidatorTest {
 
             TokenValidationResult<DpopToken> result = dpopValidator.validate(dpop, ct);
 
-            assertThat(result.isValid()).isTrue();
-            assertThat(result.getToken()).isNotNull();
+            assertThat(result).isInstanceOf(TokenValidationResult.Success.class);
         }
 
         @Test
@@ -88,8 +87,9 @@ class DpopValidatorTest {
 
             TokenValidationResult<DpopToken> result = dpopValidator.validate(dpop, ct);
 
-            assertThat(result.getToken()).isNotNull();
-            assertThat(result.getToken().claims().workloadTokenHash()).isNotNull();
+            assertThat(result).isInstanceOf(TokenValidationResult.Success.class);
+            var success = (TokenValidationResult.Success<DpopToken>) result;
+            assertThat(success.token().claims().workloadTokenHash()).isNotNull();
         }
     }
 

@@ -23,8 +23,8 @@ import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Base exception for all Server module exceptions. Error code format: {@code
- * OPEN_AGENT_AUTH_11_YYZZ} (system 11, YY=domain, ZZ=error).
+ * Base exception for all Server module exceptions. Error code format: {@code AAP_RS_11_YYZZ}
+ * (system 11, YY=domain, ZZ=error).
  */
 public abstract class ServerException extends OpenAgentAuthException {
 

@@ -19,7 +19,7 @@ import ai.shao.aap.rs.core.server.exception.ServerErrorCode;
 
 /**
  * Error codes for Validation domain (Request Validation). All Validation error codes follow the
- * format {@code OPEN_AGENT_AUTH_11_03ZZ} (11 = Server system, 03 = Validation domain, ZZ = error
+ * format {@code AAP_RS_11_03ZZ} (11 = Server system, 03 = Validation domain, ZZ = error
  * within domain).
  */
 public enum ValidationErrorCode implements ServerErrorCode {

@@ -18,8 +18,8 @@ package ai.shao.aap.rs.core.server.exception;
 import ai.shao.aap.rs.core.exception.ErrorCode;
 
 /**
- * Interface for Server module error codes. Error code format: {@code OPEN_AGENT_AUTH_11_YYZZ}
- * (system 11, YY=domain, ZZ=error).
+ * Interface for Server module error codes. Error code format: {@code AAP_RS_11_YYZZ} (system 11,
+ * YY=domain, ZZ=error).
  */
 public interface ServerErrorCode extends ErrorCode {
 

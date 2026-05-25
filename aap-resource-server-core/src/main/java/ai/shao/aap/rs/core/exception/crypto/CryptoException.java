@@ -26,7 +26,7 @@ import ai.shao.aap.rs.core.exception.CoreException;
  *
  * <p><b>Domain Code:</b> 03
  *
- * <p><b>Error Code Format:</b> OPEN_AGENT_AUTH_10_03ZZ
+ * <p><b>Error Code Format:</b> AAP_RS_10_03ZZ
  */
 public abstract sealed class CryptoException extends CoreException permits KeyResolutionException {
 

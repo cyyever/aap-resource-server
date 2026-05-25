@@ -15,13 +15,10 @@
  */
 package ai.shao.aap.rs.core.token.common;
 
-import org.jspecify.annotations.Nullable;
-
 /**
  * Outcome of validating a token (CT, DPoP, etc.). Sealed ADT — every instance is either {@link
- * Success} carrying the parsed token, or {@link Failure} carrying an error message. Callers should
- * pattern-match the sealed cases rather than rely on the legacy getters, which return null on the
- * wrong arm.
+ * Success} carrying the parsed token, or {@link Failure} carrying an error message. Callers must
+ * pattern-match the sealed cases.
  *
  * @param <T> the type of token being validated
  */
@@ -41,21 +38,5 @@ public sealed interface TokenValidationResult<T> {
 
     default boolean isValid() {
         return this instanceof Success<T>;
-    }
-
-    /**
-     * Legacy accessor. Returns the parsed token on {@link Success}, null on {@link Failure}. Prefer
-     * pattern-matching the sealed cases.
-     */
-    default @Nullable T getToken() {
-        return this instanceof Success<T>(T tok) ? tok : null;
-    }
-
-    /**
-     * Legacy accessor. Returns the error message on {@link Failure}, null on {@link Success}.
-     * Prefer pattern-matching the sealed cases.
-     */
-    default @Nullable String getErrorMessage() {
-        return this instanceof Failure<T>(String msg) ? msg : null;
     }
 }

@@ -368,6 +368,8 @@
             otherwise GJF rules). Two goals:
               mvn -P format spotless:apply  — reformat all .java files in-place
               mvn -P format spotless:check  — fail if anything is unformatted (CI gate)
+            Also bound to the `validate` phase so `mvn -P format verify` runs
+            the check automatically as part of the combined CI lint job.
         -->
         <profile>
             <id>format</id>
@@ -393,6 +395,15 @@
                                 <endWithNewline/>
                             </java>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <id>spotless-check</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

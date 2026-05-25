@@ -84,9 +84,9 @@ class CtValidatorTest {
 
             TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
-            assertThat(result.isValid()).isTrue();
-            assertThat(result.getToken()).isNotNull();
-            assertThat(result.getToken().getSubject()).isEqualTo("agent-001");
+            assertThat(result).isInstanceOf(TokenValidationResult.Success.class);
+            var success = (TokenValidationResult.Success<CredentialToken>) result;
+            assertThat(success.token().getSubject()).isEqualTo("agent-001");
         }
 
         @Test
@@ -96,10 +96,11 @@ class CtValidatorTest {
 
             TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
-            assertThat(result.getToken()).isNotNull();
-            assertThat(result.getToken().getIssuer()).isEqualTo(trustDomain.domainId());
-            assertThat(result.getToken().getConfirmation()).isNotNull();
-            assertThat(result.getToken().getConfirmation().jwk()).isNotNull();
+            assertThat(result).isInstanceOf(TokenValidationResult.Success.class);
+            var success = (TokenValidationResult.Success<CredentialToken>) result;
+            assertThat(success.token().getIssuer()).isEqualTo(trustDomain.domainId());
+            assertThat(success.token().getConfirmation()).isNotNull();
+            assertThat(success.token().getConfirmation().jwk()).isNotNull();
         }
     }
 
@@ -115,8 +116,9 @@ class CtValidatorTest {
 
             TokenValidationResult<CredentialToken> result = ctValidator.validate(tamperedWit);
 
-            assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("Invalid CT signature");
+            assertThat(result).isInstanceOf(TokenValidationResult.Failure.class);
+            var failure = (TokenValidationResult.Failure<CredentialToken>) result;
+            assertThat(failure.errorMessage()).contains("Invalid CT signature");
         }
     }
 
@@ -131,8 +133,9 @@ class CtValidatorTest {
 
             TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
-            assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("CT has expired");
+            assertThat(result).isInstanceOf(TokenValidationResult.Failure.class);
+            var failure = (TokenValidationResult.Failure<CredentialToken>) result;
+            assertThat(failure.errorMessage()).contains("CT has expired");
         }
 
         @Test
@@ -142,8 +145,9 @@ class CtValidatorTest {
 
             TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
-            assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("CT has expired");
+            assertThat(result).isInstanceOf(TokenValidationResult.Failure.class);
+            var failure = (TokenValidationResult.Failure<CredentialToken>) result;
+            assertThat(failure.errorMessage()).contains("CT has expired");
         }
     }
 
@@ -164,8 +168,9 @@ class CtValidatorTest {
 
             TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
-            assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("Invalid trust domain");
+            assertThat(result).isInstanceOf(TokenValidationResult.Failure.class);
+            var failure = (TokenValidationResult.Failure<CredentialToken>) result;
+            assertThat(failure.errorMessage()).contains("Invalid trust domain");
         }
 
         @Test
@@ -190,8 +195,9 @@ class CtValidatorTest {
 
             TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
-            assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("Missing required claims");
+            assertThat(result).isInstanceOf(TokenValidationResult.Failure.class);
+            var failure = (TokenValidationResult.Failure<CredentialToken>) result;
+            assertThat(failure.errorMessage()).contains("Missing required claims");
         }
 
         @Test
@@ -211,8 +217,9 @@ class CtValidatorTest {
 
             TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
-            assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("Missing required claims");
+            assertThat(result).isInstanceOf(TokenValidationResult.Failure.class);
+            var failure = (TokenValidationResult.Failure<CredentialToken>) result;
+            assertThat(failure.errorMessage()).contains("Missing required claims");
         }
     }
 
@@ -227,8 +234,9 @@ class CtValidatorTest {
 
             TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
-            assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("Invalid cnf claim");
+            assertThat(result).isInstanceOf(TokenValidationResult.Failure.class);
+            var failure = (TokenValidationResult.Failure<CredentialToken>) result;
+            assertThat(failure.errorMessage()).contains("Invalid cnf claim");
         }
 
         @Test
@@ -238,8 +246,9 @@ class CtValidatorTest {
 
             TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
-            assertThat(result.isValid()).isTrue();
-            assertThat(result.getToken().getConfirmation().jwk()).isNotNull();
+            assertThat(result).isInstanceOf(TokenValidationResult.Success.class);
+            var success = (TokenValidationResult.Success<CredentialToken>) result;
+            assertThat(success.token().getConfirmation().jwk()).isNotNull();
         }
     }
 
@@ -252,8 +261,9 @@ class CtValidatorTest {
         void shouldRejectNullWit() throws ParseException {
             TokenValidationResult<CredentialToken> result = ctValidator.validate(null);
 
-            assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("CT cannot be null or empty");
+            assertThat(result).isInstanceOf(TokenValidationResult.Failure.class);
+            var failure = (TokenValidationResult.Failure<CredentialToken>) result;
+            assertThat(failure.errorMessage()).contains("CT cannot be null or empty");
         }
 
         @Test
@@ -261,8 +271,9 @@ class CtValidatorTest {
         void shouldRejectEmptyWit() throws ParseException {
             TokenValidationResult<CredentialToken> result = ctValidator.validate("");
 
-            assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("CT cannot be null or empty");
+            assertThat(result).isInstanceOf(TokenValidationResult.Failure.class);
+            var failure = (TokenValidationResult.Failure<CredentialToken>) result;
+            assertThat(failure.errorMessage()).contains("CT cannot be null or empty");
         }
 
         @Test
@@ -270,8 +281,9 @@ class CtValidatorTest {
         void shouldRejectWhitespaceWit() throws ParseException {
             TokenValidationResult<CredentialToken> result = ctValidator.validate("   ");
 
-            assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("CT cannot be null or empty");
+            assertThat(result).isInstanceOf(TokenValidationResult.Failure.class);
+            var failure = (TokenValidationResult.Failure<CredentialToken>) result;
+            assertThat(failure.errorMessage()).contains("CT cannot be null or empty");
         }
     }
 

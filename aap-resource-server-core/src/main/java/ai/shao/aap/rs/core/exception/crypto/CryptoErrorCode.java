@@ -21,9 +21,9 @@ import ai.shao.aap.rs.core.exception.CoreErrorCode;
  * Error codes for Crypto domain.
  *
  * <p>This enum defines error codes for cryptographic operations in the Core module. All crypto
- * error codes follow the format: OPEN_AGENT_AUTH_10_03ZZ
+ * error codes follow the format: AAP_RS_10_03ZZ
  *
- * <p><b>Error Code Format:</b> OPEN_AGENT_AUTH_10_03ZZ
+ * <p><b>Error Code Format:</b> AAP_RS_10_03ZZ
  *
  * <ul>
  *   <li><b>10</b>: Core system code

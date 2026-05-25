@@ -16,8 +16,8 @@
 package ai.shao.aap.rs.core.exception;
 
 /**
- * Interface for Core module error codes. Error code format: {@code OPEN_AGENT_AUTH_10_YYZZ} (system
- * 10, YY=domain, ZZ=error).
+ * Interface for Core module error codes. Error code format: {@code AAP_RS_10_YYZZ} (system 10,
+ * YY=domain, ZZ=error).
  */
 public interface CoreErrorCode extends ErrorCode {
 

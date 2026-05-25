@@ -18,8 +18,8 @@ package ai.shao.aap.rs.core.exception;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Interface for error codes used in the Open Agent Auth framework. Error code format: {@code
- * OPEN_AGENT_AUTH_XX_YYZZ} (XX=system, YY=domain, ZZ=error).
+ * Interface for error codes used in the AAP Resource Server framework. Error code format: {@code
+ * AAP_RS_XX_YYZZ} (XX=system, YY=domain, ZZ=error).
  */
 public interface ErrorCode {
 
@@ -47,12 +47,12 @@ public interface ErrorCode {
     /**
      * Gets the full error code.
      *
-     * <p>The error code follows the format: OPEN_AGENT_AUTH_<system>_<domain><sub>
+     * <p>The error code follows the format: AAP_RS_<system>_<domain><sub>
      *
      * @return the full error code
      */
     default String getErrorCode() {
-        return "OPEN_AGENT_AUTH_" + getSystemCode() + "_" + getDomainCode() + getSubCode();
+        return "AAP_RS_" + getSystemCode() + "_" + getDomainCode() + getSubCode();
     }
 
     /**
