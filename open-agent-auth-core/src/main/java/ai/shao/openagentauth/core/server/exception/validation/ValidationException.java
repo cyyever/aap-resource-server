@@ -19,8 +19,6 @@ import ai.shao.openagentauth.core.server.exception.ServerException;
 
 /**
  * Base exception for all Validation domain exceptions.
- *
- * @since 1.0
  */
 public abstract class ValidationException extends ServerException {
 

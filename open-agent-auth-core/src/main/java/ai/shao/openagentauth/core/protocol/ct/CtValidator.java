@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  * Validator for Credential Tokens (CT). Verifies the signature,
- * expiration, and structure of WITs.
+ * expiration, and structure of a {@link CredentialToken}.
  */
 public class CtValidator {
 
@@ -87,18 +87,18 @@ public class CtValidator {
     /**
      * Validates a Credential Token.
      *
-     * @param witJwt the JWT string representing the CT
+     * @param ctJwt the JWT string representing the CT
      * @return a TokenValidationResult containing the validation outcome and parsed token
      * @throws ParseException if the JWT cannot be parsed
      */
-    public TokenValidationResult<CredentialToken> validate(String witJwt) throws ParseException {
+    public TokenValidationResult<CredentialToken> validate(String ctJwt) throws ParseException {
 
         // Validate arguments
-        if (ValidationUtils.isNullOrEmpty(witJwt)) {
+        if (ValidationUtils.isNullOrEmpty(ctJwt)) {
             return TokenValidationResult.failure("CT cannot be null or empty");
         }
 
-        SignedJWT signedJwt = SignedJWT.parse(witJwt);
+        SignedJWT signedJwt = SignedJWT.parse(ctJwt);
 
         // 1. Verify the signature of the CT
         if (!verifySignature(signedJwt)) {

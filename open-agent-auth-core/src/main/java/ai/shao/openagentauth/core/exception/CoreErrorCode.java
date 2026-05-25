@@ -18,8 +18,6 @@ package ai.shao.openagentauth.core.exception;
 /**
  * Interface for Core module error codes.
  * Error code format: {@code OPEN_AGENT_AUTH_10_YYZZ} (system 10, YY=domain, ZZ=error).
- *
- * @since 1.0
  */
 public interface CoreErrorCode extends ErrorCode {
 

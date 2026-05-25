@@ -20,8 +20,6 @@ import org.jspecify.annotations.Nullable;
 /**
  * Interface for error codes used in the Open Agent Auth framework.
  * Error code format: {@code OPEN_AGENT_AUTH_XX_YYZZ} (XX=system, YY=domain, ZZ=error).
- *
- * @since 1.0
  */
 public interface ErrorCode {
 

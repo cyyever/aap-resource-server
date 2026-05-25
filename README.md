@@ -10,25 +10,25 @@ This repository is the upstream baseline being trimmed into an
 ## Module
 
 Single Maven module `open-agent-auth-core`. Protocol primitives (JWS
-sign/verify, key management, JWKS provider, trust roots, WIT/WPT →
-CT/DPoP after M1) plus the server-side actor (`ResourceServer`,
+sign/verify, key management, JWKS provider, trust roots, CT/DPoP under
+`core.protocol.{ct,dpop}`) plus the server-side actor (`ResourceServer`,
 `DefaultResourceServer`, request/result models) under
 `ai.shao.openagentauth.core.server.*`. Pure Java, no Spring.
 
 The module requires **Java 21 LTS** (or later). Only direct deps are
 [Nimbus JOSE+JWT](https://connect2id.com/products/nimbus-jose-jwt),
 Jackson, and SLF4J. Spring Boot is no longer required — consumers
-(Spring Boot apps, Quarkus, Helidon, plain `main`) wire `WitValidator`
-+ `WptValidator` + `DefaultResourceServer` directly, usually in ~20
+(Spring Boot apps, Quarkus, Helidon, plain `main`) wire `CtValidator`
++ `DpopValidator` + `DefaultResourceServer` directly, usually in ~20
 lines.
 
 ## Status
 
-- Trim phase done (commits `c8f7c95` through current `HEAD`)
-- **M1 retrofit pending**: ~250 LoC of patches — lock `alg=EdDSA`,
-  strict JOSE header whitelist, DPoP module, PIC cascade revocation,
-  CRL anti-rollback, JSONL error events.
-- README, package layout (`core.protocol.wimse.*`), and class names
-  (`WIT`, `WPT`) will be renamed to spec terms (`CT`, `DPoP`) during M1.
+- Trim phase done (commits `c8f7c95` through current `HEAD`).
+- M1 #1–#3 landed: `alg=EdDSA` lock, JOSE header whitelist, CT/DPoP
+  rename (package `core.protocol.{ct,dpop}`, classes `CredentialToken`
+  / `DpopToken`).
+- **M1 tail pending** (~130 LoC): PIC cascade revocation, CRL
+  anti-rollback, JSONL error events, HTTP header whitelist enforcer.
 
 Licensed under the Apache License 2.0 — see [LICENSE](LICENSE).

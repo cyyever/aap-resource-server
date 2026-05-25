@@ -26,8 +26,6 @@ import java.util.Map;
 /**
  * Base exception for all Server module exceptions.
  * Error code format: {@code OPEN_AGENT_AUTH_11_YYZZ} (system 11, YY=domain, ZZ=error).
- *
- * @since 1.0
  */
 public abstract class ServerException extends OpenAgentAuthException {
 

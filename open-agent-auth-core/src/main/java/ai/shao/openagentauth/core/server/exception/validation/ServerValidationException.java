@@ -17,8 +17,6 @@ package ai.shao.openagentauth.core.server.exception.validation;
 
 /**
  * Exception thrown when request validation fails in framework orchestration layer.
- *
- * @since 1.0
  */
 public class ServerValidationException extends ValidationException {
 

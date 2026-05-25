@@ -10,8 +10,9 @@ lives at [`cyyever/authentication_plan`](https://github.com/cyyever/authenticati
 — single source `agent_auth_protocol.tex`. Roadmap is in spec §9, SDK
 details in §10.
 
-The trim phase is mostly done. The remaining work is the **M1 retrofit
-(~250 LoC of patches)** — see [Pending → M1](#m1-retrofit-pending).
+The trim phase is done. M1 #1–#3 (alg=EdDSA lock, JOSE header whitelist,
+DPoP/CT rename) have landed. The remaining work is the **M1 retrofit
+tail (~130 LoC)** — see [Pending → M1](#m1-retrofit-pending).
 
 ## Hard rules from the spec
 
@@ -34,15 +35,16 @@ Do not relax any of these without a spec change:
 
 ```
 open-agent-auth-core/      single module — protocol primitives (JWS,
-                           keys, JWKS, trust, WIT/WPT → CT/DPoP after
-                           M1) plus the server-side actor (ResourceServer
-                           + DefaultResourceServer) under
+                           keys, JWKS, trust, CT/DPoP under
+                           core.protocol.{ct,dpop}) plus the
+                           server-side actor (ResourceServer +
+                           DefaultResourceServer) under
                            core.server.*. Pure Java.
 ```
 
 The framework module was folded into core in 2026-05; no Spring Boot
 starter, no integration-tests module, no samples. Consumers wire
-`WitValidator` + `WptValidator` + `DefaultResourceServer` themselves
+`CtValidator` + `DpopValidator` + `DefaultResourceServer` themselves
 in ~20 lines of their own DI.
 
 ## Build
@@ -73,11 +75,11 @@ runs fast.
 - **Don't add new javadoc cross-references** (`@see`/`@link`) for
   in-package types. They become bit-rot during the M1 rename.
 - **Records over Builder-classes** for new pure-data types. All four
-  model classes (Jwk, AgentIdentity, WorkloadProofToken,
-  WorkloadIdentityToken) were converted in this trim and saved ~78% LoC.
-  Use compact canonical constructors for REQUIRED-field validation.
-  Throw `IllegalStateException` (matches existing test expectations),
-  not `NullPointerException` from `Objects.requireNonNull`.
+  model classes (Jwk, AgentIdentity, DpopToken, CredentialToken) were
+  converted in this trim and saved ~78% LoC. Use compact canonical
+  constructors for REQUIRED-field validation. Throw
+  `IllegalStateException` (matches existing test expectations), not
+  `NullPointerException` from `Objects.requireNonNull`.
 - **Builders allowed only for ergonomic construction** of records with
   many optional fields. Keep them as static inner classes.
 - **No new functionality during the trim phase.** If something has zero
@@ -93,15 +95,20 @@ runs fast.
 
 ## M1 retrofit (pending)
 
-Spec §10.2 — **~250 LoC total**. Order of operations:
+Spec §10.2. Status:
 
-1. **`alg=EdDSA` lock** — reject `alg=none` / key-confusion. `WitParser`
-   + `WptParser` header check before signature verify. ~10 LoC.
-2. **JOSE header whitelist** — `{alg, typ}` only (DPoP +`jwk`). Any
-   other JOSE header → MALFORMED. ~15 LoC.
-3. **DPoP module** (~60 LoC) — `core/protocol/wimse/wpt/` → new
-   `core/protocol/dpop/`. Rename `WorkloadProofToken` → DPoP; add
-   `htm`/`htu`/`iat`/`jti`/`ath` claims.
+1. ~~**`alg=EdDSA` lock**~~ — **done**. `CtParser` + `DpopParser`
+   enforce `alg=EdDSA` and `typ=ct+jwt`/`dpop+jwt` before signature
+   verify.
+2. ~~**JOSE header whitelist**~~ — **done**. `{alg, typ}` only on CT
+   (DPoP also allows `jwk`); any other JOSE header → ParseException.
+3. ~~**DPoP module**~~ — **done** (commit `643bbfb`).
+   `core/protocol/dpop/` lives; `DpopToken` carries `wth`/`ath` claims.
+   The `htm`/`htu`/`iat`/`jti` claim sweep is still TODO inside the
+   existing module.
+
+Remaining (~130 LoC):
+
 4. **PIC cascade revocation** (~50 LoC) — registry HTTPS responses
    (JWS). Revoking a P invalidates all CTs signed by `sk_P`. New
    `core/registry/`.
@@ -112,13 +119,10 @@ Spec §10.2 — **~250 LoC total**. Order of operations:
    env-configurable.
 7. **HTTP header whitelist enforcer** — network-side complement to (2).
 
-After M1, also rename:
-- package `core.protocol.wimse.{wit,wpt}` → `core.protocol.{ct,dpop}`
-- `WorkloadIdentityToken` → `CredentialToken`
-- `Workload-Identity-Token` HTTP header → spec term
-- `KEY_WIT_VERIFICATION` → `KEY_CT_VERIFICATION`
-- Residual `WIMSE` / `AOA` / `AOAT` / `DCR` / `5-layer` / `OIDC` strings
-  in javadoc
+The "After M1, also rename" sweep (packages, class names, header /
+key-id constants, residual `WIMSE` / `AOA` / `AOAT` / `DCR` /
+`5-layer` / `OIDC` strings) shipped early — see commits `f37f37b`,
+`643bbfb`, `1ebd5f2`.
 
 ## Perf hot spots already identified
 
@@ -128,7 +132,7 @@ Audited but not yet fixed (most need M1 rename first):
    + static `Base64.Encoder` already in place. JMH baseline (Temurin 26,
    Apple Silicon, 1024-byte JWT): 2.07 ops/μs single-thread, 10.35 ops/μs
    at 8 threads. Bench module: `open-agent-auth-bench` (opt-in `-P bench`).
-2. ~~`WptValidator.convertToJWK`~~ — **done**. `ConcurrentHashMap<Jwk, JWK>`
+2. ~~`DpopValidator.convertToJWK`~~ — **done**. `ConcurrentHashMap<Jwk, JWK>`
    keyed by record-value-equality on `Jwk`; first validation per cnf.jwk
    pays the Base64-decode, subsequent ones hit cache.
 3. ~~`JwksConsumerKeyResolver`~~ — **done**. TTL + single-flight on cold
@@ -136,11 +140,11 @@ Audited but not yet fixed (most need M1 rename first):
    place; stale-while-revalidate added so a TTL-expired entry serves
    the stale value while one background virtual thread refreshes.
    Cold-start fetches still block (correct).
-4. ~~`SignedJWT.parse` called twice per WPT validation~~ — **done**.
-   `WptParser.parse(SignedJWT)` now mirrors `WitParser`; orchestrator
-   parses once and stashes the `SignedJWT` on `ValidationContext`;
-   `WptValidator` reuses it for signature verify. Ad-hoc 2-arg
-   `validate(WPT, WIT)` kept as back-compat (still parses internally).
+4. ~~`SignedJWT.parse` called twice per DPoP validation~~ — **done**.
+   `DpopParser.parse(SignedJWT)` mirrors `CtParser`; `DefaultResourceServer`
+   parses once and passes the `SignedJWT` into `DpopValidator.validate`
+   for signature verify. The ad-hoc 2-arg `validate(DpopToken, CredentialToken)`
+   is kept as back-compat (still parses internally).
 5. ~~`Token.isExpired/isValid`~~ — **done**. Now compares
    `expirationTime.getTime()` against `System.currentTimeMillis()` —
    zero allocations. Internal `Date` field kept (the M1 rename of the

@@ -31,8 +31,6 @@ import ai.shao.openagentauth.core.exception.CoreErrorCode;
  *   <li><b>03</b>: Crypto domain code</li>
  *   <li><b>ZZ</b>: Error code (unique within Crypto domain)</li>
  * </ul>
- *
- * @since 1.0
  */
 public enum CryptoErrorCode implements CoreErrorCode {
 

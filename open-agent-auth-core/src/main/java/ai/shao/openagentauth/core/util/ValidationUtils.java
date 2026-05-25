@@ -29,8 +29,6 @@ package ai.shao.openagentauth.core.util;
  *     this.obj = ValidationUtils.validateNotNull(obj, "obj");
  * }
  * }</pre>
- *
- * @since 1.0
  */
 public final class ValidationUtils {
 

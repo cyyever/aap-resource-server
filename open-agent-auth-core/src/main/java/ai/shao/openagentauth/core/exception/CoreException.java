@@ -24,8 +24,6 @@ import java.util.Map;
 /**
  * Base exception for all Core module exceptions.
  * Error code format: {@code OPEN_AGENT_AUTH_10_YYZZ} (system 10, YY=domain, ZZ=error).
- *
- * @since 1.0
  */
 public abstract class CoreException extends OpenAgentAuthException {
 

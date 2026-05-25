@@ -20,8 +20,6 @@ import ai.shao.openagentauth.core.exception.ErrorCode;
 /**
  * Interface for Server module error codes.
  * Error code format: {@code OPEN_AGENT_AUTH_11_YYZZ} (system 11, YY=domain, ZZ=error).
- *
- * @since 1.0
  */
 public interface ServerErrorCode extends ErrorCode {
 
@@ -36,7 +34,7 @@ public interface ServerErrorCode extends ErrorCode {
     String DOMAIN_CODE_AUTH = "01";
 
     /**
-     * Domain code for Token (Token Generation & Validation).
+     * Domain code for Token (Token Validation).
      */
     String DOMAIN_CODE_TOKEN = "02";
 

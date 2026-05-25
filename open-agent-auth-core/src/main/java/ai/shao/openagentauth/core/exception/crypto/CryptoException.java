@@ -30,8 +30,6 @@ import ai.shao.openagentauth.core.exception.CoreException;
  * <p>
  * <b>Error Code Format:</b> OPEN_AGENT_AUTH_10_03ZZ
  * </p>
- *
- * @since 1.0
  */
 public abstract sealed class CryptoException extends CoreException
         permits KeyResolutionException {

@@ -23,8 +23,6 @@ import java.util.Map;
 /**
  * Root exception class for the project. Carries a structured error code,
  * formatted message, optional parameter list, and optional context map.
- *
- * @since 1.0
  */
 public abstract class OpenAgentAuthException extends RuntimeException {
     

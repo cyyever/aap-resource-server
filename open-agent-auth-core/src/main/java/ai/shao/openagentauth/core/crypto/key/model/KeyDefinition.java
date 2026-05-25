@@ -23,8 +23,6 @@ import java.util.Objects;
  * Immutable value object describing how a key should be resolved and managed.
  * If {@code jwksConsumer} is set, the key is resolved from a remote JWKS endpoint;
  * otherwise, it is resolved from a local key store via the configured {@code provider}.
- *
- * @since 1.0
  */
 public final class KeyDefinition {
 

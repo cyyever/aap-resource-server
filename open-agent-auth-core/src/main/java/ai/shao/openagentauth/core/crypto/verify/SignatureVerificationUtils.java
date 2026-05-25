@@ -30,8 +30,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Resolves a verification key from {@link KeyManager} and verifies a JWT signature.
  * Only Ed25519 ({@code alg=EdDSA}) is supported.
- *
- * @since 1.0
  */
 public final class SignatureVerificationUtils {
 

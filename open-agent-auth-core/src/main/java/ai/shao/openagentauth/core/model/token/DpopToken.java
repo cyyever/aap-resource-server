@@ -22,11 +22,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.Date;
 
 /**
- * Represents a DPoP Proof (DPoP). A DPoP is a JWT that proves possession
- * of the private key corresponding to the public key in the associated Workload
- * Identity Token (CT). It binds to the CT via the {@code wth} claim. Per AAP
- * spec §3 the JOSE header is fixed at {@code {alg=EdDSA, typ=dpop+jwt}} (DPoP
- * adds {@code jwk}), so the typ/alg parameters are not carried on this record.
+ * Represents a DPoP Proof (DPoP). A DPoP is a JWT that proves possession of
+ * the private key corresponding to the public key in the associated Credential
+ * Token (CT). It binds to the CT via the {@code wth} claim. Per AAP spec §3
+ * the JOSE header is fixed at {@code {alg=EdDSA, typ=dpop+jwt}} (DPoP also
+ * permits {@code jwk}), so those parameters are not carried on this record.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record DpopToken(

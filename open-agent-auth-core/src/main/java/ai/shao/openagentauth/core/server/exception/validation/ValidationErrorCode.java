@@ -18,21 +18,9 @@ package ai.shao.openagentauth.core.server.exception.validation;
 import ai.shao.openagentauth.core.server.exception.ServerErrorCode;
 
 /**
- * Error codes for Validation domain (Request Validation).
- * <p>
- * This enum defines error codes for validation-related operations in the Server module.
- * All Validation error codes follow the format: OPEN_AGENT_AUTH_02_03ZZ
- * </p>
- * <p>
- * <b>Error Code Format:</b> OPEN_AGENT_AUTH_02_03ZZ
- * </p>
- * <ul>
- *   <li><b>02</b>: Server system code</li>
- *   <li><b>03</b>: Validation domain code</li>
- *   <li><b>ZZ</b>: Error code (unique within Validation domain)</li>
- * </ul>
- *
- * @since 1.0
+ * Error codes for Validation domain (Request Validation). All Validation error
+ * codes follow the format {@code OPEN_AGENT_AUTH_11_03ZZ} (11 = Server system,
+ * 03 = Validation domain, ZZ = error within domain).
  */
 public enum ValidationErrorCode implements ServerErrorCode {
 

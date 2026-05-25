@@ -42,7 +42,6 @@ import com.nimbusds.jose.jwk.JWK;
  *
  * @see KeyDefinition
  * @see JwksConsumerKeyResolver
- * @since 1.0
  */
 public interface KeyResolver {
 

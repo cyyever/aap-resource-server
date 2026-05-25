@@ -32,7 +32,6 @@ import ai.shao.openagentauth.core.crypto.key.resolve.KeyResolver;
  * </ul>
  *
  * @see KeyResolver
- * @since 1.0
  */
 public final class KeyResolutionException extends CryptoException {
 

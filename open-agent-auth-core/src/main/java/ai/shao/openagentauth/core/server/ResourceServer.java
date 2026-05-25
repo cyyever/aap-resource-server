@@ -21,10 +21,7 @@ import ai.shao.openagentauth.core.server.exception.validation.ServerValidationEx
 
 /**
  * Resource Server actor interface. Validates incoming requests by chaining
- * CT (workload identity) and DPoP (workload proof) validators. After the M1
- * retrofit these become CT (delegation) and DPoP (per-request).
- *
- * @since 1.0
+ * the CT (delegation) and DPoP (per-request) validators.
  */
 public interface ResourceServer {
 
