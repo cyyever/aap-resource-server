@@ -57,6 +57,46 @@ jobs:
           path: '**/target/surefire-reports/'
           retention-days: 7
 
+  format:
+    name: Format check (Spotless)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Spotless check (google-java-format AOSP)
+        run: mvn -B -ntp -P format spotless:check
+
+  spotbugs:
+    name: SpotBugs + FindSecBugs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: SpotBugs analysis
+        run: mvn -B -ntp -P spotbugs verify
+
   coverage:
     name: Coverage (JaCoCo)
     runs-on: ubuntu-latest
