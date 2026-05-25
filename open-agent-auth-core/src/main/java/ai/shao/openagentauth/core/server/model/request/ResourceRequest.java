@@ -24,11 +24,11 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResourceRequest {
 
-    @JsonProperty("wit")
-    private final String wit;
+    @JsonProperty("ct")
+    private final String ct;
 
-    @JsonProperty("wpt")
-    private final String wpt;
+    @JsonProperty("dpop")
+    private final String dpop;
 
     @JsonProperty("httpMethod")
     private final String httpMethod;
@@ -44,23 +44,23 @@ public class ResourceRequest {
 
     @JsonCreator
     public ResourceRequest(
-            @JsonProperty("wit") String wit,
-            @JsonProperty("wpt") String wpt,
+            @JsonProperty("ct") String ct,
+            @JsonProperty("dpop") String dpop,
             @JsonProperty("httpMethod") String httpMethod,
             @JsonProperty("httpUri") String httpUri,
             @JsonProperty("httpHeaders") Map<String, String> httpHeaders,
             @JsonProperty("httpBody") String httpBody
     ) {
-        this.wit = wit;
-        this.wpt = wpt;
+        this.ct = ct;
+        this.dpop = dpop;
         this.httpMethod = httpMethod;
         this.httpUri = httpUri;
         this.httpHeaders = httpHeaders;
         this.httpBody = httpBody;
     }
 
-    public String getWit() { return wit; }
-    public String getWpt() { return wpt; }
+    public String getCt() { return ct; }
+    public String getDpop() { return dpop; }
     public String getHttpMethod() { return httpMethod; }
     public String getHttpUri() { return httpUri; }
     public Map<String, String> getHttpHeaders() { return httpHeaders; }
@@ -71,20 +71,20 @@ public class ResourceRequest {
     }
 
     public static class Builder {
-        private String wit;
-        private String wpt;
+        private String ct;
+        private String dpop;
         private String httpMethod;
         private String httpUri;
         private Map<String, String> httpHeaders;
         private String httpBody;
 
-        public Builder wit(String wit) {
-            this.wit = wit;
+        public Builder ct(String ct) {
+            this.ct = ct;
             return this;
         }
 
-        public Builder wpt(String wpt) {
-            this.wpt = wpt;
+        public Builder dpop(String dpop) {
+            this.dpop = dpop;
             return this;
         }
 
@@ -109,7 +109,7 @@ public class ResourceRequest {
         }
 
         public ResourceRequest build() {
-            return new ResourceRequest(wit, wpt, httpMethod, httpUri, httpHeaders, httpBody);
+            return new ResourceRequest(ct, dpop, httpMethod, httpUri, httpHeaders, httpBody);
         }
     }
 }

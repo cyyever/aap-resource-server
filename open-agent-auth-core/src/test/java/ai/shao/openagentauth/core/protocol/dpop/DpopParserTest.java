@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ai.shao.openagentauth.core.protocol.wimse.wpt;
+package ai.shao.openagentauth.core.protocol.dpop;
 
-import ai.shao.openagentauth.core.model.token.WorkloadProofToken;
+import ai.shao.openagentauth.core.model.token.DpopToken;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -42,25 +42,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Unit tests for {@link WptParser}.
+ * Unit tests for {@link DpopParser}.
  */
-@DisplayName("WPT Parser Tests")
-class WptParserTest {
+@DisplayName("DPoP Parser Tests")
+class DpopParserTest {
 
-    private WptParser wptParser;
+    private DpopParser dpopParser;
     private OctetKeyPair signingKey;
     private String sampleWit;
     private String sampleAccessToken;
 
     @BeforeEach
     void setUp() throws JOSEException {
-        wptParser = new WptParser();
+        dpopParser = new DpopParser();
 
         signingKey = new OctetKeyPairGenerator(Curve.Ed25519)
-                .keyID("wpt-signing-key")
+                .keyID("dpop-signing-key")
                 .generate();
 
-        sampleWit = "sample-wit-jwt-string";
+        sampleWit = "sample-ct-jwt-string";
         sampleAccessToken = "sample-access-token";
     }
 
@@ -69,48 +69,48 @@ class WptParserTest {
     class HappyPathTests {
 
         @Test
-        @DisplayName("Should parse valid WPT successfully")
+        @DisplayName("Should parse valid DPoP successfully")
         void shouldParseValidWptSuccessfully() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
+            DpopToken dpop = dpopParser.parse(SignedJWT.parse(wptJwt));
 
-            assertThat(wpt).isNotNull();
-            assertThat(wpt.claims()).isNotNull();
-            assertThat(wpt.jwtString()).isNotNull();
-            assertThat(wpt.signature()).isNotNull();
+            assertThat(dpop).isNotNull();
+            assertThat(dpop.claims()).isNotNull();
+            assertThat(dpop.jwtString()).isNotNull();
+            assertThat(dpop.signature()).isNotNull();
         }
 
         @Test
-        @DisplayName("Should parse WPT with all required claims")
+        @DisplayName("Should parse DPoP with all required claims")
         void shouldParseWptWithAllRequiredClaims() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
+            DpopToken dpop = dpopParser.parse(SignedJWT.parse(wptJwt));
 
-            assertThat(wpt.claims().audience()).isEqualTo("[resource-server]");
-            assertThat(wpt.claims().jwtId()).isNotNull();
-            assertThat(wpt.claims().workloadTokenHash()).isNotNull();
+            assertThat(dpop.claims().audience()).isEqualTo("[resource-server]");
+            assertThat(dpop.claims().jwtId()).isNotNull();
+            assertThat(dpop.claims().workloadTokenHash()).isNotNull();
         }
 
         @Test
-        @DisplayName("Should parse WPT with optional claims")
+        @DisplayName("Should parse DPoP with optional claims")
         void shouldParseWptWithOptionalClaims() throws Exception {
             String wptJwt = createWptWithOptionalClaims();
 
-            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
+            DpopToken dpop = dpopParser.parse(SignedJWT.parse(wptJwt));
 
-            assertThat(wpt.claims().accessTokenHash()).isNotNull();
+            assertThat(dpop.claims().accessTokenHash()).isNotNull();
         }
 
         @Test
-        @DisplayName("Should reject WPT with wrong typ header")
+        @DisplayName("Should reject DPoP with wrong typ header")
         void shouldRejectWptWithWrongTypHeader() throws Exception {
             String wptJwt = createWptWithCustomTyp();
             SignedJWT signedJwt = SignedJWT.parse(wptJwt);
-            assertThatThrownBy(() -> wptParser.parse(signedJwt))
+            assertThatThrownBy(() -> dpopParser.parse(signedJwt))
                     .isInstanceOf(ParseException.class)
-                    .hasMessageContaining("typ header must be 'wpt+jwt'");
+                    .hasMessageContaining("typ header must be 'dpop+jwt'");
         }
     }
 
@@ -121,13 +121,13 @@ class WptParserTest {
         @Test
         @DisplayName("Should throw exception when signed JWT is null")
         void shouldThrowExceptionWhenSignedJwtIsNull() {
-            assertThatThrownBy(() -> wptParser.parse((SignedJWT) null))
+            assertThatThrownBy(() -> dpopParser.parse((SignedJWT) null))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Signed JWT");
         }
 
         @Test
-        @DisplayName("Should throw exception when WPT is malformed")
+        @DisplayName("Should throw exception when DPoP is malformed")
         void shouldThrowExceptionWhenWptIsMalformed() {
             String malformedWpt = "not-a-valid-jwt";
 
@@ -145,9 +145,9 @@ class WptParserTest {
         void shouldParseAudienceClaimCorrectly() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
+            DpopToken dpop = dpopParser.parse(SignedJWT.parse(wptJwt));
 
-            assertThat(wpt.claims().audience()).isEqualTo("[resource-server]");
+            assertThat(dpop.claims().audience()).isEqualTo("[resource-server]");
         }
 
         @Test
@@ -155,10 +155,10 @@ class WptParserTest {
         void shouldParseExpirationTimeClaimCorrectly() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
+            DpopToken dpop = dpopParser.parse(SignedJWT.parse(wptJwt));
 
-            assertThat(wpt.claims().expirationTime()).isNotNull();
-            assertThat(wpt.claims().expirationTime()).isAfter(new Date());
+            assertThat(dpop.claims().expirationTime()).isNotNull();
+            assertThat(dpop.claims().expirationTime()).isAfter(new Date());
         }
 
         @Test
@@ -166,9 +166,9 @@ class WptParserTest {
         void shouldParseJwtIdClaimCorrectly() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
+            DpopToken dpop = dpopParser.parse(SignedJWT.parse(wptJwt));
 
-            assertThat(wpt.claims().jwtId()).isNotNull();
+            assertThat(dpop.claims().jwtId()).isNotNull();
         }
 
         @Test
@@ -176,9 +176,9 @@ class WptParserTest {
         void shouldParseWorkloadTokenHashClaimCorrectly() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
+            DpopToken dpop = dpopParser.parse(SignedJWT.parse(wptJwt));
 
-            assertThat(wpt.claims().workloadTokenHash()).isNotNull();
+            assertThat(dpop.claims().workloadTokenHash()).isNotNull();
         }
 
         @Test
@@ -186,9 +186,9 @@ class WptParserTest {
         void shouldParseAccessTokenHashClaimCorrectly() throws Exception {
             String wptJwt = createWptWithOptionalClaims();
 
-            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
+            DpopToken dpop = dpopParser.parse(SignedJWT.parse(wptJwt));
 
-            assertThat(wpt.claims().accessTokenHash()).isNotNull();
+            assertThat(dpop.claims().accessTokenHash()).isNotNull();
         }
 
         @Test
@@ -196,9 +196,9 @@ class WptParserTest {
         void shouldHandleNullOptionalClaims() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
+            DpopToken dpop = dpopParser.parse(SignedJWT.parse(wptJwt));
 
-            assertThat(wpt.claims().accessTokenHash()).isNull();
+            assertThat(dpop.claims().accessTokenHash()).isNull();
         }
     }
 
@@ -207,17 +207,17 @@ class WptParserTest {
     class HeaderParsingTests {
 
         @Test
-        @DisplayName("Should reject WPT without typ header")
+        @DisplayName("Should reject DPoP without typ header")
         void shouldRejectWptWithoutTypHeader() throws Exception {
             String wptJwt = createWptWithoutTyp();
             SignedJWT signedJwt = SignedJWT.parse(wptJwt);
-            assertThatThrownBy(() -> wptParser.parse(signedJwt))
+            assertThatThrownBy(() -> dpopParser.parse(signedJwt))
                     .isInstanceOf(ParseException.class)
-                    .hasMessageContaining("typ header must be 'wpt+jwt'");
+                    .hasMessageContaining("typ header must be 'dpop+jwt'");
         }
 
         @Test
-        @DisplayName("Should reject WPT signed with non-EdDSA algorithm")
+        @DisplayName("Should reject DPoP signed with non-EdDSA algorithm")
         void shouldRejectWptSignedWithNonEdDsaAlgorithm() throws Exception {
             RSAKey rsaKey = new RSAKeyGenerator(2048).keyID("rs-key").generate();
             JWTClaimsSet claims = new JWTClaimsSet.Builder()
@@ -229,19 +229,19 @@ class WptParserTest {
             SignedJWT rsaSigned = new SignedJWT(
                     new JWSHeader.Builder(JWSAlgorithm.RS256)
                             .keyID(rsaKey.getKeyID())
-                            .type(new JOSEObjectType("wpt+jwt"))
+                            .type(new JOSEObjectType("dpop+jwt"))
                             .build(),
                     claims);
             rsaSigned.sign(new RSASSASigner(rsaKey));
 
             SignedJWT signedJwt = SignedJWT.parse(rsaSigned.serialize());
-            assertThatThrownBy(() -> wptParser.parse(signedJwt))
+            assertThatThrownBy(() -> dpopParser.parse(signedJwt))
                     .isInstanceOf(ParseException.class)
                     .hasMessageContaining("alg header must be 'EdDSA'");
         }
 
         @Test
-        @DisplayName("Should reject WPT with disallowed JOSE header parameter (kid)")
+        @DisplayName("Should reject DPoP with disallowed JOSE header parameter (kid)")
         void shouldRejectWptWithKidHeader() throws Exception {
             JWTClaimsSet claims = new JWTClaimsSet.Builder()
                     .audience("resource-server")
@@ -252,13 +252,13 @@ class WptParserTest {
             SignedJWT signedJwt = new SignedJWT(
                     new JWSHeader.Builder(JWSAlgorithm.EdDSA)
                             .keyID(signingKey.getKeyID())
-                            .type(new JOSEObjectType("wpt+jwt"))
+                            .type(new JOSEObjectType("dpop+jwt"))
                             .build(),
                     claims);
             signedJwt.sign(new com.nimbusds.jose.crypto.Ed25519Signer(signingKey));
 
             SignedJWT parsed = SignedJWT.parse(signedJwt.serialize());
-            assertThatThrownBy(() -> wptParser.parse(parsed))
+            assertThatThrownBy(() -> dpopParser.parse(parsed))
                     .isInstanceOf(ParseException.class)
                     .hasMessageContaining("disallowed parameter: kid");
         }
@@ -273,9 +273,9 @@ class WptParserTest {
         void shouldPreserveOriginalJwtString() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
+            DpopToken dpop = dpopParser.parse(SignedJWT.parse(wptJwt));
 
-            assertThat(wpt.jwtString()).isEqualTo(wptJwt);
+            assertThat(dpop.jwtString()).isEqualTo(wptJwt);
         }
 
         @Test
@@ -283,12 +283,12 @@ class WptParserTest {
         void shouldExtractSignatureCorrectly() throws Exception {
             String wptJwt = createValidWpt();
 
-            WorkloadProofToken wpt = wptParser.parse(SignedJWT.parse(wptJwt));
+            DpopToken dpop = dpopParser.parse(SignedJWT.parse(wptJwt));
 
-            assertThat(wpt.signature()).isNotNull();
+            assertThat(dpop.signature()).isNotNull();
             String[] parts = wptJwt.split("\\.");
             assertThat(parts).hasSize(3);
-            assertThat(wpt.signature()).isEqualTo(parts[2]);
+            assertThat(dpop.signature()).isEqualTo(parts[2]);
         }
     }
 
@@ -304,7 +304,7 @@ class WptParserTest {
 
         SignedJWT signedJwt = new SignedJWT(
                 new JWSHeader.Builder(JWSAlgorithm.EdDSA)
-                        .type(new JOSEObjectType("wpt+jwt"))
+                        .type(new JOSEObjectType("dpop+jwt"))
                         .build(),
                 claimsSet
         );
@@ -326,7 +326,7 @@ class WptParserTest {
 
         SignedJWT signedJwt = new SignedJWT(
                 new JWSHeader.Builder(JWSAlgorithm.EdDSA)
-                        .type(new JOSEObjectType("wpt+jwt"))
+                        .type(new JOSEObjectType("dpop+jwt"))
                         .build(),
                 claimsSet
         );

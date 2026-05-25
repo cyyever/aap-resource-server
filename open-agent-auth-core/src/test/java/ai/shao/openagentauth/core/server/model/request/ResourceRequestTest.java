@@ -32,25 +32,25 @@ class ResourceRequestTest {
     class BuilderPatternTests {
 
         @Test
-        @DisplayName("Should build request with wit")
+        @DisplayName("Should build request with ct")
         void shouldBuildRequestWithWit() {
             ResourceRequest request = ResourceRequest.builder()
-                .wit("wit-token")
+                .ct("ct-token")
                 .build();
 
-            assertThat(request.getWit()).isEqualTo("wit-token");
+            assertThat(request.getCt()).isEqualTo("ct-token");
         }
 
         @Test
-        @DisplayName("Should build request with wit and wpt")
+        @DisplayName("Should build request with ct and dpop")
         void shouldBuildRequestWithWitAndWpt() {
             ResourceRequest request = ResourceRequest.builder()
-                .wit("wit-token")
-                .wpt("wpt-token")
+                .ct("ct-token")
+                .dpop("dpop-token")
                 .build();
 
-            assertThat(request.getWit()).isEqualTo("wit-token");
-            assertThat(request.getWpt()).isEqualTo("wpt-token");
+            assertThat(request.getCt()).isEqualTo("ct-token");
+            assertThat(request.getDpop()).isEqualTo("dpop-token");
         }
 
         @Test
@@ -79,16 +79,16 @@ class ResourceRequestTest {
             headers.put("Content-Type", "application/json");
 
             ResourceRequest request = ResourceRequest.builder()
-                .wit("wit-token")
-                .wpt("wpt-token")
+                .ct("ct-token")
+                .dpop("dpop-token")
                 .httpMethod("GET")
                 .httpUri("/api/resource")
                 .httpHeaders(headers)
                 .httpBody("")
                 .build();
 
-            assertThat(request.getWit()).isEqualTo("wit-token");
-            assertThat(request.getWpt()).isEqualTo("wpt-token");
+            assertThat(request.getCt()).isEqualTo("ct-token");
+            assertThat(request.getDpop()).isEqualTo("dpop-token");
             assertThat(request.getHttpMethod()).isEqualTo("GET");
             assertThat(request.getHttpUri()).isEqualTo("/api/resource");
             assertThat(request.getHttpHeaders()).hasSize(1);
@@ -98,8 +98,8 @@ class ResourceRequestTest {
         @DisplayName("Should support method chaining")
         void shouldSupportMethodChaining() {
             ResourceRequest request = ResourceRequest.builder()
-                .wit("wit-token")
-                .wpt("wpt-token")
+                .ct("ct-token")
+                .dpop("dpop-token")
                 .httpMethod("POST")
                 .httpUri("/api/resource")
                 .build();
@@ -111,16 +111,16 @@ class ResourceRequestTest {
         @DisplayName("Should handle null values")
         void shouldHandleNullValues() {
             ResourceRequest request = ResourceRequest.builder()
-                .wit(null)
-                .wpt(null)
+                .ct(null)
+                .dpop(null)
                 .httpMethod(null)
                 .httpUri(null)
                 .httpHeaders(null)
                 .httpBody(null)
                 .build();
 
-            assertThat(request.getWit()).isNull();
-            assertThat(request.getWpt()).isNull();
+            assertThat(request.getCt()).isNull();
+            assertThat(request.getDpop()).isNull();
             assertThat(request.getHttpMethod()).isNull();
             assertThat(request.getHttpUri()).isNull();
             assertThat(request.getHttpHeaders()).isNull();
@@ -133,23 +133,23 @@ class ResourceRequestTest {
     class GetterTests {
 
         @Test
-        @DisplayName("Should return wit")
+        @DisplayName("Should return ct")
         void shouldReturnWit() {
             ResourceRequest request = ResourceRequest.builder()
-                .wit("wit-token")
+                .ct("ct-token")
                 .build();
 
-            assertThat(request.getWit()).isEqualTo("wit-token");
+            assertThat(request.getCt()).isEqualTo("ct-token");
         }
 
         @Test
-        @DisplayName("Should return wpt")
+        @DisplayName("Should return dpop")
         void shouldReturnWpt() {
             ResourceRequest request = ResourceRequest.builder()
-                .wpt("wpt-token")
+                .dpop("dpop-token")
                 .build();
 
-            assertThat(request.getWpt()).isEqualTo("wpt-token");
+            assertThat(request.getDpop()).isEqualTo("dpop-token");
         }
 
         @Test
@@ -200,10 +200,10 @@ class ResourceRequestTest {
         @DisplayName("Should return null for missing fields")
         void shouldReturnNullForMissingFields() {
             ResourceRequest request = ResourceRequest.builder()
-                .wit("wit-token")
+                .ct("ct-token")
                 .build();
 
-            assertThat(request.getWpt()).isNull();
+            assertThat(request.getDpop()).isNull();
             assertThat(request.getHttpMethod()).isNull();
             assertThat(request.getHttpUri()).isNull();
             assertThat(request.getHttpHeaders()).isNull();
@@ -235,15 +235,15 @@ class ResourceRequestTest {
         @DisplayName("Should create multiple independent instances")
         void shouldCreateMultipleIndependentInstances() {
             ResourceRequest request1 = ResourceRequest.builder()
-                .wit("wit-1")
+                .ct("ct-1")
                 .build();
 
             ResourceRequest request2 = ResourceRequest.builder()
-                .wit("wit-2")
+                .ct("ct-2")
                 .build();
 
-            assertThat(request1.getWit()).isEqualTo("wit-1");
-            assertThat(request2.getWit()).isEqualTo("wit-2");
+            assertThat(request1.getCt()).isEqualTo("ct-1");
+            assertThat(request2.getCt()).isEqualTo("ct-2");
             assertThat(request1).isNotSameAs(request2);
         }
     }

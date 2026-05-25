@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ai.shao.openagentauth.core.protocol.wimse.wit;
+package ai.shao.openagentauth.core.protocol.ct;
 
 import ai.shao.openagentauth.core.crypto.key.KeyManager;
 import ai.shao.openagentauth.core.crypto.verify.SignatureVerificationUtils;
-import ai.shao.openagentauth.core.model.token.WorkloadIdentityToken;
+import ai.shao.openagentauth.core.model.token.CredentialToken;
 import ai.shao.openagentauth.core.token.common.TokenValidationResult;
 import ai.shao.openagentauth.core.trust.TrustDomain;
 import ai.shao.openagentauth.core.util.ValidationUtils;
@@ -32,15 +32,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Validator for Workload Identity Tokens (WIT). Verifies the signature,
+ * Validator for Credential Tokens (CT). Verifies the signature,
  * expiration, and structure of WITs.
  */
-public class WitValidator {
+public class CtValidator {
 
     /**
      * Logger for this class.
      */
-    private static final Logger logger = LoggerFactory.getLogger(WitValidator.class);
+    private static final Logger logger = LoggerFactory.getLogger(CtValidator.class);
 
     /**
      * The expected trust domain for validation.
@@ -48,7 +48,7 @@ public class WitValidator {
     private final TrustDomain expectedTrustDomain;
 
     /**
-     * The key manager used for verifying WIT signatures.
+     * The key manager used for verifying CT signatures.
      * Supports dynamic key rotation through KeyManager abstraction.
      */
     private final KeyManager keyManager;
@@ -59,12 +59,12 @@ public class WitValidator {
     private final String verificationKeyId;
 
     /**
-     * The WIT parser.
+     * The CT parser.
      */
-    private final WitParser witParser;
+    private final CtParser ctParser;
 
     /**
-     * Creates a new WIT validator with a key manager, verification key ID, and trust domain.
+     * Creates a new CT validator with a key manager, verification key ID, and trust domain.
      * <p>
      * This constructor supports dynamic key rotation through the KeyManager abstraction.
      * </p>
@@ -74,48 +74,48 @@ public class WitValidator {
      * @param expectedTrustDomain the expected trust domain for validation
      * @throws IllegalArgumentException if keyManager or expectedTrustDomain is null, or verificationKeyId is empty
      */
-    public WitValidator(KeyManager keyManager, String verificationKeyId, TrustDomain expectedTrustDomain) {
+    public CtValidator(KeyManager keyManager, String verificationKeyId, TrustDomain expectedTrustDomain) {
         this.keyManager = ValidationUtils.validateNotNull(keyManager, "Key manager");
         this.verificationKeyId = ValidationUtils.validateNotEmpty(verificationKeyId, "Verification key ID");
         this.expectedTrustDomain = ValidationUtils.validateNotNull(expectedTrustDomain, "Expected trust domain");
-        this.witParser = new WitParser();
+        this.ctParser = new CtParser();
 
-        logger.info("WitValidator initialized with KeyManager: {}, keyId: {}, domain: {}",
+        logger.info("CtValidator initialized with KeyManager: {}, keyId: {}, domain: {}",
                 keyManager.getClass().getSimpleName(), verificationKeyId, expectedTrustDomain.getDomainId());
     }
 
     /**
-     * Validates a Workload Identity Token.
+     * Validates a Credential Token.
      *
-     * @param witJwt the JWT string representing the WIT
+     * @param witJwt the JWT string representing the CT
      * @return a TokenValidationResult containing the validation outcome and parsed token
      * @throws ParseException if the JWT cannot be parsed
      */
-    public TokenValidationResult<WorkloadIdentityToken> validate(String witJwt) throws ParseException {
+    public TokenValidationResult<CredentialToken> validate(String witJwt) throws ParseException {
 
         // Validate arguments
         if (ValidationUtils.isNullOrEmpty(witJwt)) {
-            return TokenValidationResult.failure("WIT cannot be null or empty");
+            return TokenValidationResult.failure("CT cannot be null or empty");
         }
 
         SignedJWT signedJwt = SignedJWT.parse(witJwt);
 
-        // 1. Verify the signature of the WIT
+        // 1. Verify the signature of the CT
         if (!verifySignature(signedJwt)) {
-            return TokenValidationResult.failure("Invalid WIT signature");
+            return TokenValidationResult.failure("Invalid CT signature");
         }
 
-        // 2. Verify that the WIT has not expired
+        // 2. Verify that the CT has not expired
         if (!verifyExpiration(signedJwt)) {
-            return TokenValidationResult.failure("WIT has expired");
+            return TokenValidationResult.failure("CT has expired");
         }
 
-        // 3. Verify that the WIT issuer matches the expected trust domain
+        // 3. Verify that the CT issuer matches the expected trust domain
         if (!verifyTrustDomain(signedJwt)) {
             return TokenValidationResult.failure("Invalid trust domain");
         }
 
-        // 4. Verify that all required claims are present in the WIT
+        // 4. Verify that all required claims are present in the CT
         if (!verifyRequiredClaims(signedJwt)) {
             return TokenValidationResult.failure("Missing required claims");
         }
@@ -131,15 +131,15 @@ public class WitValidator {
             }
         }
 
-        // Parse the WIT and return the parsed token
-        WorkloadIdentityToken wit = witParser.parse(signedJwt);
-        logger.debug("Successfully validated WIT with subject: {}", wit.getSubject());
+        // Parse the CT and return the parsed token
+        CredentialToken ct = ctParser.parse(signedJwt);
+        logger.debug("Successfully validated CT with subject: {}", ct.getSubject());
 
-        return TokenValidationResult.success(wit);
+        return TokenValidationResult.success(ct);
     }
 
     /**
-     * Verifies the signature of the WIT.
+     * Verifies the signature of the CT.
      *
      * @param signedJwt the signed JWT
      * @return true if the signature is valid, false otherwise
@@ -149,59 +149,59 @@ public class WitValidator {
     }
 
     /**
-     * Verifies that the WIT has not expired.
+     * Verifies that the CT has not expired.
      *
      * @param signedJwt the signed JWT
      * @return true if the token is not expired, false otherwise
      */
     private boolean verifyExpiration(SignedJWT signedJwt) {
         try {
-            // Get WIT expiration time
+            // Get CT expiration time
             Date expirationTime = signedJwt.getJWTClaimsSet().getExpirationTime();
             if (expirationTime == null) {
-                logger.warn("WIT missing expiration time");
+                logger.warn("CT missing expiration time");
                 return false;
             }
 
             boolean isValid = System.currentTimeMillis() < expirationTime.getTime();
             if (!isValid) {
-                logger.warn("WIT has expired at: {}", expirationTime);
+                logger.warn("CT has expired at: {}", expirationTime);
             }
             return isValid;
 
         } catch (ParseException e) {
-            logger.error("Error parsing WIT expiration time", e);
+            logger.error("Error parsing CT expiration time", e);
             return false;
         }
     }
 
     /**
-     * Verifies that the WIT issuer matches the expected trust domain.
+     * Verifies that the CT issuer matches the expected trust domain.
      *
      * @param signedJwt the signed JWT
      * @return true if the trust domain is valid, false otherwise
      */
     private boolean verifyTrustDomain(SignedJWT signedJwt) {
         try {
-            // Get WIT issuer
+            // Get CT issuer
             String issuer = signedJwt.getJWTClaimsSet().getIssuer();
             boolean isValid = expectedTrustDomain.getDomainId().equals(issuer);
 
             // Log if trust domain is invalid
             if (!isValid) {
-                logger.warn("WIT issuer '{}' does not match expected trust domain '{}'",
+                logger.warn("CT issuer '{}' does not match expected trust domain '{}'",
                            issuer, expectedTrustDomain.getDomainId());
             }
             return isValid;
 
         } catch (ParseException e) {
-            logger.error("Error parsing WIT issuer", e);
+            logger.error("Error parsing CT issuer", e);
             return false;
         }
     }
 
     /**
-     * Verifies that required claims are present in the WIT: {@code sub}, {@code exp},
+     * Verifies that required claims are present in the CT: {@code sub}, {@code exp},
      * and {@code cnf}.
      *
      * @param signedJwt the signed JWT
@@ -209,31 +209,31 @@ public class WitValidator {
      */
     private boolean verifyRequiredClaims(SignedJWT signedJwt) {
         try {
-            // Get WIT claims
+            // Get CT claims
             var claims = signedJwt.getJWTClaimsSet().getClaims();
 
             // Verify subject (sub) claim - REQUIRED
             if (!claims.containsKey("sub")) {
-                logger.warn("WIT missing required claim: sub (subject)");
+                logger.warn("CT missing required claim: sub (subject)");
                 return false;
             }
 
             // Verify expiration (exp) claim - REQUIRED
             if (!claims.containsKey("exp")) {
-                logger.warn("WIT missing required claim: exp (expiration time)");
+                logger.warn("CT missing required claim: exp (expiration time)");
                 return false;
             }
 
             // cnf (confirmation) claim is REQUIRED for proof-of-possession verification.
             if (!claims.containsKey("cnf")) {
-                logger.warn("WIT missing required claim: cnf (confirmation)");
+                logger.warn("CT missing required claim: cnf (confirmation)");
                 return false;
             }
 
             return true;
 
         } catch (ParseException e) {
-            logger.error("Error parsing WIT claims", e);
+            logger.error("Error parsing CT claims", e);
             return false;
         }
     }
@@ -246,25 +246,25 @@ public class WitValidator {
      */
     private CnfValidationResult verifyCnfClaim(SignedJWT signedJwt) {
         try {
-            // Get WIT cnf claim
+            // Get CT cnf claim
             Map<String, Object> cnfClaim = signedJwt.getJWTClaimsSet().getJSONObjectClaim("cnf");
 
             // cnf claim is REQUIRED in this implementation
             if (cnfClaim == null) {
-                logger.warn("WIT cnf claim is not present (required)");
+                logger.warn("CT cnf claim is not present (required)");
                 return new CnfValidationResult(false, true);
             }
 
             // Verify it contains a valid jwk
             if (!cnfClaim.containsKey("jwk")) {
-                logger.warn("WIT cnf claim missing jwk");
+                logger.warn("CT cnf claim missing jwk");
                 return new CnfValidationResult(false, false);
             }
 
             // Validate that the jwk is a valid JWK with safe type conversion
             Object jwkObj = cnfClaim.get("jwk");
             if (!(jwkObj instanceof Map)) {
-                logger.warn("WIT cnf.jwk is not a Map");
+                logger.warn("CT cnf.jwk is not a Map");
                 return new CnfValidationResult(false, false);
             }
 
@@ -273,14 +273,14 @@ public class WitValidator {
             Map<String, Object> jwkMap = (Map<String, Object>) jwkObj;
             try {
                 JWK.parse(jwkMap);
-                logger.debug("WIT cnf.jwk is valid");
+                logger.debug("CT cnf.jwk is valid");
                 return new CnfValidationResult(true, false);
             } catch (ParseException e) {
-                logger.warn("WIT cnf.jwk is invalid: {}", e.getMessage());
+                logger.warn("CT cnf.jwk is invalid: {}", e.getMessage());
                 return new CnfValidationResult(false, false);
             }
         } catch (ParseException e) {
-            logger.error("Error parsing WIT cnf claim", e);
+            logger.error("Error parsing CT cnf claim", e);
             return new CnfValidationResult(false, false);
         }
     }

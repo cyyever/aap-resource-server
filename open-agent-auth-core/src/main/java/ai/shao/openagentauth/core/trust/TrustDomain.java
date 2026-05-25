@@ -21,51 +21,24 @@ import java.util.Objects;
 
 /**
  * Represents a trust domain: a logical boundary that defines a scope of trust for
- * workload identities. The identifier follows the format {@code wimse://<domain>}.
- *
- * @since 1.0
+ * agent identities. The identifier is compared against the {@code iss} claim of
+ * incoming CTs verbatim — no scheme prefix is stripped.
  */
 public class TrustDomain {
-    
-    /**
-     * The trust domain identifier.
-     */
+
     private final String domainId;
-    
-    /**
-     * Creates a new TrustDomain.
-     *
-     * @param domainId the trust domain identifier (e.g., "wimse://example.com")
-     * @throws IllegalArgumentException if domainId is null or empty
-     */
+
     public TrustDomain(String domainId) {
         if (ValidationUtils.isNullOrEmpty(domainId)) {
             throw new IllegalArgumentException("Domain ID cannot be null or empty");
         }
         this.domainId = domainId;
     }
-    
-    /**
-     * Gets the trust domain identifier.
-     *
-     * @return the domain ID
-     */
+
     public String getDomainId() {
         return domainId;
     }
-    
-    /**
-     * Gets the domain name (without the wimse:// prefix).
-     *
-     * @return the domain name
-     */
-    public String getDomainName() {
-        if (domainId.startsWith("wimse://")) {
-            return domainId.substring(8);
-        }
-        return domainId;
-    }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

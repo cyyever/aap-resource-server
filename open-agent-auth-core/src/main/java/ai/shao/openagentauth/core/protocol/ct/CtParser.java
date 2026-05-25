@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ai.shao.openagentauth.core.protocol.wimse.wit;
+package ai.shao.openagentauth.core.protocol.ct;
 
 import ai.shao.openagentauth.core.model.jwk.Jwk;
-import ai.shao.openagentauth.core.model.token.WorkloadIdentityToken;
+import ai.shao.openagentauth.core.model.token.CredentialToken;
 import ai.shao.openagentauth.core.crypto.JwkConverter;
 import ai.shao.openagentauth.core.util.ValidationUtils;
 import com.nimbusds.jose.JOSEObjectType;
@@ -32,83 +32,83 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Parser for Workload Identity Tokens (WIT). Converts signed JWT strings into
- * structured {@link WorkloadIdentityToken} objects.
+ * Parser for Credential Tokens (CT). Converts signed JWT strings into
+ * structured {@link CredentialToken} objects.
  */
-public class WitParser {
+public class CtParser {
 
-    private static final String EXPECTED_TYP = "wit+jwt";
+    private static final String EXPECTED_TYP = "ct+jwt";
 
     /** Per AAP spec §3: only {alg, typ} JOSE header params allowed on CT. */
     private static final Set<String> ALLOWED_HEADER_PARAMS = Set.of("alg", "typ");
 
-    private static final Logger logger = LoggerFactory.getLogger(WitParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(CtParser.class);
 
     /**
-     * Parses a WIT from a signed JWT.
+     * Parses a CT from a signed JWT.
      * <p>
      * This method extracts all claims from the JWT and constructs a structured
-     * {@link WorkloadIdentityToken} object. It validates the input and provides
+     * {@link CredentialToken} object. It validates the input and provides
      * detailed error messages if parsing fails.
      * </p>
      *
      * @param signedJwt the signed JWT to parse
-     * @return a WorkloadIdentityToken object
+     * @return a CredentialToken object
      * @throws ParseException if parsing fails due to invalid JWT structure or claims
      * @throws IllegalArgumentException if signedJwt is null
      */
-    public WorkloadIdentityToken parse(SignedJWT signedJwt) throws ParseException {
+    public CredentialToken parse(SignedJWT signedJwt) throws ParseException {
 
         ValidationUtils.validateNotNull(signedJwt, "Signed JWT");
 
-        logger.debug("Parsing Workload Identity Token");
+        logger.debug("Parsing Credential Token");
 
         JWSAlgorithm alg = signedJwt.getHeader().getAlgorithm();
         if (!JWSAlgorithm.EdDSA.equals(alg)) {
             throw new ParseException(
-                    "WIT alg header must be 'EdDSA', got: " + alg, 0);
+                    "CT alg header must be 'EdDSA', got: " + alg, 0);
         }
 
         JOSEObjectType typ = signedJwt.getHeader().getType();
         if (typ == null || !EXPECTED_TYP.equals(typ.getType())) {
             throw new ParseException(
-                    "WIT typ header must be '" + EXPECTED_TYP + "', got: " + typ, 0);
+                    "CT typ header must be '" + EXPECTED_TYP + "', got: " + typ, 0);
         }
 
         Set<String> headerParams = signedJwt.getHeader().toJSONObject().keySet();
         for (String name : headerParams) {
             if (!ALLOWED_HEADER_PARAMS.contains(name)) {
                 throw new ParseException(
-                        "WIT JOSE header contains disallowed parameter: " + name, 0);
+                        "CT JOSE header contains disallowed parameter: " + name, 0);
             }
         }
 
         var claims = signedJwt.getJWTClaimsSet();
 
-        WorkloadIdentityToken.Claims.Confirmation confirmation = parseConfirmationClaim(claims);
+        CredentialToken.Claims.Confirmation confirmation = parseConfirmationClaim(claims);
 
-        WorkloadIdentityToken wit = buildWorkloadIdentityToken(signedJwt, claims, confirmation);
+        CredentialToken ct = buildCredentialToken(signedJwt, claims, confirmation);
 
-        logger.debug("Successfully parsed WIT with subject: {}", wit.getSubject());
-        return wit;
+        logger.debug("Successfully parsed CT with subject: {}", ct.getSubject());
+        return ct;
     }
 
     /**
      * Parses the confirmation (cnf) claim from the JWT claims set.
-     * Contains the public key (JWK) used to verify Workload Proof Tokens.
+     * Contains the public key (JWK) used to verify DPoP Proofs.
      *
      * @param claims the JWT claims set
      * @return the confirmation object, or null if not present
      * @throws ParseException if the cnf claim is malformed
      */
-    private WorkloadIdentityToken.Claims.Confirmation parseConfirmationClaim(JWTClaimsSet claims) throws ParseException {
+    private CredentialToken.Claims.Confirmation parseConfirmationClaim(JWTClaimsSet claims) throws ParseException {
 
         // Extract cnf claim
         Map<String, Object> cnfClaim = claims.getJSONObjectClaim("cnf");
 
-        // cnf claim is optional in the parser, but required for WPT verification
+        // cnf claim is optional in the parser, but required for DPoP verification
         if (cnfClaim == null) {
-            logger.debug("WIT does not contain cnf claim");
+            logger.debug("CT does not contain cnf claim");
             return null;
         }
 
@@ -129,7 +129,7 @@ public class WitParser {
             Jwk jwkModel = JwkConverter.convertMapToJwk(jwkMap);
 
             // Build confirmation object
-            return WorkloadIdentityToken.Claims.Confirmation.builder()
+            return CredentialToken.Claims.Confirmation.builder()
                     .jwk(jwkModel)
                     .build();
 
@@ -139,21 +139,21 @@ public class WitParser {
     }
 
     /**
-     * Builds a structured WorkloadIdentityToken object from parsed components.
+     * Builds a structured CredentialToken object from parsed components.
      *
      * @param signedJwt the signed JWT
      * @param claims the JWT claims set
      * @param confirmation the parsed confirmation claim
-     * @return a WorkloadIdentityToken object
+     * @return a CredentialToken object
      */
-    private WorkloadIdentityToken buildWorkloadIdentityToken(
+    private CredentialToken buildCredentialToken(
             SignedJWT signedJwt,
             JWTClaimsSet claims,
-            WorkloadIdentityToken.Claims.Confirmation confirmation
+            CredentialToken.Claims.Confirmation confirmation
     ) {
 
         // Build claims
-        WorkloadIdentityToken.Claims.ClaimsBuilder claimsBuilder = WorkloadIdentityToken.Claims.builder()
+        CredentialToken.Claims.ClaimsBuilder claimsBuilder = CredentialToken.Claims.builder()
                 .issuer(claims.getIssuer())
                 .subject(claims.getSubject())
                 .expirationTime(claims.getExpirationTime())
@@ -165,12 +165,12 @@ public class WitParser {
         try {
             jwtString = signedJwt.serialize();
         } catch (Exception e) {
-            logger.error("Failed to serialize WIT JWT", e);
+            logger.error("Failed to serialize CT JWT", e);
             jwtString = null;
         }
 
-        // Build WIT
-        return WorkloadIdentityToken.builder()
+        // Build CT
+        return CredentialToken.builder()
                 .claims(claimsBuilder.build())
                 .jwtString(jwtString)
                 .build();

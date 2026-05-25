@@ -60,15 +60,15 @@ public class JwtHashUtil {
     }
 
     /**
-     * Computes the WIT hash (wth).
+     * Computes the CT hash (wth).
      *
-     * @param witJwtString the Workload Identity Token (JWT string)
-     * @return the base64url-encoded SHA-256 hash of the WIT
-     * @throws IllegalArgumentException if the WIT JWT string is null or empty
+     * @param ctJwtString the Credential Token (JWT string)
+     * @return the base64url-encoded SHA-256 hash of the CT
+     * @throws IllegalArgumentException if the CT JWT string is null or empty
      * @throws IllegalStateException if SHA-256 algorithm is not available
      */
-    public static String computeWitHash(String witJwtString) {
-        return computeSha256Hash(witJwtString);
+    public static String computeWitHash(String ctJwtString) {
+        return computeSha256Hash(ctJwtString);
     }
 
     /**

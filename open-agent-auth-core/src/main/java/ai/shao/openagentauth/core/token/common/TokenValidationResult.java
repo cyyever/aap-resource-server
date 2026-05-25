@@ -17,7 +17,7 @@ package ai.shao.openagentauth.core.token.common;
 
 /**
  * Generic result class for token validation.
- * Represents the outcome of validating a token (WIT, WPT, etc.).
+ * Represents the outcome of validating a token (CT, DPoP, etc.).
  *
  * @param <T> the type of token being validated
  */

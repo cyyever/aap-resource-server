@@ -21,7 +21,7 @@ import ai.shao.openagentauth.core.server.exception.validation.ServerValidationEx
 
 /**
  * Resource Server actor interface. Validates incoming requests by chaining
- * WIT (workload identity) and WPT (workload proof) validators. After the M1
+ * CT (workload identity) and DPoP (workload proof) validators. After the M1
  * retrofit these become CT (delegation) and DPoP (per-request).
  *
  * @since 1.0
@@ -29,8 +29,8 @@ import ai.shao.openagentauth.core.server.exception.validation.ServerValidationEx
 public interface ResourceServer {
 
     /**
-     * Validates an incoming request: WIT signature/claims, then WPT signature/integrity.
-     * Fails fast — a WIT failure short-circuits before WPT validation runs.
+     * Validates an incoming request: CT signature/claims, then DPoP signature/integrity.
+     * Fails fast — a CT failure short-circuits before DPoP validation runs.
      *
      * @param request the incoming request
      * @return validation result with per-token outcomes

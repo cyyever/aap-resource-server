@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ai.shao.openagentauth.core.protocol.wimse.wpt;
+package ai.shao.openagentauth.core.protocol.dpop;
 
-import ai.shao.openagentauth.core.model.token.WorkloadProofToken;
+import ai.shao.openagentauth.core.model.token.DpopToken;
 import ai.shao.openagentauth.core.util.ValidationUtils;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -28,55 +28,55 @@ import java.text.ParseException;
 import java.util.Set;
 
 /**
- * Parser for Workload Proof Tokens (WPT). Converts signed JWT strings into
- * structured {@link WorkloadProofToken} objects.
+ * Parser for DPoP Proofs (DPoP). Converts signed JWT strings into
+ * structured {@link DpopToken} objects.
  */
-public class WptParser {
+public class DpopParser {
 
-    private static final String EXPECTED_TYP = "wpt+jwt";
+    private static final String EXPECTED_TYP = "dpop+jwt";
 
     /** Per AAP spec §3: DPoP allows {alg, typ, jwk} JOSE header params. */
     private static final Set<String> ALLOWED_HEADER_PARAMS = Set.of("alg", "typ", "jwk");
 
-    private static final Logger logger = LoggerFactory.getLogger(WptParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(DpopParser.class);
 
     /**
-     * Parses a WPT from a signed JWT.
+     * Parses a DPoP from a signed JWT.
      * <p>
      * This method extracts all claims from the JWT and constructs a structured
-     * {@link WorkloadProofToken} object. It validates the input and provides
+     * {@link DpopToken} object. It validates the input and provides
      * detailed error messages if parsing fails.
      * </p>
      *
      * @param signedJwt the signed JWT to parse
-     * @return a WorkloadProofToken object
+     * @return a DpopToken object
      * @throws ParseException if parsing fails due to invalid JWT structure or claims
      * @throws IllegalArgumentException if signedJwt is null
      */
-    public WorkloadProofToken parse(SignedJWT signedJwt) throws ParseException {
+    public DpopToken parse(SignedJWT signedJwt) throws ParseException {
 
         ValidationUtils.validateNotNull(signedJwt, "Signed JWT");
 
-        logger.debug("Parsing Workload Proof Token");
+        logger.debug("Parsing DPoP Proof");
 
         JWTClaimsSet claimsSet = signedJwt.getJWTClaimsSet();
 
-        WorkloadProofToken wpt = buildWorkloadProofToken(signedJwt, claimsSet, signedJwt.serialize());
+        DpopToken dpop = buildDpopToken(signedJwt, claimsSet, signedJwt.serialize());
 
-        logger.debug("Successfully parsed WPT with JWT ID: {}", wpt.getJwtId());
-        return wpt;
+        logger.debug("Successfully parsed DPoP with JWT ID: {}", dpop.getJwtId());
+        return dpop;
     }
 
     /**
-     * Builds a structured WorkloadProofToken object from parsed components.
+     * Builds a structured DpopToken object from parsed components.
      *
      * @param signedJwt the signed JWT
      * @param claimsSet the JWT claims set
      * @param jwtString the original JWT string
-     * @return a WorkloadProofToken object
+     * @return a DpopToken object
      * @throws ParseException if claims parsing fails
      */
-    private WorkloadProofToken buildWorkloadProofToken(
+    private DpopToken buildDpopToken(
             SignedJWT signedJwt,
             JWTClaimsSet claimsSet,
             String jwtString
@@ -85,25 +85,25 @@ public class WptParser {
         JWSAlgorithm alg = signedJwt.getHeader().getAlgorithm();
         if (!JWSAlgorithm.EdDSA.equals(alg)) {
             throw new ParseException(
-                    "WPT alg header must be 'EdDSA', got: " + alg, 0);
+                    "DPoP alg header must be 'EdDSA', got: " + alg, 0);
         }
 
         JOSEObjectType typ = signedJwt.getHeader().getType();
         if (typ == null || !EXPECTED_TYP.equals(typ.getType())) {
             throw new ParseException(
-                    "WPT typ header must be '" + EXPECTED_TYP + "', got: " + typ, 0);
+                    "DPoP typ header must be '" + EXPECTED_TYP + "', got: " + typ, 0);
         }
 
         Set<String> headerParams = signedJwt.getHeader().toJSONObject().keySet();
         for (String name : headerParams) {
             if (!ALLOWED_HEADER_PARAMS.contains(name)) {
                 throw new ParseException(
-                        "WPT JOSE header contains disallowed parameter: " + name, 0);
+                        "DPoP JOSE header contains disallowed parameter: " + name, 0);
             }
         }
 
         // Build claims
-        WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
+        DpopToken.Claims claims = DpopToken.Claims.builder()
                 .audience(getStringClaim(claimsSet, "aud"))
                 .expirationTime(claimsSet.getExpirationTime())
                 .jwtId(claimsSet.getJWTID())
@@ -111,8 +111,8 @@ public class WptParser {
                 .accessTokenHash(getStringClaim(claimsSet, "ath"))
                 .build();
 
-        // Build WPT
-        return WorkloadProofToken.builder()
+        // Build DPoP
+        return DpopToken.builder()
                 .claims(claims)
                 .signature(signedJwt.getSignature().toString())
                 .jwtString(jwtString)

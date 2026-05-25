@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ai.shao.openagentauth.core.protocol.wimse.wit;
+package ai.shao.openagentauth.core.protocol.ct;
 
 import ai.shao.openagentauth.core.model.jwk.Jwk;
-import ai.shao.openagentauth.core.model.token.WorkloadIdentityToken;
+import ai.shao.openagentauth.core.model.token.CredentialToken;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -44,46 +44,46 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.*;
 
 /**
- * Unit tests for {@link WitParser}.
+ * Unit tests for {@link CtParser}.
  */
-@DisplayName("WIT Parser Tests")
-class WitParserTest {
+@DisplayName("CT Parser Tests")
+class CtParserTest {
 
-    private WitParser witParser;
+    private CtParser ctParser;
     private OctetKeyPair signingKey;
     private OctetKeyPair wptPublicKey;
 
     @BeforeEach
     void setUp() throws JOSEException {
-        witParser = new WitParser();
+        ctParser = new CtParser();
 
         signingKey = new OctetKeyPairGenerator(Curve.Ed25519)
-                .keyID("wit-signing-key")
+                .keyID("ct-signing-key")
                 .generate();
 
         wptPublicKey = new OctetKeyPairGenerator(Curve.Ed25519)
-                .keyID("wpt-key")
+                .keyID("dpop-key")
                 .generate()
                 .toPublicJWK();
     }
 
     @Nested
-    @DisplayName("WIT Parsing - Happy Path")
+    @DisplayName("CT Parsing - Happy Path")
     class HappyPathTests {
 
         @Test
-        @DisplayName("Should parse valid WIT with all claims")
+        @DisplayName("Should parse valid CT with all claims")
         void shouldParseValidWitWithAllClaims() throws Exception {
             SignedJWT signedJwt = createSignedJwtWithAllClaims();
 
-            WorkloadIdentityToken wit = witParser.parse(signedJwt);
+            CredentialToken ct = ctParser.parse(signedJwt);
 
-            assertThat(wit).isNotNull();
-            assertThat(wit.getSubject()).isEqualTo("agent-001");
-            assertThat(wit.getIssuer()).isEqualTo("wimse://example.com");
-            assertThat(wit.getExpirationTime()).isNotNull();
-            assertThat(wit.getJwtId()).isNotNull();
-            assertThat(wit.getConfirmation()).isNotNull();
+            assertThat(ct).isNotNull();
+            assertThat(ct.getSubject()).isEqualTo("agent-001");
+            assertThat(ct.getIssuer()).isEqualTo("example.com");
+            assertThat(ct.getExpirationTime()).isNotNull();
+            assertThat(ct.getJwtId()).isNotNull();
+            assertThat(ct.getConfirmation()).isNotNull();
         }
 
         @Test
@@ -91,37 +91,37 @@ class WitParserTest {
         void shouldParseCnfClaimWithJwk() throws Exception {
             SignedJWT signedJwt = createSignedJwtWithCnfJwk();
 
-            WorkloadIdentityToken wit = witParser.parse(signedJwt);
+            CredentialToken ct = ctParser.parse(signedJwt);
 
-            assertThat(wit.getConfirmation()).isNotNull();
-            assertThat(wit.getConfirmation().jwk()).isNotNull();
-            assertThat(wit.getConfirmation().jwk().x()).isNotBlank();
+            assertThat(ct.getConfirmation()).isNotNull();
+            assertThat(ct.getConfirmation().jwk()).isNotNull();
+            assertThat(ct.getConfirmation().jwk().x()).isNotBlank();
         }
 
         @Test
-        @DisplayName("Should parse WIT without optional claims")
+        @DisplayName("Should parse CT without optional claims")
         void shouldParseWitWithoutOptionalClaims() throws Exception {
             SignedJWT signedJwt = createSignedJwtWithRequiredClaimsOnly();
 
-            WorkloadIdentityToken wit = witParser.parse(signedJwt);
+            CredentialToken ct = ctParser.parse(signedJwt);
 
-            assertThat(wit).isNotNull();
-            assertThat(wit.getSubject()).isNotNull();
-            assertThat(wit.getExpirationTime()).isNotNull();
-            assertThat(wit.getConfirmation()).isNotNull();
-            assertThat(wit.getIssuer()).isNull();
-            assertThat(wit.getJwtId()).isNull();
+            assertThat(ct).isNotNull();
+            assertThat(ct.getSubject()).isNotNull();
+            assertThat(ct.getExpirationTime()).isNotNull();
+            assertThat(ct.getConfirmation()).isNotNull();
+            assertThat(ct.getIssuer()).isNull();
+            assertThat(ct.getJwtId()).isNull();
         }
     }
 
     @Nested
-    @DisplayName("WIT Parsing - Error Handling")
+    @DisplayName("CT Parsing - Error Handling")
     class ErrorHandlingTests {
 
         @Test
         @DisplayName("Should throw exception when signedJwt is null")
         void shouldThrowExceptionWhenSignedJwtIsNull() {
-            assertThatThrownBy(() -> witParser.parse(null))
+            assertThatThrownBy(() -> ctParser.parse(null))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Signed JWT cannot be null");
         }
@@ -131,7 +131,7 @@ class WitParserTest {
         void shouldThrowExceptionWhenCnfClaimMissingJwk() throws Exception {
             SignedJWT signedJwt = createSignedJwtWithCnfMissingJwk();
 
-            assertThatThrownBy(() -> witParser.parse(signedJwt))
+            assertThatThrownBy(() -> ctParser.parse(signedJwt))
                     .isInstanceOf(ParseException.class)
                     .hasMessageContaining("cnf claim missing required 'jwk' field");
         }
@@ -141,24 +141,24 @@ class WitParserTest {
         void shouldThrowExceptionWhenCnfJwkIsInvalid() throws Exception {
             SignedJWT signedJwt = createSignedJwtWithInvalidCnfJwk();
 
-            assertThatThrownBy(() -> witParser.parse(signedJwt))
+            assertThatThrownBy(() -> ctParser.parse(signedJwt))
                     .isInstanceOf(ParseException.class)
                     .hasMessageContaining("Failed to parse cnf.jwk claim");
         }
 
         @Test
-        @DisplayName("Should parse WIT without cnf claim")
+        @DisplayName("Should parse CT without cnf claim")
         void shouldParseWitWithoutCnfClaim() throws Exception {
             SignedJWT signedJwt = createSignedJwtWithoutCnf();
 
-            WorkloadIdentityToken wit = witParser.parse(signedJwt);
+            CredentialToken ct = ctParser.parse(signedJwt);
 
-            assertThat(wit).isNotNull();
-            assertThat(wit.getConfirmation()).isNull();
+            assertThat(ct).isNotNull();
+            assertThat(ct.getConfirmation()).isNull();
         }
 
         @Test
-        @DisplayName("Should reject WIT signed with non-EdDSA algorithm")
+        @DisplayName("Should reject CT signed with non-EdDSA algorithm")
         void shouldRejectWitSignedWithNonEdDsaAlgorithm() throws Exception {
             RSAKey rsaKey = new RSAKeyGenerator(2048).keyID("rs-key").generate();
             JWTClaimsSet claims = new JWTClaimsSet.Builder()
@@ -168,18 +168,18 @@ class WitParserTest {
             SignedJWT rsaSigned = new SignedJWT(
                     new JWSHeader.Builder(JWSAlgorithm.RS256)
                             .keyID(rsaKey.getKeyID())
-                            .type(new JOSEObjectType("wit+jwt"))
+                            .type(new JOSEObjectType("ct+jwt"))
                             .build(),
                     claims);
             rsaSigned.sign(new RSASSASigner(rsaKey));
 
-            assertThatThrownBy(() -> witParser.parse(rsaSigned))
+            assertThatThrownBy(() -> ctParser.parse(rsaSigned))
                     .isInstanceOf(ParseException.class)
                     .hasMessageContaining("alg header must be 'EdDSA'");
         }
 
         @Test
-        @DisplayName("Should reject WIT with disallowed JOSE header parameter (kid)")
+        @DisplayName("Should reject CT with disallowed JOSE header parameter (kid)")
         void shouldRejectWitWithKidHeader() throws Exception {
             JWTClaimsSet claims = new JWTClaimsSet.Builder()
                     .subject("agent-001")
@@ -188,12 +188,12 @@ class WitParserTest {
             SignedJWT signedJwt = new SignedJWT(
                     new JWSHeader.Builder(JWSAlgorithm.EdDSA)
                             .keyID(signingKey.getKeyID())
-                            .type(new JOSEObjectType("wit+jwt"))
+                            .type(new JOSEObjectType("ct+jwt"))
                             .build(),
                     claims);
             signedJwt.sign(new com.nimbusds.jose.crypto.Ed25519Signer(signingKey));
 
-            assertThatThrownBy(() -> witParser.parse(signedJwt))
+            assertThatThrownBy(() -> ctParser.parse(signedJwt))
                     .isInstanceOf(ParseException.class)
                     .hasMessageContaining("disallowed parameter: kid");
         }
@@ -204,7 +204,7 @@ class WitParserTest {
         cnfClaim.put("jwk", createJwkMap());
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .issuer("wimse://example.com")
+                .issuer("example.com")
                 .subject("agent-001")
                 .expirationTime(Date.from(Instant.now().plusSeconds(3600)))
                 .jwtID("test-jti-001")
@@ -285,7 +285,7 @@ class WitParserTest {
     private SignedJWT signJwt(JWTClaimsSet claimsSet) throws Exception {
         SignedJWT signedJwt = new SignedJWT(
                 new JWSHeader.Builder(JWSAlgorithm.EdDSA)
-                        .type(new JOSEObjectType("wit+jwt"))
+                        .type(new JOSEObjectType("ct+jwt"))
                         .build(),
                 claimsSet
         );

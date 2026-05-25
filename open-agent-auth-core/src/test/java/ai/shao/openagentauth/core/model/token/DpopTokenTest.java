@@ -26,21 +26,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Unit tests for {@link WorkloadProofToken}.
+ * Unit tests for {@link DpopToken}.
  */
-@DisplayName("WorkloadProofToken Tests")
-class WorkloadProofTokenTest {
+@DisplayName("DpopToken Tests")
+class DpopTokenTest {
 
     private Date futureExpirationTime;
     private Date pastExpirationTime;
-    private WorkloadProofToken.Claims validClaims;
+    private DpopToken.Claims validClaims;
 
     @BeforeEach
     void setUp() {
         futureExpirationTime = new Date(System.currentTimeMillis() + 3600000);
         pastExpirationTime = new Date(System.currentTimeMillis() - 3600000);
 
-        validClaims = WorkloadProofToken.Claims.builder()
+        validClaims = DpopToken.Claims.builder()
                 .audience("https://resource-server.example.com")
                 .expirationTime(futureExpirationTime)
                 .jwtId("test-jti-456")
@@ -56,7 +56,7 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should build token with all fields")
         void shouldBuildTokenWithAllFields() {
-            WorkloadProofToken token = WorkloadProofToken.builder()
+            DpopToken token = DpopToken.builder()
                     .claims(validClaims)
                     .signature("test-signature")
                     .jwtString("test.jwt.string")
@@ -71,7 +71,7 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should build token with minimal required fields")
         void shouldBuildTokenWithMinimalRequiredFields() {
-            WorkloadProofToken token = WorkloadProofToken.builder()
+            DpopToken token = DpopToken.builder()
                     .claims(validClaims)
                     .build();
 
@@ -84,11 +84,11 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should throw exception when building with null claims")
         void shouldThrowExceptionWhenBuildingWithNullClaims() {
-            assertThatThrownBy(() -> WorkloadProofToken.builder()
+            assertThatThrownBy(() -> DpopToken.builder()
                     .claims(null)
                     .build())
                     .isInstanceOf(IllegalStateException.class)
-                    .hasMessage("claims is REQUIRED for WPT");
+                    .hasMessage("claims is REQUIRED for DPoP");
         }
     }
 
@@ -99,13 +99,13 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should return true for expired token")
         void shouldReturnTrueForExpiredToken() {
-            WorkloadProofToken.Claims expiredClaims = WorkloadProofToken.Claims.builder()
+            DpopToken.Claims expiredClaims = DpopToken.Claims.builder()
                     .audience("https://resource-server.example.com")
                     .expirationTime(pastExpirationTime)
                     .workloadTokenHash("abc123")
                     .build();
 
-            WorkloadProofToken token = WorkloadProofToken.builder()
+            DpopToken token = DpopToken.builder()
                     .claims(expiredClaims)
                     .build();
 
@@ -115,7 +115,7 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should return true for valid token")
         void shouldReturnTrueForValidToken() {
-            WorkloadProofToken token = WorkloadProofToken.builder()
+            DpopToken token = DpopToken.builder()
                     .claims(validClaims)
                     .build();
 
@@ -125,11 +125,11 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should return true for valid token without expiration time")
         void shouldReturnTrueForValidTokenWithoutExpirationTime() {
-            WorkloadProofToken.Claims claimsWithoutExpiration = WorkloadProofToken.Claims.builder()
+            DpopToken.Claims claimsWithoutExpiration = DpopToken.Claims.builder()
                     .workloadTokenHash("abc123")
                     .build();
 
-            WorkloadProofToken token = WorkloadProofToken.builder()
+            DpopToken token = DpopToken.builder()
                     .claims(claimsWithoutExpiration)
                     .build();
 
@@ -144,7 +144,7 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should build claims with all fields")
         void shouldBuildClaimsWithAllFields() {
-            WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
+            DpopToken.Claims claims = DpopToken.Claims.builder()
                     .audience("https://resource-server.example.com")
                     .expirationTime(futureExpirationTime)
                     .jwtId("test-jti")
@@ -162,7 +162,7 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should build claims with minimal required fields")
         void shouldBuildClaimsWithMinimalRequiredFields() {
-            WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
+            DpopToken.Claims claims = DpopToken.Claims.builder()
                     .workloadTokenHash("abc123")
                     .build();
 
@@ -176,7 +176,7 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should throw exception when building claims with null workload token hash")
         void shouldThrowExceptionWhenBuildingClaimsWithNullWorkloadTokenHash() {
-            assertThatThrownBy(() -> WorkloadProofToken.Claims.builder()
+            assertThatThrownBy(() -> DpopToken.Claims.builder()
                     .workloadTokenHash(null)
                     .build())
                     .isInstanceOf(IllegalStateException.class)
@@ -186,7 +186,7 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should throw exception when building claims with empty workload token hash")
         void shouldThrowExceptionWhenBuildingClaimsWithEmptyWorkloadTokenHash() {
-            assertThatThrownBy(() -> WorkloadProofToken.Claims.builder()
+            assertThatThrownBy(() -> DpopToken.Claims.builder()
                     .workloadTokenHash("")
                     .build())
                     .isInstanceOf(IllegalStateException.class)
@@ -196,7 +196,7 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should check if claims are expired")
         void shouldCheckIfClaimsAreExpired() {
-            WorkloadProofToken.Claims expiredClaims = WorkloadProofToken.Claims.builder()
+            DpopToken.Claims expiredClaims = DpopToken.Claims.builder()
                     .expirationTime(pastExpirationTime)
                     .workloadTokenHash("abc123")
                     .build();
@@ -212,18 +212,18 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should handle workload token hash")
         void shouldHandleWorkloadTokenHash() {
-            WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
-                    .workloadTokenHash("wit-hash-123")
+            DpopToken.Claims claims = DpopToken.Claims.builder()
+                    .workloadTokenHash("ct-hash-123")
                     .build();
 
-            assertThat(claims.workloadTokenHash()).isEqualTo("wit-hash-123");
+            assertThat(claims.workloadTokenHash()).isEqualTo("ct-hash-123");
         }
 
         @Test
         @DisplayName("Should handle access token hash")
         void shouldHandleAccessTokenHash() {
-            WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
-                    .workloadTokenHash("wit-hash")
+            DpopToken.Claims claims = DpopToken.Claims.builder()
+                    .workloadTokenHash("ct-hash")
                     .accessTokenHash("at-hash-456")
                     .build();
 
@@ -238,12 +238,12 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should handle empty audience")
         void shouldHandleEmptyAudience() {
-            WorkloadProofToken.Claims claims = WorkloadProofToken.Claims.builder()
+            DpopToken.Claims claims = DpopToken.Claims.builder()
                     .audience("")
                     .workloadTokenHash("abc123")
                     .build();
 
-            WorkloadProofToken token = WorkloadProofToken.builder()
+            DpopToken token = DpopToken.builder()
                     .claims(claims)
                     .build();
 
@@ -253,7 +253,7 @@ class WorkloadProofTokenTest {
         @Test
         @DisplayName("Should handle empty signature")
         void shouldHandleEmptySignature() {
-            WorkloadProofToken token = WorkloadProofToken.builder()
+            DpopToken token = DpopToken.builder()
                     .claims(validClaims)
                     .signature("")
                     .build();

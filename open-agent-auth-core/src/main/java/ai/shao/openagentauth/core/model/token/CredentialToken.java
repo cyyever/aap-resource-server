@@ -23,23 +23,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 
 /**
- * Represents a Workload Identity Token (WIT). A WIT is a JWT that identifies a workload
+ * Represents a Credential Token (CT). A CT is a JWT that identifies a workload
  * and contains a public key in the {@code cnf} claim used to verify the corresponding
- * Workload Proof Token (WPT). Per AAP spec §3 the JOSE header is fixed at
- * {@code {alg=EdDSA, typ=wit+jwt}}, so neither parameter is carried on this record.
+ * DPoP Proof (DPoP). Per AAP spec §3 the JOSE header is fixed at
+ * {@code {alg=EdDSA, typ=ct+jwt}}, so neither parameter is carried on this record.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record WorkloadIdentityToken(
+public record CredentialToken(
         Claims claims,
         @JsonProperty("signature") String signature,
         @JsonProperty("jwtString") String jwtString) {
 
     /** Required {@code typ} JOSE header value. */
-    public static final String MEDIA_TYPE = "wit+jwt";
+    public static final String MEDIA_TYPE = "ct+jwt";
 
-    public WorkloadIdentityToken {
+    public CredentialToken {
         if (claims == null) {
-            throw new IllegalStateException("claims is REQUIRED for WIT");
+            throw new IllegalStateException("claims is REQUIRED for CT");
         }
     }
 
@@ -65,12 +65,12 @@ public record WorkloadIdentityToken(
         public Builder signature(String signature) { this.signature = signature; return this; }
         public Builder jwtString(String jwtString) { this.jwtString = jwtString; return this; }
 
-        public WorkloadIdentityToken build() {
-            return new WorkloadIdentityToken(claims, signature, jwtString);
+        public CredentialToken build() {
+            return new CredentialToken(claims, signature, jwtString);
         }
     }
 
-    /** Claims (Payload) for Workload Identity Token (WIT). */
+    /** Claims (Payload) for Credential Token (CT). */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record Claims(
             @JsonProperty("iss") String issuer,
@@ -124,7 +124,7 @@ public record WorkloadIdentityToken(
 
         /**
          * Confirmation claim (cnf) structure as defined in RFC 7800.
-         * Contains the JWK used to verify the corresponding WPT.
+         * Contains the JWK used to verify the corresponding DPoP.
          */
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public record Confirmation(@JsonProperty("jwk") Jwk jwk) {

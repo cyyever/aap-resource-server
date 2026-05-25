@@ -15,12 +15,12 @@
  */
 package ai.shao.openagentauth.core.server;
 
-import ai.shao.openagentauth.core.model.token.WorkloadIdentityToken;
-import ai.shao.openagentauth.core.model.token.WorkloadProofToken;
-import ai.shao.openagentauth.core.protocol.wimse.wit.WitParser;
-import ai.shao.openagentauth.core.protocol.wimse.wit.WitValidator;
-import ai.shao.openagentauth.core.protocol.wimse.wpt.WptParser;
-import ai.shao.openagentauth.core.protocol.wimse.wpt.WptValidator;
+import ai.shao.openagentauth.core.model.token.CredentialToken;
+import ai.shao.openagentauth.core.model.token.DpopToken;
+import ai.shao.openagentauth.core.protocol.ct.CtParser;
+import ai.shao.openagentauth.core.protocol.ct.CtValidator;
+import ai.shao.openagentauth.core.protocol.dpop.DpopParser;
+import ai.shao.openagentauth.core.protocol.dpop.DpopValidator;
 import ai.shao.openagentauth.core.server.exception.validation.ServerValidationException;
 import ai.shao.openagentauth.core.server.model.request.ResourceRequest;
 import ai.shao.openagentauth.core.server.model.validation.ValidationResult;
@@ -35,89 +35,89 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Default {@link ResourceServer} implementation. Chains WIT then WPT validation,
+ * Default {@link ResourceServer} implementation. Chains CT then DPoP validation,
  * fail-fast on the first error.
  */
 public class DefaultResourceServer implements ResourceServer {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultResourceServer.class);
 
-    private static final String WIT_NAME = "WIT";
-    private static final String WPT_NAME = "WPT";
+    private static final String CT_NAME = "CT";
+    private static final String DPOP_NAME = "DPoP";
 
-    private final WitParser witParser = new WitParser();
-    private final WptParser wptParser = new WptParser();
-    private final WitValidator witValidator;
-    private final WptValidator wptValidator;
+    private final CtParser ctParser = new CtParser();
+    private final DpopParser dpopParser = new DpopParser();
+    private final CtValidator ctValidator;
+    private final DpopValidator dpopValidator;
 
-    public DefaultResourceServer(WitValidator witValidator, WptValidator wptValidator) {
-        this.witValidator = ValidationUtils.validateNotNull(witValidator, "WIT validator");
-        this.wptValidator = ValidationUtils.validateNotNull(wptValidator, "WPT validator");
+    public DefaultResourceServer(CtValidator ctValidator, DpopValidator dpopValidator) {
+        this.ctValidator = ValidationUtils.validateNotNull(ctValidator, "CT validator");
+        this.dpopValidator = ValidationUtils.validateNotNull(dpopValidator, "DPoP validator");
     }
 
     @Override
     public ValidationResult validateRequest(ResourceRequest request) throws ServerValidationException {
         ValidationUtils.validateNotNull(request, "Resource request");
 
-        String witString = request.getWit();
-        String wptString = request.getWpt();
-        if (ValidationUtils.isNullOrEmpty(witString)) {
-            throw new ServerValidationException("WIT is required");
+        String ctString = request.getCt();
+        String dpopString = request.getDpop();
+        if (ValidationUtils.isNullOrEmpty(ctString)) {
+            throw new ServerValidationException("CT is required");
         }
-        if (ValidationUtils.isNullOrEmpty(wptString)) {
-            throw new ServerValidationException("WPT is required");
+        if (ValidationUtils.isNullOrEmpty(dpopString)) {
+            throw new ServerValidationException("DPoP is required");
         }
 
-        WorkloadIdentityToken wit;
-        TokenValidationResult<WorkloadIdentityToken> witResult;
+        CredentialToken ct;
+        TokenValidationResult<CredentialToken> ctResult;
         try {
-            wit = witParser.parse(SignedJWT.parse(witString));
-            witResult = witValidator.validate(witString);
+            ct = ctParser.parse(SignedJWT.parse(ctString));
+            ctResult = ctValidator.validate(ctString);
         } catch (ParseException e) {
-            throw new ServerValidationException("Failed to parse WIT: " + e.getMessage(), e);
+            throw new ServerValidationException("Failed to parse CT: " + e.getMessage(), e);
         } catch (Exception e) {
-            logger.error("WIT validation failed", e);
-            throw new ServerValidationException("WIT validation failed: " + e.getMessage(), e);
+            logger.error("CT validation failed", e);
+            throw new ServerValidationException("CT validation failed: " + e.getMessage(), e);
         }
 
-        if (!witResult.isValid()) {
-            return buildResult(witResult, null);
+        if (!ctResult.isValid()) {
+            return buildResult(ctResult, null);
         }
 
-        TokenValidationResult<WorkloadProofToken> wptResult;
+        TokenValidationResult<DpopToken> dpopResult;
         try {
-            SignedJWT wptSignedJwt = SignedJWT.parse(wptString);
-            WorkloadProofToken wpt = wptParser.parse(wptSignedJwt);
-            wptResult = wptValidator.validate(wptSignedJwt, wpt, wit);
+            SignedJWT dpopSignedJwt = SignedJWT.parse(dpopString);
+            DpopToken dpop = dpopParser.parse(dpopSignedJwt);
+            dpopResult = dpopValidator.validate(dpopSignedJwt, dpop, ct);
         } catch (ParseException e) {
-            throw new ServerValidationException("Failed to parse WPT: " + e.getMessage(), e);
+            throw new ServerValidationException("Failed to parse DPoP: " + e.getMessage(), e);
         } catch (Exception e) {
-            logger.error("WPT validation failed", e);
-            throw new ServerValidationException("WPT validation failed: " + e.getMessage(), e);
+            logger.error("DPoP validation failed", e);
+            throw new ServerValidationException("DPoP validation failed: " + e.getMessage(), e);
         }
 
-        return buildResult(witResult, wptResult);
+        return buildResult(ctResult, dpopResult);
     }
 
     private ValidationResult buildResult(
-            TokenValidationResult<WorkloadIdentityToken> witResult,
-            TokenValidationResult<WorkloadProofToken> wptResult) {
+            TokenValidationResult<CredentialToken> ctResult,
+            TokenValidationResult<DpopToken> dpopResult) {
         List<ValidationResult.LayerResult> layerResults = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
-        layerResults.add(toLayerResult(1, WIT_NAME, witResult.isValid(), witResult.getErrorMessage()));
-        if (!witResult.isValid() && witResult.getErrorMessage() != null) {
-            errors.add(witResult.getErrorMessage());
+        layerResults.add(toLayerResult(1, CT_NAME, ctResult.isValid(), ctResult.getErrorMessage()));
+        if (!ctResult.isValid() && ctResult.getErrorMessage() != null) {
+            errors.add(ctResult.getErrorMessage());
         }
 
-        if (wptResult != null) {
-            layerResults.add(toLayerResult(2, WPT_NAME, wptResult.isValid(), wptResult.getErrorMessage()));
-            if (!wptResult.isValid() && wptResult.getErrorMessage() != null) {
-                errors.add(wptResult.getErrorMessage());
+        if (dpopResult != null) {
+            layerResults.add(toLayerResult(2, DPOP_NAME, dpopResult.isValid(), dpopResult.getErrorMessage()));
+            if (!dpopResult.isValid() && dpopResult.getErrorMessage() != null) {
+                errors.add(dpopResult.getErrorMessage());
             }
         }
 
-        boolean valid = witResult.isValid() && wptResult != null && wptResult.isValid();
+        boolean valid = ctResult.isValid() && dpopResult != null && dpopResult.isValid();
         return ValidationResult.builder()
                 .valid(valid)
                 .layerResults(layerResults)

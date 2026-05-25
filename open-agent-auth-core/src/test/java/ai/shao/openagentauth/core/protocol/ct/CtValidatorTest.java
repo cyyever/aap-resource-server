@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ai.shao.openagentauth.core.protocol.wimse.wit;
+package ai.shao.openagentauth.core.protocol.ct;
 
 import ai.shao.openagentauth.core.crypto.key.KeyManager;
-import ai.shao.openagentauth.core.model.token.WorkloadIdentityToken;
+import ai.shao.openagentauth.core.model.token.CredentialToken;
 import ai.shao.openagentauth.core.token.common.TokenValidationResult;
 import ai.shao.openagentauth.core.trust.TrustDomain;
 import com.nimbusds.jose.JOSEException;
@@ -46,14 +46,14 @@ import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
 
 /**
- * Unit tests for {@link WitValidator}.
+ * Unit tests for {@link CtValidator}.
  */
-@DisplayName("WIT Validator Tests")
-class WitValidatorTest {
+@DisplayName("CT Validator Tests")
+class CtValidatorTest {
 
     private static final String VERIFICATION_KEY_ID = "test-verification-key";
 
-    private WitValidator witValidator;
+    private CtValidator ctValidator;
     private OctetKeyPair signingKey;
     private OctetKeyPair verificationKey;
     private OctetKeyPair wptPublicKey;
@@ -68,28 +68,28 @@ class WitValidatorTest {
         verificationKey = signingKey.toPublicJWK();
 
         wptPublicKey = new OctetKeyPairGenerator(Curve.Ed25519)
-                .keyID("wpt-key")
+                .keyID("dpop-key")
                 .generate()
                 .toPublicJWK();
 
-        trustDomain = new TrustDomain("wimse://example.com");
+        trustDomain = new TrustDomain("example.com");
 
         keyManager = mock(KeyManager.class);
         when(keyManager.resolveVerificationKey(anyString())).thenReturn(verificationKey);
 
-        witValidator = new WitValidator(keyManager, VERIFICATION_KEY_ID, trustDomain);
+        ctValidator = new CtValidator(keyManager, VERIFICATION_KEY_ID, trustDomain);
     }
 
     @Nested
-    @DisplayName("WIT Validation - Happy Path")
+    @DisplayName("CT Validation - Happy Path")
     class HappyPathTests {
 
         @Test
-        @DisplayName("Should validate valid WIT successfully")
+        @DisplayName("Should validate valid CT successfully")
         void shouldValidateValidWitSuccessfully() throws Exception {
             String witJwt = createValidWit();
 
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate(witJwt);
+            TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
             assertThat(result.isValid()).isTrue();
             assertThat(result.getToken()).isNotNull();
@@ -101,7 +101,7 @@ class WitValidatorTest {
         void shouldReturnParsedTokenOnSuccessfulValidation() throws Exception {
             String witJwt = createValidWit();
 
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate(witJwt);
+            TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
             assertThat(result.getToken()).isNotNull();
             assertThat(result.getToken().getIssuer()).isEqualTo(trustDomain.getDomainId());
@@ -111,111 +111,111 @@ class WitValidatorTest {
     }
 
     @Nested
-    @DisplayName("WIT Validation - Signature Verification")
+    @DisplayName("CT Validation - Signature Verification")
     class SignatureVerificationTests {
 
         @Test
-        @DisplayName("Should reject WIT with invalid signature")
+        @DisplayName("Should reject CT with invalid signature")
         void shouldRejectWitWithInvalidSignature() throws Exception {
             String witJwt = createValidWit();
             String tamperedWit = tamperWithSignature(witJwt);
 
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate(tamperedWit);
+            TokenValidationResult<CredentialToken> result = ctValidator.validate(tamperedWit);
 
             assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("Invalid WIT signature");
+            assertThat(result.getErrorMessage()).contains("Invalid CT signature");
         }
     }
 
     @Nested
-    @DisplayName("WIT Validation - Expiration")
+    @DisplayName("CT Validation - Expiration")
     class ExpirationTests {
 
         @Test
-        @DisplayName("Should reject expired WIT")
+        @DisplayName("Should reject expired CT")
         void shouldRejectExpiredWit() throws Exception {
             String witJwt = createExpiredWit();
 
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate(witJwt);
+            TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
             assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("WIT has expired");
+            assertThat(result.getErrorMessage()).contains("CT has expired");
         }
 
         @Test
-        @DisplayName("Should reject WIT without expiration time")
+        @DisplayName("Should reject CT without expiration time")
         void shouldRejectWitWithoutExpirationTime() throws Exception {
             String witJwt = createWitWithoutExpiration();
 
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate(witJwt);
+            TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
             assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("WIT has expired");
+            assertThat(result.getErrorMessage()).contains("CT has expired");
         }
     }
 
     @Nested
-    @DisplayName("WIT Validation - Trust Domain")
+    @DisplayName("CT Validation - Trust Domain")
     class TrustDomainTests {
 
         @Test
-        @DisplayName("Should reject WIT with wrong trust domain")
+        @DisplayName("Should reject CT with wrong trust domain")
         void shouldRejectWitWithWrongTrustDomain() throws Exception {
             String witJwt = signedWit(
-                    "wimse://wrong-domain.com",
+                    "wrong-domain.com",
                     "agent-001",
                     Date.from(Instant.now().plusSeconds(3600)),
                     wptPublicKey.toJSONObject(),
                     signingKey);
 
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate(witJwt);
+            TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
             assertThat(result.isValid()).isFalse();
             assertThat(result.getErrorMessage()).contains("Invalid trust domain");
         }
 
         @Test
-        @DisplayName("Should accept WIT with correct trust domain")
+        @DisplayName("Should accept CT with correct trust domain")
         void shouldAcceptWitWithCorrectTrustDomain() throws Exception {
             String witJwt = createValidWit();
 
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate(witJwt);
+            TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
             assertThat(result.isValid()).isTrue();
         }
     }
 
     @Nested
-    @DisplayName("WIT Validation - Required Claims")
+    @DisplayName("CT Validation - Required Claims")
     class RequiredClaimsTests {
 
         @Test
-        @DisplayName("Should reject WIT missing subject claim")
+        @DisplayName("Should reject CT missing subject claim")
         void shouldRejectWitMissingSubjectClaim() throws Exception {
             String witJwt = createWitWithoutSubject();
 
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate(witJwt);
+            TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
             assertThat(result.isValid()).isFalse();
             assertThat(result.getErrorMessage()).contains("Missing required claims");
         }
 
         @Test
-        @DisplayName("Should reject WIT missing expiration claim")
+        @DisplayName("Should reject CT missing expiration claim")
         void shouldRejectWitMissingExpirationClaim() throws Exception {
             String witJwt = createWitWithoutExpiration();
 
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate(witJwt);
+            TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
             assertThat(result.isValid()).isFalse();
         }
 
         @Test
-        @DisplayName("Should reject WIT missing cnf claim")
+        @DisplayName("Should reject CT missing cnf claim")
         void shouldRejectWitMissingCnfClaim() throws Exception {
             String witJwt = createWitWithoutCnf();
 
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate(witJwt);
+            TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
             assertThat(result.isValid()).isFalse();
             assertThat(result.getErrorMessage()).contains("Missing required claims");
@@ -223,26 +223,26 @@ class WitValidatorTest {
     }
 
     @Nested
-    @DisplayName("WIT Validation - Cnf Claim")
+    @DisplayName("CT Validation - Cnf Claim")
     class CnfClaimTests {
 
         @Test
-        @DisplayName("Should reject WIT with invalid cnf.jwk")
+        @DisplayName("Should reject CT with invalid cnf.jwk")
         void shouldRejectWitWithInvalidCnfJwk() throws Exception {
             String witJwt = createWitWithInvalidCnfJwk();
 
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate(witJwt);
+            TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
             assertThat(result.isValid()).isFalse();
             assertThat(result.getErrorMessage()).contains("Invalid cnf claim");
         }
 
         @Test
-        @DisplayName("Should accept WIT with valid cnf.jwk")
+        @DisplayName("Should accept CT with valid cnf.jwk")
         void shouldAcceptWitWithValidCnfJwk() throws Exception {
             String witJwt = createValidWit();
 
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate(witJwt);
+            TokenValidationResult<CredentialToken> result = ctValidator.validate(witJwt);
 
             assertThat(result.isValid()).isTrue();
             assertThat(result.getToken().getConfirmation().jwk()).isNotNull();
@@ -250,34 +250,34 @@ class WitValidatorTest {
     }
 
     @Nested
-    @DisplayName("WIT Validation - Input Validation")
+    @DisplayName("CT Validation - Input Validation")
     class InputValidationTests {
 
         @Test
-        @DisplayName("Should reject null WIT")
+        @DisplayName("Should reject null CT")
         void shouldRejectNullWit() throws ParseException {
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate(null);
+            TokenValidationResult<CredentialToken> result = ctValidator.validate(null);
 
             assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("WIT cannot be null or empty");
+            assertThat(result.getErrorMessage()).contains("CT cannot be null or empty");
         }
 
         @Test
-        @DisplayName("Should reject empty WIT")
+        @DisplayName("Should reject empty CT")
         void shouldRejectEmptyWit() throws ParseException {
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate("");
+            TokenValidationResult<CredentialToken> result = ctValidator.validate("");
 
             assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("WIT cannot be null or empty");
+            assertThat(result.getErrorMessage()).contains("CT cannot be null or empty");
         }
 
         @Test
-        @DisplayName("Should reject whitespace WIT")
+        @DisplayName("Should reject whitespace CT")
         void shouldRejectWhitespaceWit() throws ParseException {
-            TokenValidationResult<WorkloadIdentityToken> result = witValidator.validate("   ");
+            TokenValidationResult<CredentialToken> result = ctValidator.validate("   ");
 
             assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("WIT cannot be null or empty");
+            assertThat(result.getErrorMessage()).contains("CT cannot be null or empty");
         }
     }
 
@@ -373,7 +373,7 @@ class WitValidatorTest {
 
     private static String sign(JWTClaimsSet claims, OctetKeyPair signingKey) throws JOSEException {
         JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.EdDSA)
-                .type(new JOSEObjectType("wit+jwt"))
+                .type(new JOSEObjectType("ct+jwt"))
                 .build();
         SignedJWT jwt = new SignedJWT(header, claims);
         jwt.sign(new Ed25519Signer(signingKey));

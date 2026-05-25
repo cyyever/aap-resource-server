@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ai.shao.openagentauth.core.protocol.wimse.wpt;
+package ai.shao.openagentauth.core.protocol.dpop;
 
 import ai.shao.openagentauth.core.model.jwk.Jwk;
-import ai.shao.openagentauth.core.model.token.WorkloadIdentityToken;
-import ai.shao.openagentauth.core.model.token.WorkloadProofToken;
+import ai.shao.openagentauth.core.model.token.CredentialToken;
+import ai.shao.openagentauth.core.model.token.DpopToken;
 import ai.shao.openagentauth.core.crypto.JwtHashUtil;
 import ai.shao.openagentauth.core.token.common.TokenValidationResult;
 import ai.shao.openagentauth.core.trust.TrustDomain;
@@ -45,12 +45,12 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Unit tests for {@link WptValidator}.
+ * Unit tests for {@link DpopValidator}.
  */
-@DisplayName("WPT Validator Tests")
-class WptValidatorTest {
+@DisplayName("DPoP Validator Tests")
+class DpopValidatorTest {
 
-    private WptValidator wptValidator;
+    private DpopValidator dpopValidator;
     private OctetKeyPair witSigningKey;
     private OctetKeyPair wptPublicKey;
     private OctetKeyPair wptPrivateKey;
@@ -59,41 +59,41 @@ class WptValidatorTest {
     @BeforeEach
     void setUp() throws JOSEException {
         witSigningKey = new OctetKeyPairGenerator(Curve.Ed25519)
-                .keyID("wit-signing-key")
+                .keyID("ct-signing-key")
                 .generate();
 
         wptPrivateKey = new OctetKeyPairGenerator(Curve.Ed25519)
-                .keyID("wpt-key")
+                .keyID("dpop-key")
                 .generate();
         wptPublicKey = wptPrivateKey.toPublicJWK();
 
-        trustDomain = new TrustDomain("wimse://example.com");
-        wptValidator = new WptValidator();
+        trustDomain = new TrustDomain("example.com");
+        dpopValidator = new DpopValidator();
     }
 
     @Nested
-    @DisplayName("WPT Validation - Happy Path")
+    @DisplayName("DPoP Validation - Happy Path")
     class HappyPathTests {
 
         @Test
-        @DisplayName("Should validate valid WPT successfully")
+        @DisplayName("Should validate valid DPoP successfully")
         void shouldValidateValidWptSuccessfully() throws Exception {
-            WorkloadIdentityToken wit = createValidWit("agent-001");
-            WorkloadProofToken wpt = signedWpt(wit, wptPrivateKey, 300);
+            CredentialToken ct = createValidWit("agent-001");
+            DpopToken dpop = signedWpt(ct, wptPrivateKey, 300);
 
-            TokenValidationResult<WorkloadProofToken> result = wptValidator.validate(wpt, wit);
+            TokenValidationResult<DpopToken> result = dpopValidator.validate(dpop, ct);
 
             assertThat(result.isValid()).isTrue();
             assertThat(result.getToken()).isNotNull();
         }
 
         @Test
-        @DisplayName("Should return parsed WPT on successful validation")
+        @DisplayName("Should return parsed DPoP on successful validation")
         void shouldReturnParsedWptOnSuccessfulValidation() throws Exception {
-            WorkloadIdentityToken wit = createValidWit("agent-001");
-            WorkloadProofToken wpt = signedWpt(wit, wptPrivateKey, 300);
+            CredentialToken ct = createValidWit("agent-001");
+            DpopToken dpop = signedWpt(ct, wptPrivateKey, 300);
 
-            TokenValidationResult<WorkloadProofToken> result = wptValidator.validate(wpt, wit);
+            TokenValidationResult<DpopToken> result = dpopValidator.validate(dpop, ct);
 
             assertThat(result.getToken()).isNotNull();
             assertThat(result.getToken().claims().workloadTokenHash()).isNotNull();
@@ -101,86 +101,86 @@ class WptValidatorTest {
     }
 
     @Nested
-    @DisplayName("WPT Validation - Expiration")
+    @DisplayName("DPoP Validation - Expiration")
     class ExpirationTests {
 
         @Test
-        @DisplayName("Should reject expired WPT")
+        @DisplayName("Should reject expired DPoP")
         void shouldRejectExpiredWpt() throws Exception {
-            WorkloadIdentityToken wit = createValidWit("agent-001");
-            WorkloadProofToken wpt = createExpiredWpt();
+            CredentialToken ct = createValidWit("agent-001");
+            DpopToken dpop = createExpiredWpt();
 
-            TokenValidationResult<WorkloadProofToken> result = wptValidator.validate(wpt, wit);
+            TokenValidationResult<DpopToken> result = dpopValidator.validate(dpop, ct);
 
             assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("WPT expired");
+            assertThat(result.getErrorMessage()).contains("DPoP expired");
         }
 
         @Test
-        @DisplayName("Should accept non-expired WPT")
+        @DisplayName("Should accept non-expired DPoP")
         void shouldAcceptNonExpiredWpt() throws Exception {
-            WorkloadIdentityToken wit = createValidWit("agent-001");
-            WorkloadProofToken wpt = signedWpt(wit, wptPrivateKey, 300);
+            CredentialToken ct = createValidWit("agent-001");
+            DpopToken dpop = signedWpt(ct, wptPrivateKey, 300);
 
-            TokenValidationResult<WorkloadProofToken> result = wptValidator.validate(wpt, wit);
+            TokenValidationResult<DpopToken> result = dpopValidator.validate(dpop, ct);
 
             assertThat(result.isValid()).isTrue();
         }
     }
 
     @Nested
-    @DisplayName("WPT Validation - Signature Verification")
+    @DisplayName("DPoP Validation - Signature Verification")
     class SignatureVerificationTests {
 
         @Test
-        @DisplayName("Should reject WPT with invalid signature")
+        @DisplayName("Should reject DPoP with invalid signature")
         void shouldRejectWptWithInvalidSignature() throws Exception {
-            WorkloadIdentityToken wit = createValidWit("agent-001");
-            WorkloadProofToken wpt = signedWpt(wit, wptPrivateKey, 300);
+            CredentialToken ct = createValidWit("agent-001");
+            DpopToken dpop = signedWpt(ct, wptPrivateKey, 300);
 
-            WorkloadProofToken tamperedWpt = tamperWithWptSignature(wpt);
+            DpopToken tamperedWpt = tamperWithWptSignature(dpop);
 
-            TokenValidationResult<WorkloadProofToken> result = wptValidator.validate(tamperedWpt, wit);
+            TokenValidationResult<DpopToken> result = dpopValidator.validate(tamperedWpt, ct);
 
             assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("WPT signature verification failed");
+            assertThat(result.getErrorMessage()).contains("DPoP signature verification failed");
         }
 
         @Test
-        @DisplayName("Should accept WPT with valid signature")
+        @DisplayName("Should accept DPoP with valid signature")
         void shouldAcceptWptWithValidSignature() throws Exception {
-            WorkloadIdentityToken wit = createValidWit("agent-001");
-            WorkloadProofToken wpt = signedWpt(wit, wptPrivateKey, 300);
+            CredentialToken ct = createValidWit("agent-001");
+            DpopToken dpop = signedWpt(ct, wptPrivateKey, 300);
 
-            TokenValidationResult<WorkloadProofToken> result = wptValidator.validate(wpt, wit);
+            TokenValidationResult<DpopToken> result = dpopValidator.validate(dpop, ct);
 
             assertThat(result.isValid()).isTrue();
         }
     }
 
     @Nested
-    @DisplayName("WPT Validation - Required Claims")
+    @DisplayName("DPoP Validation - Required Claims")
     class RequiredClaimsTests {
 
         @Test
-        @DisplayName("Should reject WPT missing wth claim")
+        @DisplayName("Should reject DPoP missing wth claim")
         void shouldRejectWptMissingWthClaim() throws Exception {
-            WorkloadIdentityToken wit = createValidWit("agent-001");
-            WorkloadProofToken wpt = createWptWithoutWth();
+            CredentialToken ct = createValidWit("agent-001");
+            DpopToken dpop = createWptWithoutWth();
 
-            TokenValidationResult<WorkloadProofToken> result = wptValidator.validate(wpt, wit);
+            TokenValidationResult<DpopToken> result = dpopValidator.validate(dpop, ct);
 
             assertThat(result.isValid()).isFalse();
             assertThat(result.getErrorMessage()).contains("required claim");
         }
 
         @Test
-        @DisplayName("Should accept WPT with wth claim")
+        @DisplayName("Should accept DPoP with wth claim")
         void shouldAcceptWptWithWthClaim() throws Exception {
-            WorkloadIdentityToken wit = createValidWit("agent-001");
-            WorkloadProofToken wpt = signedWpt(wit, wptPrivateKey, 300);
+            CredentialToken ct = createValidWit("agent-001");
+            DpopToken dpop = signedWpt(ct, wptPrivateKey, 300);
 
-            TokenValidationResult<WorkloadProofToken> result = wptValidator.validate(wpt, wit);
+            TokenValidationResult<DpopToken> result = dpopValidator.validate(dpop, ct);
 
             assertThat(result.isValid()).isTrue();
             assertThat(result.getToken().claims().workloadTokenHash()).isNotNull();
@@ -188,70 +188,70 @@ class WptValidatorTest {
     }
 
     @Nested
-    @DisplayName("WPT Validation - WTH Verification")
+    @DisplayName("DPoP Validation - WTH Verification")
     class WthVerificationTests {
 
         @Test
-        @DisplayName("Should reject WPT with mismatched wth")
+        @DisplayName("Should reject DPoP with mismatched wth")
         void shouldRejectWptWithMismatchedWth() throws Exception {
-            WorkloadIdentityToken wit = createValidWit("agent-001");
-            WorkloadProofToken wpt = signedWpt(wit, wptPrivateKey, 300);
+            CredentialToken ct = createValidWit("agent-001");
+            DpopToken dpop = signedWpt(ct, wptPrivateKey, 300);
 
-            WorkloadIdentityToken differentWit = createValidWit("agent-002");
+            CredentialToken differentWit = createValidWit("agent-002");
 
-            TokenValidationResult<WorkloadProofToken> result = wptValidator.validate(wpt, differentWit);
+            TokenValidationResult<DpopToken> result = dpopValidator.validate(dpop, differentWit);
 
             assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("does not match WIT hash");
+            assertThat(result.getErrorMessage()).contains("does not match CT hash");
         }
 
         @Test
-        @DisplayName("Should accept WPT with matching wth")
+        @DisplayName("Should accept DPoP with matching wth")
         void shouldAcceptWptWithMatchingWth() throws Exception {
-            WorkloadIdentityToken wit = createValidWit("agent-001");
-            WorkloadProofToken wpt = signedWpt(wit, wptPrivateKey, 300);
+            CredentialToken ct = createValidWit("agent-001");
+            DpopToken dpop = signedWpt(ct, wptPrivateKey, 300);
 
-            TokenValidationResult<WorkloadProofToken> result = wptValidator.validate(wpt, wit);
+            TokenValidationResult<DpopToken> result = dpopValidator.validate(dpop, ct);
 
             assertThat(result.isValid()).isTrue();
         }
     }
 
     @Nested
-    @DisplayName("WPT Validation - Input Validation")
+    @DisplayName("DPoP Validation - Input Validation")
     class InputValidationTests {
 
         @Test
-        @DisplayName("Should reject null WPT")
+        @DisplayName("Should reject null DPoP")
         void shouldRejectNullWpt() throws Exception {
-            WorkloadIdentityToken wit = createValidWit("agent-001");
+            CredentialToken ct = createValidWit("agent-001");
 
-            TokenValidationResult<WorkloadProofToken> result = wptValidator.validate(null, wit);
+            TokenValidationResult<DpopToken> result = dpopValidator.validate(null, ct);
 
             assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("WPT cannot be null");
+            assertThat(result.getErrorMessage()).contains("DPoP cannot be null");
         }
 
         @Test
-        @DisplayName("Should reject null WIT")
+        @DisplayName("Should reject null CT")
         void shouldRejectNullWit() throws Exception {
-            WorkloadIdentityToken wit = createValidWit("agent-001");
-            WorkloadProofToken wpt = signedWpt(wit, wptPrivateKey, 300);
+            CredentialToken ct = createValidWit("agent-001");
+            DpopToken dpop = signedWpt(ct, wptPrivateKey, 300);
 
-            TokenValidationResult<WorkloadProofToken> result = wptValidator.validate(wpt, null);
+            TokenValidationResult<DpopToken> result = dpopValidator.validate(dpop, null);
 
             assertThat(result.isValid()).isFalse();
-            assertThat(result.getErrorMessage()).contains("WIT cannot be null");
+            assertThat(result.getErrorMessage()).contains("CT cannot be null");
         }
     }
 
-    private WorkloadIdentityToken createValidWit(String subject) throws JOSEException {
+    private CredentialToken createValidWit(String subject) throws JOSEException {
         return signedWit(trustDomain.getDomainId(), subject,
                 Date.from(Instant.now().plusSeconds(3600)),
                 wptPublicKey, witSigningKey);
     }
 
-    private static WorkloadIdentityToken signedWit(String issuer, String subject, Date expiration,
+    private static CredentialToken signedWit(String issuer, String subject, Date expiration,
                                                    OctetKeyPair cnfPublicKey, OctetKeyPair signingKey)
             throws JOSEException {
         Map<String, Object> cnf = new HashMap<>();
@@ -264,16 +264,16 @@ class WptValidatorTest {
                 .claim("cnf", cnf)
                 .build();
         JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.EdDSA)
-                .type(new JOSEObjectType("wit+jwt"))
+                .type(new JOSEObjectType("ct+jwt"))
                 .build();
         SignedJWT jwt = new SignedJWT(header, claims);
         jwt.sign(new Ed25519Signer(signingKey));
         String jwtString = jwt.serialize();
 
         Jwk cnfJwk = Jwk.builder().x(cnfPublicKey.getX().toString()).keyId(cnfPublicKey.getKeyID()).build();
-        WorkloadIdentityToken.Claims.Confirmation confirmation =
-                WorkloadIdentityToken.Claims.Confirmation.builder().jwk(cnfJwk).build();
-        WorkloadIdentityToken.Claims witClaims = WorkloadIdentityToken.Claims.builder()
+        CredentialToken.Claims.Confirmation confirmation =
+                CredentialToken.Claims.Confirmation.builder().jwk(cnfJwk).build();
+        CredentialToken.Claims witClaims = CredentialToken.Claims.builder()
                 .issuer(issuer)
                 .subject(subject)
                 .expirationTime(expiration)
@@ -282,16 +282,16 @@ class WptValidatorTest {
                 .build();
         String[] parts = jwtString.split("\\.");
         String signature = parts.length > 2 ? parts[2] : "";
-        return WorkloadIdentityToken.builder()
+        return CredentialToken.builder()
                 .claims(witClaims)
                 .signature(signature)
                 .jwtString(jwtString)
                 .build();
     }
 
-    private static WorkloadProofToken signedWpt(WorkloadIdentityToken wit, OctetKeyPair signingKey,
+    private static DpopToken signedWpt(CredentialToken ct, OctetKeyPair signingKey,
                                                 long expirationSeconds) throws JOSEException {
-        String wth = JwtHashUtil.computeWitHash(wit.jwtString());
+        String wth = JwtHashUtil.computeWitHash(ct.jwtString());
         Date expiration = Date.from(Instant.now().plusSeconds(expirationSeconds));
         String jti = UUID.randomUUID().toString();
 
@@ -301,7 +301,7 @@ class WptValidatorTest {
                 .claim("wth", wth)
                 .build();
         JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.EdDSA)
-                .type(new JOSEObjectType("wpt+jwt"))
+                .type(new JOSEObjectType("dpop+jwt"))
                 .build();
         SignedJWT jwt = new SignedJWT(header, claims);
         jwt.sign(new Ed25519Signer(signingKey));
@@ -309,21 +309,21 @@ class WptValidatorTest {
         String[] parts = jwtString.split("\\.");
         String signature = parts.length > 2 ? parts[2] : "";
 
-        WorkloadProofToken.Claims wptClaims = WorkloadProofToken.Claims.builder()
+        DpopToken.Claims wptClaims = DpopToken.Claims.builder()
                 .expirationTime(expiration)
                 .jwtId(jti)
                 .workloadTokenHash(wth)
                 .build();
-        return WorkloadProofToken.builder()
+        return DpopToken.builder()
                 .claims(wptClaims)
                 .signature(signature)
                 .jwtString(jwtString)
                 .build();
     }
 
-    private WorkloadProofToken createExpiredWpt() {
-        return WorkloadProofToken.builder()
-                .claims(WorkloadProofToken.Claims.builder()
+    private DpopToken createExpiredWpt() {
+        return DpopToken.builder()
+                .claims(DpopToken.Claims.builder()
                         .expirationTime(Date.from(Instant.now().minusSeconds(300)))
                         .jwtId(UUID.randomUUID().toString())
                         .workloadTokenHash("test-wth-hash")
@@ -333,9 +333,9 @@ class WptValidatorTest {
                 .build();
     }
 
-    private WorkloadProofToken createWptWithoutWth() {
-        return WorkloadProofToken.builder()
-                .claims(WorkloadProofToken.Claims.builder()
+    private DpopToken createWptWithoutWth() {
+        return DpopToken.builder()
+                .claims(DpopToken.Claims.builder()
                         .expirationTime(Date.from(Instant.now().plusSeconds(300)))
                         .jwtId(UUID.randomUUID().toString())
                         .workloadTokenHash("   ")
@@ -345,24 +345,24 @@ class WptValidatorTest {
                 .build();
     }
 
-    private WorkloadProofToken tamperWithWptSignature(WorkloadProofToken wpt) {
-        String jwtString = wpt.jwtString();
+    private DpopToken tamperWithWptSignature(DpopToken dpop) {
+        String jwtString = dpop.jwtString();
         if (jwtString != null && jwtString.contains(".")) {
             int lastDotIndex = jwtString.lastIndexOf(".");
             String tamperedJwtString = jwtString.substring(0, lastDotIndex + 1) + "tampered" + jwtString.substring(lastDotIndex + 1);
 
-            return WorkloadProofToken.builder()
-                    .claims(wpt.claims())
-                    .signature(wpt.signature() + "tampered")
+            return DpopToken.builder()
+                    .claims(dpop.claims())
+                    .signature(dpop.signature() + "tampered")
                     .jwtString(tamperedJwtString)
                     .build();
         }
 
-        String tamperedSignature = wpt.signature() + "tampered";
-        return WorkloadProofToken.builder()
-                .claims(wpt.claims())
+        String tamperedSignature = dpop.signature() + "tampered";
+        return DpopToken.builder()
+                .claims(dpop.claims())
                 .signature(tamperedSignature)
-                .jwtString(wpt.jwtString())
+                .jwtString(dpop.jwtString())
                 .build();
     }
 }

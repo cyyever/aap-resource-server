@@ -27,15 +27,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Unit tests for {@link WorkloadIdentityToken}.
+ * Unit tests for {@link CredentialToken}.
  */
-@DisplayName("WorkloadIdentityToken Tests")
-class WorkloadIdentityTokenTest {
+@DisplayName("CredentialToken Tests")
+class CredentialTokenTest {
 
     private Date futureExpirationTime;
     private Date pastExpirationTime;
     private Jwk testJwk;
-    private WorkloadIdentityToken.Claims validClaims;
+    private CredentialToken.Claims validClaims;
 
     @BeforeEach
     void setUp() {
@@ -46,11 +46,11 @@ class WorkloadIdentityTokenTest {
                 .x("test_x_value")
                 .build();
 
-        WorkloadIdentityToken.Claims.Confirmation confirmation = WorkloadIdentityToken.Claims.Confirmation.builder()
+        CredentialToken.Claims.Confirmation confirmation = CredentialToken.Claims.Confirmation.builder()
                 .jwk(testJwk)
                 .build();
 
-        validClaims = WorkloadIdentityToken.Claims.builder()
+        validClaims = CredentialToken.Claims.builder()
                 .issuer("https://idp.example.com")
                 .subject("agent-my-workload")
                 .expirationTime(futureExpirationTime)
@@ -66,7 +66,7 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should build token with all fields")
         void shouldBuildTokenWithAllFields() {
-            WorkloadIdentityToken token = WorkloadIdentityToken.builder()
+            CredentialToken token = CredentialToken.builder()
                     .claims(validClaims)
                     .signature("test-signature")
                     .jwtString("test.jwt.string")
@@ -81,7 +81,7 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should build token with minimal required fields")
         void shouldBuildTokenWithMinimalRequiredFields() {
-            WorkloadIdentityToken token = WorkloadIdentityToken.builder()
+            CredentialToken token = CredentialToken.builder()
                     .claims(validClaims)
                     .build();
 
@@ -94,11 +94,11 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should throw exception when building with null claims")
         void shouldThrowExceptionWhenBuildingWithNullClaims() {
-            assertThatThrownBy(() -> WorkloadIdentityToken.builder()
+            assertThatThrownBy(() -> CredentialToken.builder()
                     .claims(null)
                     .build())
                     .isInstanceOf(IllegalStateException.class)
-                    .hasMessage("claims is REQUIRED for WIT");
+                    .hasMessage("claims is REQUIRED for CT");
         }
     }
 
@@ -109,13 +109,13 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should return true for expired token")
         void shouldReturnTrueForExpiredToken() {
-            WorkloadIdentityToken.Claims expiredClaims = WorkloadIdentityToken.Claims.builder()
+            CredentialToken.Claims expiredClaims = CredentialToken.Claims.builder()
                     .issuer("https://idp.example.com")
                     .subject("agent-expired")
                     .expirationTime(pastExpirationTime)
                     .build();
 
-            WorkloadIdentityToken token = WorkloadIdentityToken.builder()
+            CredentialToken token = CredentialToken.builder()
                     .claims(expiredClaims)
                     .build();
 
@@ -125,7 +125,7 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should return true for valid token")
         void shouldReturnTrueForValidToken() {
-            WorkloadIdentityToken token = WorkloadIdentityToken.builder()
+            CredentialToken token = CredentialToken.builder()
                     .claims(validClaims)
                     .build();
 
@@ -135,13 +135,13 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should return false for expired token in isValid")
         void shouldReturnFalseForExpiredTokenInIsValid() {
-            WorkloadIdentityToken.Claims expiredClaims = WorkloadIdentityToken.Claims.builder()
+            CredentialToken.Claims expiredClaims = CredentialToken.Claims.builder()
                     .issuer("https://idp.example.com")
                     .subject("agent-expired")
                     .expirationTime(pastExpirationTime)
                     .build();
 
-            WorkloadIdentityToken token = WorkloadIdentityToken.builder()
+            CredentialToken token = CredentialToken.builder()
                     .claims(expiredClaims)
                     .build();
 
@@ -151,7 +151,7 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should return false when not expired")
         void shouldReturnFalseWhenNotExpired() {
-            WorkloadIdentityToken token = WorkloadIdentityToken.builder()
+            CredentialToken token = CredentialToken.builder()
                     .claims(validClaims)
                     .build();
 
@@ -166,11 +166,11 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should build claims with all fields")
         void shouldBuildClaimsWithAllFields() {
-            WorkloadIdentityToken.Claims.Confirmation confirmation = WorkloadIdentityToken.Claims.Confirmation.builder()
+            CredentialToken.Claims.Confirmation confirmation = CredentialToken.Claims.Confirmation.builder()
                     .jwk(testJwk)
                     .build();
 
-            WorkloadIdentityToken.Claims claims = WorkloadIdentityToken.Claims.builder()
+            CredentialToken.Claims claims = CredentialToken.Claims.builder()
                     .issuer("https://idp.example.com")
                     .subject("agent-test")
                     .expirationTime(futureExpirationTime)
@@ -189,7 +189,7 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should build claims with minimal required fields")
         void shouldBuildClaimsWithMinimalRequiredFields() {
-            WorkloadIdentityToken.Claims claims = WorkloadIdentityToken.Claims.builder()
+            CredentialToken.Claims claims = CredentialToken.Claims.builder()
                     .subject("agent-test")
                     .expirationTime(futureExpirationTime)
                     .build();
@@ -204,7 +204,7 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should throw exception when building claims with null subject")
         void shouldThrowExceptionWhenBuildingClaimsWithNullSubject() {
-            assertThatThrownBy(() -> WorkloadIdentityToken.Claims.builder()
+            assertThatThrownBy(() -> CredentialToken.Claims.builder()
                     .subject(null)
                     .expirationTime(futureExpirationTime)
                     .build())
@@ -215,7 +215,7 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should throw exception when building claims with empty subject")
         void shouldThrowExceptionWhenBuildingClaimsWithEmptySubject() {
-            assertThatThrownBy(() -> WorkloadIdentityToken.Claims.builder()
+            assertThatThrownBy(() -> CredentialToken.Claims.builder()
                     .subject("")
                     .expirationTime(futureExpirationTime)
                     .build())
@@ -226,7 +226,7 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should throw exception when building claims with null expiration time")
         void shouldThrowExceptionWhenBuildingClaimsWithNullExpirationTime() {
-            assertThatThrownBy(() -> WorkloadIdentityToken.Claims.builder()
+            assertThatThrownBy(() -> CredentialToken.Claims.builder()
                     .subject("agent-test")
                     .expirationTime(null)
                     .build())
@@ -237,7 +237,7 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should check if claims are expired")
         void shouldCheckIfClaimsAreExpired() {
-            WorkloadIdentityToken.Claims expiredClaims = WorkloadIdentityToken.Claims.builder()
+            CredentialToken.Claims expiredClaims = CredentialToken.Claims.builder()
                     .subject("agent-expired")
                     .expirationTime(pastExpirationTime)
                     .build();
@@ -259,7 +259,7 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should build confirmation with JWK")
         void shouldBuildConfirmationWithJwk() {
-            WorkloadIdentityToken.Claims.Confirmation confirmation = WorkloadIdentityToken.Claims.Confirmation.builder()
+            CredentialToken.Claims.Confirmation confirmation = CredentialToken.Claims.Confirmation.builder()
                     .jwk(testJwk)
                     .build();
 
@@ -269,7 +269,7 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should throw exception when building confirmation with null JWK")
         void shouldThrowExceptionWhenBuildingConfirmationWithNullJwk() {
-            assertThatThrownBy(() -> WorkloadIdentityToken.Claims.Confirmation.builder()
+            assertThatThrownBy(() -> CredentialToken.Claims.Confirmation.builder()
                     .jwk(null)
                     .build())
                     .isInstanceOf(IllegalStateException.class)
@@ -284,7 +284,7 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should handle empty signature")
         void shouldHandleEmptySignature() {
-            WorkloadIdentityToken token = WorkloadIdentityToken.builder()
+            CredentialToken token = CredentialToken.builder()
                     .claims(validClaims)
                     .signature("")
                     .build();
@@ -295,7 +295,7 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should handle empty jwtString")
         void shouldHandleEmptyJwtString() {
-            WorkloadIdentityToken token = WorkloadIdentityToken.builder()
+            CredentialToken token = CredentialToken.builder()
                     .claims(validClaims)
                     .jwtString("")
                     .build();
@@ -306,16 +306,16 @@ class WorkloadIdentityTokenTest {
         @Test
         @DisplayName("Should preserve URI-shaped subject verbatim")
         void shouldPreserveUriShapedSubject() {
-            WorkloadIdentityToken.Claims claims = WorkloadIdentityToken.Claims.builder()
-                    .subject("wimse://example.com/agent/my-service")
+            CredentialToken.Claims claims = CredentialToken.Claims.builder()
+                    .subject("agent-my-service")
                     .expirationTime(futureExpirationTime)
                     .build();
 
-            WorkloadIdentityToken token = WorkloadIdentityToken.builder()
+            CredentialToken token = CredentialToken.builder()
                     .claims(claims)
                     .build();
 
-            assertThat(token.getSubject()).isEqualTo("wimse://example.com/agent/my-service");
+            assertThat(token.getSubject()).isEqualTo("agent-my-service");
         }
     }
 }
