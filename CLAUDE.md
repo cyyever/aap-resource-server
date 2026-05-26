@@ -50,14 +50,18 @@ in ~20 lines of their own DI.
 ## Build
 
 ```bash
-# Linux dev host (system javac already points at Java 21)
-mvn -B test
+# Arch Linux dev host (JDK 21 via pacman: jdk21-openjdk)
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk mvn -B test
 # macOS (Temurin via `brew install --cask temurin@21`)
 JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home mvn -B test
 ```
 
-Any JDK ≥ 21 works; CI runs on Temurin 21. macOS has no system `javac`,
-so an explicit `JAVA_HOME` is needed there.
+CI runs on Temurin 21 with `mvn -B -ntp -P format,spotbugs,errorprone clean verify`.
+**Always reproduce on JDK 21 before declaring a build passes** — JDK 26+
+silently skips Error Prone's `-XDaddTypeAnnotationsToSymbol=true`
+requirement, so an `errorprone` profile failure on CI will pass locally
+on a newer JDK. If the system default is 26, point `JAVA_HOME` at the 21
+install for the full CI command above.
 
 The pom only declares: nimbus-jose-jwt, Jackson (databind/annotations/
 jsr310), SLF4J, jakarta.servlet/validation (provided/test), JUnit 5,
