@@ -16,7 +16,6 @@
 package ai.shao.aap.rs.core.crypto;
 
 import ai.shao.aap.rs.core.model.jwk.Jwk;
-import java.util.HashMap;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
@@ -55,7 +54,7 @@ public final class JwkConverter {
         return builder.build();
     }
 
-    public static @Nullable String getClaimAsString(Map<String, Object> map, String key) {
+    private static @Nullable String getClaimAsString(Map<String, Object> map, String key) {
         Object value = map.get(key);
         if (value == null) {
             return null;
@@ -66,17 +65,5 @@ public final class JwkConverter {
         throw new IllegalArgumentException(
                 "Invalid claim '%s': expected String, got %s"
                         .formatted(key, value.getClass().getSimpleName()));
-    }
-
-    public static Map<String, Object> convertJwkToMap(Jwk jwk) {
-        Map<String, Object> jwkMap = new HashMap<>();
-        jwkMap.put("kty", "OKP");
-        jwkMap.put("crv", "Ed25519");
-        jwkMap.put("alg", "EdDSA");
-        jwkMap.put("x", jwk.x());
-        if (jwk.keyId() != null) {
-            jwkMap.put("kid", jwk.keyId());
-        }
-        return jwkMap;
     }
 }

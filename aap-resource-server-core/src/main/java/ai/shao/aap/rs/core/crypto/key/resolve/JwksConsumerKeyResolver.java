@@ -25,7 +25,6 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -241,10 +240,6 @@ public final class JwksConsumerKeyResolver implements KeyResolver {
         lastNotFoundFetch.remove(consumerName);
         refreshInFlight.remove(consumerName);
         logger.info("Cleared JWKS cache for consumer: {}", consumerName);
-    }
-
-    public @Nullable String getConsumerEndpoint(String consumerName) {
-        return consumerEndpoints.get(consumerName);
     }
 
     private record CachedJwks(JWKSet set, Instant expiresAt) {}

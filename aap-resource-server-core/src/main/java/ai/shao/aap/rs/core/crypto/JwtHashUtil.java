@@ -72,18 +72,6 @@ public final class JwtHashUtil {
         return computeSha256Hash(ctJwtString);
     }
 
-    /**
-     * Computes the Access Token hash (ath).
-     *
-     * @param accessToken the access token
-     * @return the base64url-encoded SHA-256 hash of the access token
-     * @throws IllegalArgumentException if the access token is null or empty
-     * @throws IllegalStateException if SHA-256 algorithm is not available
-     */
-    public static String computeAccessTokenHash(String accessToken) {
-        return computeSha256Hash(accessToken);
-    }
-
     // Private constructor to prevent instantiation
     private JwtHashUtil() {
         throw new UnsupportedOperationException("Utility class cannot be instantiated");

@@ -34,9 +34,6 @@ public record CredentialToken(
         @JsonProperty("signature") @Nullable String signature,
         @JsonProperty("jwtString") @Nullable String jwtString) {
 
-    /** Required {@code typ} JOSE header value. */
-    public static final String MEDIA_TYPE = "ct+jwt";
-
     public CredentialToken {
         if (claims == null) {
             throw new IllegalStateException("claims is REQUIRED for CT");
